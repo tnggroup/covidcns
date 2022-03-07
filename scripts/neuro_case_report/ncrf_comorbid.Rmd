@@ -1,0 +1,480 @@
+---
+title: "NCRF Comorbid"
+author: "Chelsea Mika Malouf"
+date: "31/01/2022"
+output: html_document
+---
+
+#Set up 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+)
+```
+
+```{r Delete everything in your global environment}
+remove(list = ls())
+```
+
+```{r Read in functions}
+source(file = "../functions/remove_duplicates.R")
+source(file = "../functions/sumscores.R")
+source(file = "../functions/package_check.R")
+source(file = "../functions/imp_check.R")
+source(file = "../functions/add_numeric.R")
+```
+
+```{r Install load dependencies}
+packages <- c("summarytools",
+              "sjlabelled",
+              "Amelia",
+              "gtsummary",
+              "tidyverse")
+package_check(packages)
+```
+
+```{r Recent date}
+date <- Sys.Date()
+date
+```
+
+
+```{r Read in file with path to ilovedata channel on teams}
+source(file = "../../credentials/paths.R")
+```
+
+
+## Read in covid cns data
+```{r Covid cns load data} 
+ncrf_dat <- read_rds(
+  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/neuro_case_report/ncrf_comorbid_covid_cns.rds")
+  )
+  
+# Check variable names in dataframe
+ncrf_dat %>%
+  colnames()
+
+# Inspect dimensions of dataframe 
+ncrf_dat %>%
+  dim()
+```
+
+```{r covid cns specify excluded columns}
+exclude_cols_numeric <- c(
+  "ID",
+  "sample",
+  "startDate",
+  "endDate",
+  "ncrf_comorbid.type_of_movement_disorder.txt",
+  "ncrf_comorbid.other_neurological_disease.txt",
+  "ncrf_comorbid.psychiatricpsychological_disorder.txt",
+  "ncrf_comorbid.any_other_issue_of_significance_to_note.txt"
+  )
+```
+
+```{r CNS select}
+ncrf_dat_id <- ncrf_dat %>% #new dataset with ID
+  drop_na(externalDataReference) %>% # Drop participants with no ID
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
+  add_column(sample = "CNS",
+             .after = "externalDataReference") %>% # Create new sample column
+  select(
+         ID = externalDataReference, # ID
+         sample,
+         startDate,
+         endDate,
+         ncrf_comorbid.hypertension,
+         ncrf_comorbid.current_tobacco_smoking,
+         ncrf_comorbid.current_ecigarette_smoking,
+         ncrf_comorbid.hypercholesterolaemia,
+         ncrf_comorbid.muscular_disease,
+         ncrf_comorbid.multiple_sclerosis,
+         ncrf_comorbid.movement_disorder,
+         ncrf_comorbid.dementia,
+         ncrf_comorbid.epilepsy,
+         ncrf_comorbid.ischemic_stroke,
+         ncrf_comorbid.hemorrhagic_stroke,
+         ncrf_comorbid.diabetes,
+         ncrf_comorbid.motor_neuron_disease,
+         ncrf_comorbid.other_neurological_disease,
+         ncrf_comorbid.atrial_fibrillation,
+         ncrf_comorbid.hiv,
+         ncrf_comorbid.psychiatricpsychological_disorder,
+         ncrf_comorbid.brain_cancer,
+         ncrf_comorbid.chronic_cardiac_disease,
+         ncrf_comorbid.chronic_kidney_disease,
+         ncrf_comorbid.tb,
+         ncrf_comorbid.tb.1,
+         ncrf_comorbid.malignant_neoplasm,
+         ncrf_comorbid.myasthenia_gravis,
+         ncrf_comorbid.developmental_delay,
+         ncrf_comorbid.chronic_pulmonary_disease,
+         ncrf_comorbid.chronic_liver_disease,
+         ncrf_comorbid.autoimmune_disease,
+         ncrf_comorbid.type_of_movement_disorder.txt,
+         ncrf_comorbid.type_of_diabetes,
+         ncrf_comorbid.other_neurological_disease.txt,
+         ncrf_comorbid.psychiatricpsychological_disorder.txt,
+         ncrf_comorbid.clinical_frailty_scale,
+         ncrf_comorbid.any_other_issue_of_significance_to_note.txt
+         ) %>%
+  add_numeric(exclude = exclude_cols_numeric)
+
+# Inspect colnames
+ncrf_dat_id %>%
+  colnames()
+```
+
+```{r cns number excluded}
+# Inspect dimensions of new data set
+ncrf_dat_id %>%
+  dim()
+
+# Inspect number of rows dropped
+ncrf_excluded <- dim(ncrf_dat_id)[1] - dim(ncrf_dat)[1]
+ncrf_excluded
+```
+
+```{r inspect numeric variables}
+ncrf_dat_id %>%
+   select(all_of(ends_with("numeric"))) %>%
+   tbl_summary(missing_text = "Missing")
+```
+
+```{r inspect missingness}
+miss_map <- ncrf_dat_id %>% 
+   missmap()
+ 
+miss_map
+```
+
+
+```{r Recode NA values}
+ dat <- ncrf_dat_id %>%
+   mutate(across(ends_with("numeric"),
+                 ~case_when(
+                   . == -55 ~ -555,
+                   . == -77 ~ -777,
+                   . == -88 ~ -888,
+                   . == -99 ~ -999,
+                   TRUE ~ .)))
+```
+
+
+# Cleaning Categorical variables
+```{r vector categorical variables yes or no}
+variables_categorical_yes_no <-
+  c(
+    "ncrf_comorbid.hypertension",
+    "ncrf_comorbid.current_tobacco_smoking",
+    "ncrf_comorbid.current_ecigarette_smoking",
+    "ncrf_comorbid.hypercholesterolaemia",
+    "ncrf_comorbid.muscular_disease",
+    "ncrf_comorbid.multiple_sclerosis",
+    "ncrf_comorbid.movement_disorder",
+    "ncrf_comorbid.dementia",
+    "ncrf_comorbid.epilepsy",
+    "ncrf_comorbid.ischemic_stroke",
+    "ncrf_comorbid.hemorrhagic_stroke",
+    "ncrf_comorbid.diabetes",
+    "ncrf_comorbid.motor_neuron_disease",
+    "ncrf_comorbid.other_neurological_disease",
+    "ncrf_comorbid.atrial_fibrillation",
+    "ncrf_comorbid.hiv",
+    "ncrf_comorbid.psychiatricpsychological_disorder",
+    "ncrf_comorbid.brain_cancer",
+    "ncrf_comorbid.chronic_cardiac_disease",
+    "ncrf_comorbid.chronic_kidney_disease",
+    "ncrf_comorbid.tb",
+    "ncrf_comorbid.tb.1",
+    "ncrf_comorbid.malignant_neoplasm",
+    "ncrf_comorbid.myasthenia_gravis",
+    "ncrf_comorbid.developmental_delay",
+    "ncrf_comorbid.chronic_pulmonary_disease",
+    "ncrf_comorbid.chronic_liver_disease",
+    "ncrf_comorbid.autoimmune_disease"
+    )
+variables_categorical_yes_no
+```
+
+```{r vector categorical values yes or no}
+values_categorical_yes_no <- 
+  c(
+    "Yes",
+    "No",
+    "Unknown",
+    "Seen but not answered",
+    NA
+  )
+values_categorical_yes_no
+```
+
+```{r imp_check categorical variables yes or no}
+imp_check(data = dat,
+          variables = variables_categorical_yes_no,
+          values = values_categorical_yes_no)
+#There are no implausible values in the dataset. Can leave these variables as they are.
+```
+
+
+```{r vector categorical variables diabetes}
+variables_categorical_diabetes <-
+  c(
+    "ncrf_comorbid.type_of_diabetes"
+    )
+variables_categorical_diabetes
+```
+
+```{r vector categorical values diabetes}
+values_categorical_diabetes <- 
+  c(
+    "Type 1",
+    "Type 2 on oral medication",
+    "Type 2 on insulin",
+    "Seen but not answered",
+    NA
+  )
+values_categorical_diabetes
+```
+
+```{r imp_check categorical variables diabetes}
+imp_check(data = dat,
+          variables = variables_categorical_diabetes,
+          values = values_categorical_diabetes)
+#There are no implausible values in the dataset. Can leave these variables as they are.
+```
+
+
+```{r vector categorical variables frailty}
+variables_categorical_frailty <-
+  c(
+    "ncrf_comorbid.clinical_frailty_scale"
+    )
+variables_categorical_frailty
+```
+
+```{r vector categorical values frailty}
+values_categorical_frailty <- 
+  c(
+    "Very fit",
+    "Fit",
+    "Managing well",
+    "Living with very mild frailty",
+    "Living with mild frailty",
+    "Living wiht moderate frailty",
+    "Living with severe frailty",
+    "Living with very severe Frailty",
+    "Terminally ill",
+    "Seen but not answered",
+    NA
+  )
+values_categorical_frailty
+```
+
+```{r imp_check categorical variables frailty}
+imp_check(data = dat,
+          variables = variables_categorical_frailty,
+          values = values_categorical_frailty)
+#There are no implausible values in the dataset. Can leave these variables as they are
+```
+
+
+# Numeric variables
+```{r vector numeric variables 0_1}
+variables_numeric_0_1 <-
+  c(
+    "ncrf_comorbid.hypertension_numeric",
+    "ncrf_comorbid.current_tobacco_smoking_numeric",
+    "ncrf_comorbid.current_ecigarette_smoking_numeric",
+    "ncrf_comorbid.hypercholesterolaemia_numeric",
+    "ncrf_comorbid.muscular_disease_numeric",
+    "ncrf_comorbid.multiple_sclerosis_numeric",
+    "ncrf_comorbid.movement_disorder_numeric",
+    "ncrf_comorbid.dementia_numeric",
+    "ncrf_comorbid.epilepsy_numeric",
+    "ncrf_comorbid.ischemic_stroke_numeric",
+    "ncrf_comorbid.hemorrhagic_stroke_numeric",
+    "ncrf_comorbid.diabetes_numeric",
+    "ncrf_comorbid.motor_neuron_disease_numeric",
+    "ncrf_comorbid.other_neurological_disease_numeric",
+    "ncrf_comorbid.atrial_fibrillation_numeric",
+    "ncrf_comorbid.hiv_numeric",
+    "ncrf_comorbid.psychiatricpsychological_disorder_numeric",
+    "ncrf_comorbid.brain_cancer_numeric",
+    "ncrf_comorbid.chronic_cardiac_disease_numeric",
+    "ncrf_comorbid.chronic_kidney_disease_numeric",
+    "ncrf_comorbid.tb_numeric",
+    "ncrf_comorbid.tb.1_numeric",
+    "ncrf_comorbid.malignant_neoplasm_numeric",
+    "ncrf_comorbid.myasthenia_gravis_numeric",
+    "ncrf_comorbid.developmental_delay_numeric",
+    "ncrf_comorbid.chronic_pulmonary_disease_numeric",
+    "ncrf_comorbid.chronic_liver_disease_numeric",
+    "ncrf_comorbid.autoimmune_disease_numeric"
+    )
+variables_numeric_0_1
+```
+
+```{r vector numeric values 0_1}
+values_numeric_0_1 <- 
+  c(
+    0,
+    1,
+    NA,
+    -777,
+    -888
+  )
+values_numeric_0_1
+```
+
+```{r imp_check numeric variables 0_1}
+imp_check(data = dat,
+          variables = variables_numeric_0_1,
+          values = values_numeric_0_1)
+#There are no implausible values in the dataset. Can leave these variables as they are
+```
+
+
+```{r vector numeric variables 1_3}
+variables_numeric_1_3 <-
+  c(
+    "ncrf_comorbid.type_of_diabetes_numeric"
+    )
+variables_numeric_1_3
+```
+
+```{r vector numeric values 1_3}
+values_numeric_1_3 <- 
+  c(
+    1,
+    2,
+    3,
+    -777,
+    NA
+  )
+values_numeric_1_3
+```
+
+```{r imp_check numeric variables 1_3}
+imp_check(data = dat,
+          variables = variables_numeric_1_3,
+          values = values_numeric_1_3)
+#There are no implausible values in the dataset. Can leave these variables as they are.
+```
+
+
+```{r vector numeric variables 1_9}
+variables_numeric_1_9 <-
+  c(
+    "ncrf_comorbid.clinical_frailty_scale_numeric"
+    )
+variables_numeric_1_9
+```
+
+```{r vector numeric values 1_9}
+values_numeric_1_9 <- 
+  c(
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    -777,
+    NA
+  )
+values_numeric_1_9
+```
+
+```{r imp_check numeric variables 1_9}
+imp_check(data = dat,
+          variables = variables_numeric_1_9,
+          values = values_numeric_1_9)
+#There are no implausible values in the dataset. Can leave these variables as they are.
+```
+
+
+# Save cleaned data
+## Export variables
+
+```{r Export variables}
+export_variables <- c(
+         "ID",
+         "sample",
+         "startDate",
+         "endDate",
+         "ncrf_comorbid.hypertension",
+         "ncrf_comorbid.hypertension_numeric",
+         "ncrf_comorbid.current_tobacco_smoking",
+         "ncrf_comorbid.current_tobacco_smoking_numeric",
+         "ncrf_comorbid.current_ecigarette_smoking",
+         "ncrf_comorbid.current_ecigarette_smoking_numeric",
+         "ncrf_comorbid.hypercholesterolaemia",
+         "ncrf_comorbid.hypercholesterolaemia_numeric",
+         "ncrf_comorbid.muscular_disease",
+         "ncrf_comorbid.muscular_disease_numeric",
+         "ncrf_comorbid.multiple_sclerosis",
+         "ncrf_comorbid.multiple_sclerosis_numeric",
+         "ncrf_comorbid.movement_disorder",
+         "ncrf_comorbid.movement_disorder_numeric",
+         "ncrf_comorbid.dementia",
+         "ncrf_comorbid.dementia_numeric",
+         "ncrf_comorbid.epilepsy",
+         "ncrf_comorbid.epilepsy_numeric",
+         "ncrf_comorbid.ischemic_stroke",
+         "ncrf_comorbid.ischemic_stroke_numeric",
+         "ncrf_comorbid.hemorrhagic_stroke",
+         "ncrf_comorbid.hemorrhagic_stroke_numeric",
+         "ncrf_comorbid.diabetes",
+         "ncrf_comorbid.diabetes_numeric",
+         "ncrf_comorbid.motor_neuron_disease",
+         "ncrf_comorbid.motor_neuron_disease_numeric",
+         "ncrf_comorbid.other_neurological_disease",
+         "ncrf_comorbid.other_neurological_disease_numeric",
+         "ncrf_comorbid.atrial_fibrillation",
+         "ncrf_comorbid.atrial_fibrillation_numeric",
+         "ncrf_comorbid.hiv",
+         "ncrf_comorbid.hiv_numeric",
+         "ncrf_comorbid.psychiatricpsychological_disorder",
+         "ncrf_comorbid.psychiatricpsychological_disorder_numeric",
+         "ncrf_comorbid.brain_cancer",
+         "ncrf_comorbid.brain_cancer_numeric",
+         "ncrf_comorbid.chronic_cardiac_disease",
+         "ncrf_comorbid.chronic_cardiac_disease_numeric",
+         "ncrf_comorbid.chronic_kidney_disease",
+         "ncrf_comorbid.chronic_kidney_disease_numeric",
+         "ncrf_comorbid.tb",
+         "ncrf_comorbid.tb_numeric",
+         "ncrf_comorbid.tb.1",
+         "ncrf_comorbid.tb.1_numeric",
+         "ncrf_comorbid.malignant_neoplasm",
+         "ncrf_comorbid.malignant_neoplasm_numeric",
+         "ncrf_comorbid.myasthenia_gravis",
+         "ncrf_comorbid.myasthenia_gravis_numeric",
+         "ncrf_comorbid.developmental_delay",
+         "ncrf_comorbid.developmental_delay_numeric",
+         "ncrf_comorbid.chronic_pulmonary_disease",
+         "ncrf_comorbid.chronic_pulmonary_disease_numeric",
+         "ncrf_comorbid.chronic_liver_disease",
+         "ncrf_comorbid.chronic_liver_disease_numeric",
+         "ncrf_comorbid.autoimmune_disease",
+         "ncrf_comorbid.autoimmune_disease_numeric",
+         "ncrf_comorbid.type_of_diabetes",
+         "ncrf_comorbid.type_of_diabetes_numeric",
+         "ncrf_comorbid.clinical_frailty_scale",
+         "ncrf_comorbid.clinical_frailty_scale_numeric"
+         )
+```
+
+```{r Save clean data as a .rds file}
+dat %>% 
+  select(all_of(export_variables)) %>% 
+  saveRDS(file = 
+            paste0(ilovedata, "/data/latest_freeze/covidcns/ncrf_comorbid_covidcns_clean.rds"))
+```

@@ -1,0 +1,670 @@
+---
+title: 'COVID CNS: Cleaning ethnicity'
+author: "Jessica Mundy"
+date: "14/01/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Set up
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+```{r Clear global environment}
+rm(list=ls())
+```
+
+```{r Read in functions}
+source(file = "../functions/add_numeric_1.R")
+source(file = "../functions/remove_duplicates.R")
+source(file = "../functions/sumscores.R")
+source(file = "../functions/package_check.R")
+source(file = "../functions/imp_check.R")
+```
+
+Note: always load tidyverse last
+```{r Install load dependencies}
+packages = c(
+  "summarytools",
+  "sjlabelled",
+  "Amelia",
+  "knitr",
+  "gtsummary",
+  "tidyverse"
+  )
+package_check(packages)
+```
+
+```{r Get system date}
+date <- Sys.Date()
+date
+```
+
+```{r Source the credentials file}
+source("../credentials/paths.R")
+```
+
+# Read in the data 
+```{r COVID CNS ethnicity data}
+ethn <- read_rds(file = 
+                   paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/dem_covid_cns.rds")
+                 )
+
+# check
+ethn %>% 
+  dim()
+
+ethn %>% 
+  colnames()
+```
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+```{r Specify columns to be excluded from add_numeric function}
+exclude_cols_numeric <- c(
+  "ID",
+  "sample",
+  "startDate",
+  "endDate",
+  "dem.othertext.txt"
+  )
+```
+
+
+## Select & rename relevant columns 
+```{r Select and rename relevant columns}
+ethn_id <- ethn %>% #new dataset with ID
+  drop_na(externalDataReference) %>% # Drop NAs
+  distinct(externalDataReference, .keep_all = TRUE) %>% # Changed to distinct due to NA coercion
+  add_column(sample = "COVIDCNS",
+             .after = "externalDataReference") %>% # Create new sample column
+  select(
+         ID = externalDataReference, # ID
+         sample,
+         startDate,
+         endDate,
+         dem.british_mixed_british,
+         dem.irish,
+         dem.northern_irish,
+         dem.any_other_white_background,
+         dem.white_and_black_caribbean,
+         dem.white_and_black_africa,
+         dem.white_and_asian,
+         dem.any_other_mixed_background,
+         dem.indian_or_british_indian,
+         dem.pakistani_or_british_pakistani,
+         dem.bangladeshi_or_british_bangladeshi,
+         dem.any_other_asian_background,
+         dem.caribbean,
+         dem.african,
+         dem.any_other_black_background,
+         dem.chinese,
+         dem.any_other_ethnic_group,
+         dem.other,
+         dem.othertext.txt
+        ) %>%
+   add_numeric_1(exclude = exclude_cols_numeric)
+
+# Inspect colnames
+ethn_id %>% 
+  colnames()
+```
+
+```{r Number excluded}
+# Inspect dimensions
+dim(ethn_id)
+# Differences
+ethn_excluded <- dim(ethn_id)[1]-dim(ethn)[1]
+ethn_excluded
+```
+`ethn_excluded` COVID CNS participants excluded due to missing data
+
+### Inspect numeric variables
+```{r Inspect numeric variables}
+ethn_id %>%
+  select(all_of(ends_with("numeric"))) %>%
+  tbl_summary(missing_text = "Missing")
+
+ethn_id %>% 
+  select(ends_with("numeric")) %>% 
+  freq()
+```
+
+# Data cleaning
+
+# Numeric variables
+
+# Select numeric ethnicity variables for cleaning 
+```{r Select numeric ethnicity variables for cleaning }
+ethn_vars_numeric <- c(
+   "dem.british_mixed_british_numeric",
+   "dem.irish_numeric",
+   "dem.northern_irish_numeric",
+   "dem.any_other_white_background_numeric",
+   "dem.white_and_black_caribbean_numeric",
+   "dem.white_and_black_africa_numeric",
+   "dem.white_and_asian_numeric",
+   "dem.any_other_mixed_background_numeric",
+   "dem.indian_or_british_indian_numeric",
+   "dem.pakistani_or_british_pakistani_numeric",
+   "dem.bangladeshi_or_british_bangladeshi_numeric",
+   "dem.any_other_asian_background_numeric",
+   "dem.caribbean_numeric",
+   "dem.african_numeric",
+   "dem.any_other_black_background_numeric",
+   "dem.chinese_numeric",
+   "dem.any_other_ethnic_group_numeric",
+   "dem.other_numeric"
+)
+```
+
+# Vector of plausible values for the numeric ethnicity variables
+```{r Vector of plausible values for the numeric ethnicity variables}
+ethn_values_numeric <- c(
+  0,
+  1,
+  -777,
+  NA
+)
+```
+
+```{r imp_check numeric ethnicity variables}
+imp_check(data = ethn_id,
+          variables = ethn_vars_numeric,
+          values = ethn_values_numeric)
+```
+
+# Non-numeric variables
+
+## British, Mixed British
+
+### Select "British, Mixed British" variable for cleaning
+```{r Select "British, Mixed British" variable for cleaning}
+british_variable <- c(
+  "dem.british_mixed_british"
+)
+```
+
+
+### Vector of plausible values for "British, Mixed British" variable
+```{r Vector of plausible values for "British, Mixed British" variable}
+british_values <- c(
+  "British, Mixed British",
+  "Not British, Mixed British",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "British, Mixed British" variable}
+imp_check(data = ethn_id,
+          variables = british_variable,
+          values = british_values)
+```
+## Irish
+
+### Select "Irish" variable for cleaning
+```{r Select "Irish" variable for cleaning}
+irish_variable <- c(
+  "dem.irish"
+)
+```
+
+
+### Vector of plausible values for "Irish" variable
+```{r Vector of plausible values for "Irish" variable}
+irish_values <- c(
+  "Irish",
+  "Not Irish",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "Irish" variable}
+imp_check(data = ethn_id,
+          variables = irish_variable,
+          values = irish_values)
+```
+## Northern Irish
+
+### Select "Northern Irish" variable for cleaning
+```{r Select "Northern Irish" variable for cleaning}
+n_irish_variable <- c(
+  "dem.northern_irish"
+)
+```
+
+
+### Vector of plausible values for "Northern Irish" variable
+```{r Vector of plausible values for "Northern Irish" variable}
+n_irish_values <- c(
+  "Northern Irish",
+  "Not Northern Irish",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "Northern Irish" variable}
+imp_check(data = ethn_id,
+          variables = n_irish_variable,
+          values = n_irish_values)
+```
+## Any other White background
+
+### Select "Any other White background" variable for cleaning
+```{r Select "Any other White background" variable for cleaning}
+aowb_variable <- c(
+  "dem.any_other_white_background"
+)
+```
+
+
+### Vector of plausible values for "Any other White background" variable
+```{r Vector of plausible values for "Any other White background" variable}
+aowb_values <- c(
+  "Any other White background",
+  "Not Any other White background",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "Any other White background" variable}
+imp_check(data = ethn_id,
+          variables = aowb_variable,
+          values = aowb_values)
+```
+
+### White and Black Caribbean
+
+### Select "White and Black Caribbean" variable for cleaning
+```{r Select "White and Black Caribbean" variable for cleaning}
+wbcarab_variable <- c(
+  "dem.white_and_black_caribbean"
+)
+```
+
+### Vector of plausible values for "White and Black Caribbean" variable
+```{r Vector of plausible values for "White and Black Caribbean" variable}
+wbcarab_values <- c(
+  "White and Black Caribbean",
+  "Not White and Black Caribbean",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "White and Black Caribbean" variable}
+imp_check(data = ethn_id,
+          variables = wbcarab_variable,
+          values = wbcarab_values)
+```
+
+
+### White and Black Africa
+
+### Select "White and Black Africa" variable for cleaning
+```{r Select "White and Black Africa" variable for cleaning}
+wbafrica_variable <- c(
+  "dem.white_and_black_africa"
+)
+```
+
+
+### Vector of plausible values for "White and Black Africa" variable
+```{r Vector of plausible values for "White and Black Africa" variable}
+wbafrica_values <- c(
+  "White and Black Africa",
+  "Not White and Black Africa",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "White and Black Africa" variable}
+imp_check(data = ethn_id,
+          variables = wbafrica_variable,
+          values = wbafrica_values)
+```
+
+### White and Asian
+
+### Select "White and Asian" variable for cleaning
+```{r Select "White and Asian" variable for cleaning}
+w_asian_variable <- c(
+  "dem.white_and_asian"
+)
+```
+
+### Vector of plausible values for "White and Asian" variable
+```{r Vector of plausible values for "White and Asian" variable}
+w_asian_values <- c(
+  "White and Asian",
+  "Not White and Asian",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "White and Asian" variable}
+imp_check(data = ethn_id,
+          variables = w_asian_variable,
+          values = w_asian_values)
+```
+
+## Any other mixed background
+
+### Select "Any other mixed background" variable for cleaning
+```{r Select "Any other mixed background" variable for cleaning}
+aomb_variable <- c(
+  "dem.any_other_mixed_background"
+)
+```
+
+### Vector of plausible values for "Any other mixed background" variable
+```{r Vector of plausible values for "Any other mixed background" variable}
+aomb_values <- c(
+  "Any other mixed background",
+  "Not Any other mixed background",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "Any other mixed background" variable}
+imp_check(data = ethn_id,
+          variables = aomb_variable,
+          values = aomb_values)
+```
+
+## Indian or British Indian
+
+### Select "Indian or British Indian" variable for cleaning
+```{r Select "Indian or British Indian" variable for cleaning}
+ind_br_ind_variable <- c(
+  "dem.indian_or_british_indian"
+)
+```
+
+### Vector of plausible values for "Indian or British Indian" variable
+```{r Vector of plausible values for "Indian or British Indian" variable}
+ind_br_ind_values <- c(
+  "Indian or British Indian",
+  "Not Indian or British Indian",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "Indian or British Indian" variable}
+imp_check(data = ethn_id,
+          variables = ind_br_ind_variable,
+          values = ind_br_ind_values)
+```
+
+
+## Pakistani or British Pakistani
+
+### Select "Pakistani or British Pakistani" variable for cleaning
+```{r Select "Pakistani or British Pakistani" variable for cleaning}
+p_br_p_variable <- c(
+  "dem.pakistani_or_british_pakistani"
+)
+```
+
+### Vector of plausible values for "Pakistani or British Pakistani" variable
+```{r Vector of plausible values for "Pakistani or British Pakistani" variable}
+p_br_p_values <- c(
+  "Pakistani or British Pakistani",
+  "Not Pakistani or British Pakistani",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "Pakistani or British Pakistani" variable}
+imp_check(data = ethn_id,
+          variables = p_br_p_variable,
+          values = p_br_p_values)
+```
+## Bangladeshi or British Bangladeshi
+
+### Select "Bangladeshi or British Bangladeshi" variable for cleaning
+```{r Select "Bangladeshi or British Bangladeshi" variable for cleaning}
+b_br_b_variable <- c(
+  "dem.bangladeshi_or_british_bangladeshi"
+)
+```
+
+### Vector of plausible values for "Bangladeshi or British Bangladeshi" variable
+```{r Vector of plausible values for "Bangladeshi or British Bangladeshi" variable}
+b_br_b_values <- c(
+  "Bangladeshi or British Bangladeshi",
+  "Not Bangladeshi or British Bangladeshi",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "Bangladeshi or British Bangladeshi" variable}
+imp_check(data = ethn_id,
+          variables = b_br_b_variable,
+          values = b_br_b_values)
+```
+## Any other Asian background
+
+### Select "Any other Asian background" variable for cleaning
+```{r Select "Any other Asian background" variable for cleaning}
+aoab_variable <- c(
+  "dem.any_other_asian_background"
+)
+```
+
+### Vector of plausible values for "Any other Asian background" variable
+```{r Vector of plausible values for "Any other Asian background" variable}
+aoab_values <- c(
+  "Any other Asian Background",
+  "Not Any other Asian Background",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "Any other Asian background" variable}
+imp_check(data = ethn_id,
+          variables = aoab_variable,
+          values = aoab_values)
+```
+
+## Caribbean
+
+### Select "Caribbean" variable for cleaning
+```{r Select "Caribbean" variable for cleaning}
+carab_variable <- c(
+  "dem.caribbean"
+)
+```
+
+### Vector of plausible values for "Caribbean" variable
+```{r Vector of plausible values for "Caribbean" variable}
+carab_values <- c(
+  "Caribbean",
+  "Not Caribbean",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "Caribbean" variable}
+imp_check(data = ethn_id,
+          variables = carab_variable,
+          values = carab_values)
+```
+
+## African
+
+### Select "African" variable for cleaning
+```{r Select "African" variable for cleaning}
+african_variable <- c(
+  "dem.african"
+)
+```
+
+### Vector of plausible values for "African" variable
+```{r Vector of plausible values for "African" variable}
+african_values <- c(
+  "African",
+  "Not African",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "African" variable}
+imp_check(data = ethn_id,
+          variables = african_variable,
+          values = african_values)
+```
+
+
+## Any other Black Background
+
+### Select "Any other Black Background" variable for cleaning
+```{r Select "Any other Black Background" variable for cleaning}
+aobb_variable <- c(
+  "dem.any_other_black_background"
+)
+```
+
+### Vector of plausible values for "Any other Black Background" variable
+```{r Vector of plausible values for "Any other Black Background" variable}
+aobb_values <- c(
+  "Any other Black Background",
+  "Not Any other Black Background",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "Any other Black Background" variable}
+imp_check(data = ethn_id,
+          variables = aobb_variable,
+          values = aobb_values)
+```
+
+## Chinese
+
+### Select "Chinese" variable for cleaning
+```{r Select "Chinese" variable for cleaning}
+chinese_variable <- c(
+  "dem.chinese"
+)
+```
+
+### Vector of plausible values for "Chinese" variable
+```{r Vector of plausible values for "Chinese" variable}
+chinese_values <- c(
+  "Chinese",
+  "Not Chinese",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "Chinese" variable}
+imp_check(data = ethn_id,
+          variables = chinese_variable,
+          values = chinese_values)
+```
+
+## Any other ethnic group
+
+### Select "Any other ethnic group" variable for cleaning
+```{r Select "Any other ethnic group" variable for cleaning}
+aoeg_variable <- c(
+  "dem.any_other_ethnic_group"
+)
+```
+
+### Vector of plausible values for "Any other ethnic group" variable
+```{r Vector of plausible values for "Any other ethnic group" variable}
+aoeg_values <- c(
+  "Any other ethnic group",
+  "Not Any other ethnic group",
+  "Seen but not answered",
+  NA
+)
+```
+
+```{r imp_check "Any other ethnic group" variable}
+imp_check(data = ethn_id,
+          variables = aoeg_variable,
+          values = aoeg_values)
+```
+
+# Save clean data
+
+## Export variables
+
+```{r Export variables}
+export_variables <- c(
+  "ID",
+  "sample"  , 
+  "startDate",                                       
+  "endDate",          
+  "dem.british_mixed_british" ,             
+  "dem.irish",                   
+  "dem.northern_irish",              
+  "dem.any_other_white_background",  
+  "dem.white_and_black_caribbean",    
+  "dem.white_and_black_africa",  
+  "dem.white_and_asian",        
+  "dem.any_other_mixed_background",   
+  "dem.indian_or_british_indian",
+  "dem.pakistani_or_british_pakistani",
+  "dem.bangladeshi_or_british_bangladeshi",        
+  "dem.any_other_asian_background",
+  "dem.caribbean",                            
+  "dem.african",                                   
+  "dem.any_other_black_background", 
+  "dem.chinese",                              
+  "dem.any_other_ethnic_group",                    
+  "dem.other",         
+  "dem.othertext.txt",    
+  "dem.british_mixed_british_numeric", 
+  "dem.irish_numeric",    
+  "dem.northern_irish_numeric",                   
+  "dem.any_other_white_background_numeric",       
+  "dem.white_and_black_caribbean_numeric", 
+  "dem.white_and_black_africa_numeric",            
+  "dem.white_and_asian_numeric",                   
+  "dem.any_other_mixed_background_numeric",  
+  "dem.indian_or_british_indian_numeric",           
+  "dem.pakistani_or_british_pakistani_numeric",    
+  "dem.bangladeshi_or_british_bangladeshi_numeric",
+  "dem.any_other_asian_background_numeric",  
+  "dem.caribbean_numeric", 
+  "dem.african_numeric",   
+  "dem.any_other_black_background_numeric",
+  "dem.chinese_numeric",                           
+  "dem.any_other_ethnic_group_numeric",   
+  "dem.other_numeric"                           
+)
+```
+
+```{r Save clean data as a .rds file}
+ethn_id %>% 
+  select(all_of(export_variables)) %>% 
+  saveRDS(file = 
+            paste0(ilovedata, "/data/latest_freeze/covidcns/ethnicity_covidcns_clean.rds"))
+```
+
+

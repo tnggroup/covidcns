@@ -1,0 +1,387 @@
+---
+title: "GAD-7 Cleaning (CovidCNS)"
+author: "Abigail ter Kuile"
+date: "19/02/2022"
+output: html_document
+---
+# Set up
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      comment=NA,
+                      prompt=FALSE,
+                      cache=FALSE)
+```
+
+## Delete everything in your global environment
+```{r Delete everything in your global environment}
+remove(list = ls())
+```
+
+Add the add_numeric function - used to convert character variables into numeric variables.
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+```{r Read in functions}
+source(file = "../functions/add_numeric.R")
+source(file = "../functions/remove_duplicates.R")
+source(file = "../functions/sumscores.R")
+source(file = "../functions/package_check.R")
+source(file = "../functions/imp_check.R")
+```
+
+Note: always load tidyverse last
+```{r Install load dependencies}
+packages = c(
+  "summarytools",
+  "sjlabelled",
+  "Amelia",
+  "gtsummary",
+  "tidyverse"
+  )
+package_check(packages)
+```
+
+## Retrieve the recent date
+We are using the recent date to save files with paste0() as an extension to not overwrite old versions
+```{r Recent date}
+date = Sys.Date()
+date
+```
+
+## Read in file with path to ilovedata channel on Teams
+```{r Read in file with path to ilovedata channel on Teams}
+source(file = "../credentials/paths.R")
+```
+
+# Read in the data: GAD-7
+
+## COVID CNS data 
+```{r COVID CNS read in data}
+covidcns_dat <- read_rds(
+  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/gad7_covid_cns.rds")
+  )
+  
+# Check variable names in dataframe
+covidcns_dat %>%
+  colnames()
+
+# Inspect dimensions of dataframe 
+covidcns_dat %>%
+  dim()
+```
+
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+```{r COVID CNS exclude continuous variables}
+exclude_cols_numeric <- c(
+  "ID",
+  "sample",
+  "startDate",
+  "endDate"
+  )
+```
+
+Select & rename relevant columns (will be a function at some point)
+```{r COVID CNS select}
+covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
+  drop_na(externalDataReference) %>% # Drop participants with no ID
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
+  add_column(sample = "COVIDCNS",
+             .after = "externalDataReference") %>% # Create new sample column
+  select(
+         ID = externalDataReference,# ID
+         sample,
+         startDate,
+         endDate,
+         gad7.feeling_nervous_anxious_or_on_edge,
+         gad7.control_worrying_stop,
+         gad7.worrying_too_much_about_different_things,
+         gad7.trouble_relaxing,
+         gad7.sit_restless_hard,
+         gad7.becoming_easily_annoyed_or_irritable,
+         gad7.feeling_afraid_awful_happen
+         )%>%
+  add_numeric(exclude = exclude_cols_numeric)
+
+  
+# Inspect colnames
+covidcns_dat_id %>%
+  colnames()
+```
+
+Look at number of people excluded
+```{r COVIDCNS number excluded}
+# Inspect dimensions of new data set
+covidcns_dat_id %>%
+  dim()
+
+
+# Inspect number of rows dropped
+covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
+covidcns_excluded
+```
+
+Inspect numeric variables
+```{r COVIDCNS inspect numeric variables}
+covidcns_dat_id %>%
+  select(all_of(ends_with("numeric"))) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Check missingness by missmap
+```{r COVIDCNS inspect missingness}
+covidcns_miss_map <- covidcns_dat_id %>% 
+  missmap()
+covidcns_miss_map
+```
+
+Rename covidcns_dat_id to dat
+```{r Rename covidcns_dat_id to dat}
+dat <- covidcns_dat_id
+```
+
+# Data cleaning 
+Recode NA values to 3 digits
+-555 'Not applicable' response from participant
+-777 Seen but not answered
+-888 Don't know
+-999 Prefer not to answer/Prefer not to say
+```{r Recode NA values to 3 digits}
+dat <- dat %>%
+   mutate(across(ends_with("numeric"),
+             ~case_when(
+             . == -55 ~ -555,
+             . == -77 ~ -777,
+             . == -88 ~ -888,
+             . == -99 ~ -999,
+             TRUE ~ .)
+   )
+   )
+```
+
+# Cleaning GAD-7 variables: ranked 0 to 3
+
+## Cleaning Numeric variables GAD7 0-3
+
+Vector of numeric values
+```{r vector of numeric values 0-3}
+values_numeric_0_3 <- c(
+  0,
+  1,
+  2,
+  3,
+  -777, #only has Seen but not answered
+  NA
+  )
+
+values_numeric_0_3 
+```
+
+Create vector of variable names for numeric variables
+```{r vector numeric variables}
+variables_numeric_0_3 <- c(
+  "gad7.feeling_nervous_anxious_or_on_edge_numeric",
+  "gad7.control_worrying_stop_numeric",
+  "gad7.worrying_too_much_about_different_things_numeric",
+  "gad7.trouble_relaxing_numeric",
+  "gad7.sit_restless_hard_numeric",
+  "gad7.becoming_easily_annoyed_or_irritable_numeric",
+  "gad7.feeling_afraid_awful_happen_numeric"
+  )
+variables_numeric_0_3
+```
+
+Use imp_check function to find if any implausible values and obtain summary table of variables
+```{r imp_check numeric variables}
+imp_check(data = dat,
+           variables = variables_numeric_0_3,
+          values = values_numeric_0_3)
+```
+
+## Clean categorical labels GAD7 0-3
+
+Create vector of categorical values for variables
+```{r vector of categorical labels 0-3}
+values_categorical_0_3 <- c(
+  "Seen but not answered",
+  "Not at all",
+  "Several days",
+  "More than half the days",
+  "Nearly every day", 
+  NA)
+
+values_categorical_0_3
+```
+
+Create vector of variable names
+```{r categorical variables vector 0-3}
+variables_categorical_0_3 <- c(
+  "gad7.feeling_nervous_anxious_or_on_edge",
+  "gad7.control_worrying_stop",
+  "gad7.worrying_too_much_about_different_things",
+  "gad7.trouble_relaxing",
+  "gad7.sit_restless_hard",
+  "gad7.becoming_easily_annoyed_or_irritable",
+  "gad7.feeling_afraid_awful_happen"
+  )
+
+variables_categorical_0_3
+```
+
+Use imp_check function to find if any implausible values and obtain summary table of variables 
+```{r imp_check categorical variables}
+imp_check(data = dat,
+           variables = variables_categorical_0_3,
+          values = values_categorical_0_3)
+```
+
+
+
+#Sumscores
+Link to reference for scoring guidance for GAD-7 questionnaire - 
+https://jamanetwork.com/journals/jamainternalmedicine/fullarticle/410326 
+
+##Create sumscores input
+sum_vars vector should contain all variables needed for scoring
+```{r Sumscores inputs}
+keys_gad7 <- c(
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1
+  )
+
+sum_vars_gad7 <- c(
+  "gad7.feeling_nervous_anxious_or_on_edge_numeric",
+  "gad7.control_worrying_stop_numeric",
+  "gad7.worrying_too_much_about_different_things_numeric",
+  "gad7.trouble_relaxing_numeric",
+  "gad7.sit_restless_hard_numeric",
+  "gad7.becoming_easily_annoyed_or_irritable_numeric",
+  "gad7.feeling_afraid_awful_happen_numeric"
+  )
+```
+
+##Generate sumscores
+Generate sumscores from questionnaire data and add to dat as new column
+sumscores assumes that all items in the questionnaire have the SAME minimum and maximum scores for ALL items, ensure that this is correct before proceeding
+
+When adding the column name for your sumscore use "questionnaire.score_name"
+```{r generate sumscores}
+dat <- dat %>% 
+  mutate(
+    gad7.sum_score = 
+         sumscores(input = dat,
+                   sum_vars = sum_vars_gad7,
+                   coding_keys = keys_gad7,
+                   na_limit = 0, 
+                   min_item = 0,
+                   max_item = 3,
+                   min_score = 0,
+                   max_score = 21
+                   )
+         )
+
+dat %>%
+  select(gad7.sum_score) %>%
+  freq()
+```
+#Create binary phenotypes based on GAD-7 scoring criteria
+
+Cut off for mild GAD is 5, moderate is 10 and severe is 15. Clinical cut off is 10.
+Spitzer et al 2006 identified a cut off of 10 had optimized sensitivity (89%) and specificity (82%).
+"A score of 10 or greater on the GAD-7 represents a reasonable cut off point for identifying cases of GAD. Cut off points of 5, 10, and 15 might be interpreted as representing mild, moderate, and severe levels of anxiety on the GAD-7"
+
+References: NHS (https://www.hct.nhs.uk/media/1874/gad7.pdf); Spitzer et al 2006 (https://jamanetwork.com/journals/jamainternalmedicine/fullarticle/410326)
+
+## Clinical cut off of 10 or more
+```{r gad7 clinical cut off 10 or more}
+dat <- dat %>% 
+  mutate(
+    gad7.binary_clinical_numeric =
+      case_when(
+        gad7.sum_score >= 10 ~ 1,
+        gad7.sum_score < 10 ~ 0
+        )
+    )
+
+dat %>%
+  freq(gad7.binary_clinical_numeric)
+```
+
+Recode numeric GAD-7 variable to binary factors
+```{r GAD-7 binary creation}
+dat <- dat %>%
+    mutate(gad7.binary_clinical =
+           recode_factor(gad7.binary_clinical_numeric,
+                         "0" = "No GAD", 
+                         "1" = "Clinial GAD"
+                         )
+           )
+
+dat %>%
+  freq(gad7.binary_clinical)
+```
+
+## Severity thresholds (mild GAD is 5, moderate is 10 and severe is 15.) 
+```{r gad7 severity thresholds 5, 10, 15}
+dat <- dat %>% 
+  mutate(
+    gad7.severity_thresholds_numeric =
+      case_when(
+        gad7.sum_score < 5 ~ 0, #none
+        gad7.sum_score >= 5 &
+        gad7.sum_score < 10 ~ 1, #5-9 = mild GAD
+        gad7.sum_score >= 10 &
+        gad7.sum_score < 15~ 2, #10-14 = moderate GAD
+        gad7.sum_score >= 15~ 3 #15 or more = severe GAD
+        )
+    )
+
+dat %>%
+  freq(gad7.severity_thresholds_numeric)
+```
+
+Recode numeric GAD-7 variable to binary factors
+```{r GAD-7 severity threshold creation}
+dat <- dat %>%
+    mutate(gad7.severity_thresholds =
+           recode_factor(gad7.severity_thresholds_numeric,
+                         "0" = "None", 
+                         "1" = "Mild",
+                         "2" = "Moderate",
+                         "3" = "Severe"
+           )
+  )
+
+dat %>%
+  freq(gad7.severity_thresholds)
+```
+
+# Save data
+
+Check colnames before exporting final dataset
+```{r check colnames}
+colnames(dat)
+```
+
+Combined object for excluded participants
+```{r COVIDCNS save excluded participants}
+cns_excluded <- as.data.frame(covidcns_excluded)
+colnames(cns_excluded) <- c("Number of Participants Excluded")
+rownames(cns_excluded) <- c("COVIDCNS")
+cns_excluded
+```
+
+## COVIDCNS
+```{r Write cleaned COVIDCNS variables to a .rds file}
+dat %>% 
+  filter(sample == "COVIDCNS") %>%  # select only COVIDCNS participants
+  saveRDS(
+    file = paste0(ilovedata, "/data/latest_freeze/covidcns/gad7_covidcns_clean.rds")
+    )
+```
+

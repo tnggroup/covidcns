@@ -1,0 +1,537 @@
+---
+title: "COVID CNS: Cleaning PHQ9"
+author: "Jessica Mundy"
+phq9_ide: "01/02/2022"
+output: html_document
+---
+
+# Set up
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+```{r Clear global environment}
+rm(list=ls())
+```
+
+```{r Read in functions}
+source(file = "../functions/add_numeric.R")
+source(file = "../functions/sumscores.R")
+source(file = "../functions/package_check.R")
+source(file = "../functions/remove_duplicates.R")
+source(file = "../functions/imp_check.R")
+```
+
+Note: always load tidyverse last
+```{r Install load dependencies}
+packages = c(
+  "summarytools",
+  "sjlabelled",
+  "Amelia",
+  "knitr",
+  "gtsummary",
+  "tidyverse"
+  )
+package_check(packages)
+```
+
+```{r Get system date}
+date <- Sys.Date()
+date
+```
+
+```{r Source the credentials file}
+source("../credentials/paths.R")
+```
+
+# Read in the data 
+```{r COVID CNS PHQ9 data}
+phq9 <- read_rds(file = 
+                   paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/phq9_covid_cns.rds")
+                 )
+
+# check
+phq9 %>% 
+  dim()
+
+phq9 %>% 
+  colnames()
+```
+
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+```{r Specify columns to be excluded from add_numeric function}
+exclude_cols_numeric <- c(
+  "ID",
+  "sample",
+  "startDate",
+  "endDate"
+  )
+```
+
+
+## Select & rename relevant columns 
+```{r Select and rename relevant columns}
+phq9_id <- phq9 %>% #new dataset with ID
+  drop_na(externalDataReference) %>% # Drop NAs
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
+  add_column(sample = "COVIDCNS",
+             .after = "externalDataReference") %>% # Create new sample column
+  select(
+         ID = externalDataReference, # ID
+         sample,
+         startDate,
+         endDate,
+         phq9.little_interest_or_pleasure_in_doing_things,
+         phq9.feeling_down_depressed_or_hopeless,         
+         phq9.staying_asleep_sleeping_trouble,            
+         phq9.feeling_tired_or_having_little_energy,       
+         phq9.poor_appetite_or_overeating,                
+         phq9.feeling_bad_failure_family = phq9.feeling_bad_felt_family,                                 # renamed to match GLAD                   
+         phq9.trouble_concentrating_reading_newspaper = phq9.trouble_concentrating_newspaper_reading,    # renamed to match GLAD            
+         phq9.moving_fidgety_noticed_opposite = phq9.fidgety_opposite_slowly_restless,                   # renamed to match GLAD               
+         phq9.dead_hurting_thoughts,                      
+         phq9.problems_made_care_home,                     
+         phq9.similar_experiences_thoughts_required
+        ) %>%
+   add_numeric(exclude = exclude_cols_numeric)
+
+# Inspect colnames
+phq9_id %>% 
+  colnames()
+```
+
+```{r Number excluded}
+# Inspect dimensions
+dim(phq9_id)
+# Differences
+phq9_excluded <- dim(phq9_id)[1]-dim(phq9)[1]
+phq9_excluded
+```
+`phq9_excluded` COVID CNS participants excluded due to missing data
+
+### Inspect numeric variables
+```{r Inspect numeric variables}
+phq9_id %>%
+  select(all_of(ends_with("numeric"))) %>%
+  tbl_summary(missing_text = "Missing")
+
+phq9_id %>% 
+  select(ends_with("numeric")) %>% 
+  freq()
+```
+
+# Data cleaning 
+
+Recode Non-answer values to 3 digits
+-555 'Not applicable' response from participant
+-777 Seen but not answered
+-888 Don't know
+-999 Prefer not to answer/Prefer not to say
+`NA` Were not shown the question (genuinely missing value)
+```{r Recode NA values}
+phq9_id <- phq9_id %>%
+   mutate(
+     across(
+       ends_with("numeric"),
+             ~case_when(
+             . == -55 ~ -555,   
+             . == -77 ~ -777,
+             . == -88 ~ -888,
+             . == -99 ~ -999,
+             TRUE ~ .)
+   )
+   )
+```
+
+
+## Numeric variables
+
+### Select numeric PHQ9 variables for cleaning
+This will select all of the PHQ9 numeric variables
+```{r Select numeric PHQ9 variables for cleaning}
+phq9_variables_numeric <- c(
+  "phq9.little_interest_or_pleasure_in_doing_things_numeric",
+  "phq9.feeling_down_depressed_or_hopeless_numeric",         
+  "phq9.staying_asleep_sleeping_trouble_numeric",            
+  "phq9.feeling_tired_or_having_little_energy_numeric",       
+  "phq9.poor_appetite_or_overeating_numeric",                
+  "phq9.feeling_bad_failure_family_numeric",                     
+  "phq9.trouble_concentrating_reading_newspaper_numeric",    
+  "phq9.moving_fidgety_noticed_opposite_numeric",            
+  "phq9.dead_hurting_thoughts_numeric"          
+)
+
+# check
+phq9_variables_numeric
+```
+
+### Vector of plausible numeric values for PHQ9 variables
+```{r vector of plausible numeric values for PHQ9 variables}
+phq9_vector_numeric <- c(
+  0,
+  1,
+  2,
+  3,
+  -777,
+  NA
+  )
+```
+
+### Use imp_check function to find if any implausible values and obtain summary table of variables
+```{r imp_check numeric PHQ9 variables}
+imp_check(data = phq9_id,
+          variables = phq9_variables_numeric,
+          values = phq9_vector_numeric)
+```
+
+### Select numeric variable about problems
+```{r Select numeric variable about problems}
+phq9_problems_numeric <- c(
+  "phq9.problems_made_care_home_numeric"      
+)
+
+
+# check
+phq9_problems_numeric
+```
+
+### Vector of plausible numeric values for variable about problems
+```{r Vector of plausible numeric values for variable about problems}
+phq9_problems_vector_numeric <- c(
+  1,
+  2,
+  3,
+  4,
+  -777,
+  NA
+  )
+```
+++JM I think these probably could be coded as 0, 1, 2 and 3 because 0 = "Not difficult at all". Jess will ask Lily and Dina to change in Qualtrics.
+
+### Use imp_check function to find if any implausible values and obtain summary table of variables
+```{r imp_check numeric problems variable}
+imp_check(data = phq9_id,
+          variables = phq9_problems_numeric,
+          values = phq9_problems_vector_numeric)
+```
+### Select numeric variable about problems since COVID-19
+```{r Select numeric variable about problems since COVID-19}
+phq9_covid19_numeric <- c(
+  "phq9.similar_experiences_thoughts_required_numeric"      
+)
+
+
+# check
+phq9_problems_numeric
+```
+
+### Vector of plausible numeric values for variable about problems since COVID-19
+```{r vector of plausible numeric values for variable about problems since COVID-19}
+phq9_covid19_vector_numeric <- c(
+  1,
+  2,
+  3,
+  -777,
+  NA
+  )
+```
+
+### Use imp_check function to find if any implausible values and obtain summary table of variables
+```{r imp_check numeric variable about problems since COVID-19}
+imp_check(data = phq9_id,
+          variables = phq9_covid19_numeric,
+          values = phq9_covid19_vector_numeric)
+```
+
+## Non-numeric variables
+
+### Select variables for cleaning
+This will select all the PHQ9 variables
+```{r Select PHQ9 variables for cleaning}
+phq9_variables <- c(
+  "phq9.little_interest_or_pleasure_in_doing_things",
+  "phq9.feeling_down_depressed_or_hopeless",         
+  "phq9.staying_asleep_sleeping_trouble",            
+  "phq9.feeling_tired_or_having_little_energy",       
+  "phq9.poor_appetite_or_overeating",                
+  "phq9.feeling_bad_failure_family",                     
+  "phq9.trouble_concentrating_reading_newspaper",    
+  "phq9.moving_fidgety_noticed_opposite",            
+  "phq9.dead_hurting_thoughts"          
+)
+
+  
+# check
+phq9_variables
+```
+
+### Vector of plausible values for PHQ9 variables
+```{r vector of plausible values for PHQ9 variables}
+phq9_vector <- c(
+  "Not at all",
+  "Several days",
+  "More than half the days",
+  "Nearly every day",
+  "Seen but not answered",
+  NA
+  )
+```
+
+
+### Use imp_check function to find if any implausible values and obtain summary table of variables
+```{r imp_check PHQ9 variables}
+imp_check(data = phq9_id,
+          variables = phq9_variables,
+          values = phq9_vector)
+```
+
+### Select variable about problems
+```{r Select variable about problems}
+phq9_problems <- c(
+  "phq9.problems_made_care_home"      
+)
+
+
+# check
+phq9_problems
+```
+
+### Vector of plausible values for variable about problems
+```{r vector of plausible values for variable about problems}
+phq9_problems_vector <- c(
+  "Not difficult at all",
+  "Somewhat difficult",
+  "Very difficult",
+  "Extremely difficult",
+  "Seen but not answered",
+  NA
+  )
+```
+
+### Use imp_check function to find if any implausible values and obtain summary table of variables
+```{r imp_check problems variable}
+imp_check(data = phq9_id,
+          variables = phq9_problems,
+          values = phq9_problems_vector)
+```
+
+### Select variable about problems since COVID-19
+```{r Select variable about problems since COVID-19}
+phq9_covid19 <- c(
+  "phq9.similar_experiences_thoughts_required"      
+)
+
+
+# check
+phq9_problems
+```
+
+### Vector of plausible values for variable about problems since COVID-19
+```{r Vector of plausible values for variable about problems since COVID-19}
+phq9_covid19_vector <- c(
+  "Yes - they started after I had COVID-19 or during my infection with it",
+  "No - I had these symptoms or experiences before I had COVID-19",
+  "Don't know",
+  "Seen but not answered",
+  NA
+  )
+```
+
+### Use imp_check function to find if any implausible values and obtain summary table of variables
+```{r imp_check COVID19 variables}
+imp_check(data = phq9_id,
+          variables = phq9_covid19,
+          values = phq9_covid19_vector)
+```
+
+# Produce sumscores
+
+Reference to scoring guidance here: Kroenke K, Spitzer RL, Williams JB; The PHQ-9: validity of a brief depression severity measure. J Gen Intern Med. 2001 Sep 16(9):606-13.
+
+## Sumscore inputs
+```{r Sumscore inputs}
+keys <- c(
+  1, #1
+  1, #2
+  1, #3
+  1, #4
+  1, #5
+  1, #6
+  1, #7
+  1, #8
+  1 #9
+  ) # should be 9 1s (none of the PHQ9 items are reverse coded)
+
+sum_vars <- c(
+  "phq9.dead_hurting_thoughts_numeric",
+  "phq9.feeling_bad_failure_family_numeric",
+  "phq9.feeling_down_depressed_or_hopeless_numeric",
+  "phq9.feeling_tired_or_having_little_energy_numeric",
+  "phq9.little_interest_or_pleasure_in_doing_things_numeric",
+  "phq9.moving_fidgety_noticed_opposite_numeric",
+  "phq9.poor_appetite_or_overeating_numeric",
+  "phq9.staying_asleep_sleeping_trouble_numeric",
+  "phq9.trouble_concentrating_reading_newspaper_numeric"
+  )
+```
+
+## Generate sumscores
+Generate sumscores from questionnaire data and add to dat as new column
+sumscores assumes that all items in the questionnaire have the SAME minimum and maximum scores for ALL items, ensure that this is correct before proceeding
+
+When adding the column name for your sumscore use "questionnaire.score_name"
+```{r generate sumscore}
+phq9_id <- phq9_id %>% 
+  mutate(
+    phq9.sum_score = 
+         sumscores(input = phq9_id,
+                   sum_vars = sum_vars,
+                   coding_keys = keys,
+                   na_limit = 0,
+                   min_item = 0,
+                   max_item = 3,
+                   min_score = 0,
+                   max_score = 27
+                   )
+         )
+
+# check
+phq9_id %>% 
+  descr(phq9.sum_score)
+```
+
+# Clinical phenotyping of PHQ9
+
+## Current depression
+Create binary phenotypes based on PHQ9 scoring criteria
+Validity has been assessed against an independent structured mental health professional (MHP) interview. PHQ-9 score ≥10 had a sensitivity of 88% and a specificity of 88% for major depression. 
+```{r current major depression}
+# numeric
+phq9_id <- phq9_id %>% 
+  mutate(
+    phq9.binary_depression_numeric =
+      case_when(
+        phq9.sum_score >= 10 ~ 1, # current depression
+        phq9.sum_score < 10 ~ 0 # no current depression
+        )
+    )
+
+# recode as categorical 
+phq9_id <- phq9_id %>% 
+  mutate(
+    phq9.binary_depression =
+      recode_factor(phq9.binary_depression_numeric,
+        "1" = "Current depression", # current depression
+        "0" = "No current depression" # no current depression
+        )
+    )
+
+# check
+phq9_id %>% 
+  select(
+    phq9.binary_depression_numeric,
+    phq9.binary_depression
+    ) %>% 
+   tbl_summary(missing_text = "Missing")
+
+phq9_id %>% 
+  select(
+    phq9.binary_depression,
+    phq9.binary_depression_numeric) %>% # variable is fine - just tbl_summary() giving wrong result 
+  freq()
+```
+
+## Severity of depression
+```{r severity of depression}
+# numeric
+phq9_id <- phq9_id %>% 
+  mutate(
+    phq9.severity_depression_numeric =
+      case_when(
+        phq9.sum_score <= 4 ~ 0,
+        phq9.sum_score > 4 & phq9.sum_score <= 9 ~ 1,
+        phq9.sum_score > 9 & phq9.sum_score <= 14 ~ 2,
+        phq9.sum_score > 15 & phq9.sum_score <= 19 ~ 3,
+        phq9.sum_score > 19 & phq9.sum_score <= 27 ~ 4
+        )
+    )
+
+# recode as categorical
+phq9_id <- phq9_id %>% 
+  mutate(
+    phq9.severity_depression =
+      recode_factor(phq9.severity_depression_numeric,
+        "0" = "None",
+        "1" = "Mild",
+        "2" = "Moderate",
+        "3" = "Moderately severe",
+        "4" = "Severe"
+        )
+    )
+
+# check
+phq9_id %>% 
+  select(
+    phq9.severity_depression,
+    phq9.severity_depression_numeric
+  ) %>% 
+   tbl_summary(missing_text = "Missing")
+```
+
+# Save cleaned data
+
+## Save variables for export
+```{r Save variables for export}
+export_variables <- c("ID",
+                      "startDate",
+                      "endDate",
+                      "sample",
+                      "phq9.dead_hurting_thoughts",                               
+                      "phq9.feeling_bad_failure_family",                         
+                      "phq9.feeling_down_depressed_or_hopeless",                  
+                      "phq9.feeling_tired_or_having_little_energy",              
+                      "phq9.little_interest_or_pleasure_in_doing_things",         
+                      "phq9.moving_fidgety_noticed_opposite",                    
+                      "phq9.poor_appetite_or_overeating",                        
+                      "phq9.staying_asleep_sleeping_trouble",                    
+                      "phq9.trouble_concentrating_reading_newspaper",             
+                      "phq9.dead_hurting_thoughts_numeric",                      
+                      "phq9.feeling_bad_failure_family_numeric",                  
+                      "phq9.feeling_down_depressed_or_hopeless_numeric",         
+                      "phq9.feeling_tired_or_having_little_energy_numeric",       
+                      "phq9.little_interest_or_pleasure_in_doing_things_numeric",
+                      "phq9.moving_fidgety_noticed_opposite_numeric",             
+                      "phq9.poor_appetite_or_overeating_numeric",                
+                      "phq9.staying_asleep_sleeping_trouble_numeric",             
+                      "phq9.trouble_concentrating_reading_newspaper_numeric",    
+                      "phq9.sum_score",                                           
+                      "phq9.binary_depression",                                  
+                      "phq9.binary_depression_numeric",                           
+                      "phq9.severity_depression",                                
+                      "phq9.severity_depression_numeric",
+                      "phq9.problems_made_care_home",
+                      "phq9.similar_experiences_thoughts_required",
+                      "phq9.problems_made_care_home_numeric",
+                      "phq9.similar_experiences_thoughts_required_numeric"
+                      )
+
+
+```
+
+## Save cleaned data as .rds file
+```{r Save cleaned data as .rds file}
+phq9_id %>% 
+  select(all_of(export_variables)) %>% 
+  saveRDS(
+    file = paste0(ilovedata, "/data/latest_freeze/covidcns/phq9_covidcns_clean.rds")
+    )
+```
+
+
+
