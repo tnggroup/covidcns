@@ -97,7 +97,11 @@ exclude_cols_numeric <- c(
   "sample",
   "startDate",
   "endDate",
-  "ncrf1_pre_med.date_of_covid19_vaccination.txt"
+  "ncrf1_pre_med.illegal_substance_abuse_.txt",
+  "ncrf1_pre_med.other_immunomodulatory_medication_.txt",
+  "ncrf1_pre_med.other_anticoagulants_.txt",
+  "ncrf1_pre_med.date_of_covid19_vaccination.txt",
+  "ncrf1_pre_med.any_other_issue_of_significance_to_note.txt"
   )
 ```
 
@@ -114,10 +118,33 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          startDate,
          endDate,
          ncrf1_pre_med.had_covid19_vaccine,
+         ncrf1_pre_med.glatiramer_acetate,
+         ncrf1_pre_med.interferon_beta,
+         ncrf1_pre_med.oral_ms_therapy,
+         ncrf1_pre_med.natalizumab,
+         ncrf1_pre_med.rituximab,
+         ncrf1_pre_med.other_immunomodulatory_medication,
          ncrf1_pre_med.corticosteroids,
          ncrf1_pre_med.steroids,
-         ncrf1_pre_med.date_of_covid19_vaccination.txt
-         
+         ncrf1_pre_med.antiepileptic_medications,
+         ncrf1_pre_med.chemotherapy,
+         ncrf1_pre_med.antidepressants,
+         ncrf1_pre_med.aspirin,
+         ncrf1_pre_med.clopidogrel,
+         ncrf1_pre_med.warfarin,
+         ncrf1_pre_med.other_anticoagulants,
+         ncrf1_pre_med.tpa_thrombectomy,
+         ncrf1_pre_med.heparin,
+         ncrf1_pre_med.nsaids,
+         ncrf1_pre_med.ace_inhibitors,
+         ncrf1_pre_med.angiotensin_ii_receptor_blockers,
+         ncrf1_pre_med.statins,
+         ncrf1_pre_med.illegal_substance_abuse,
+         ncrf1_pre_med.illegal_substance_abuse_.txt,
+         ncrf1_pre_med.other_immunomodulatory_medication_.txt,
+         ncrf1_pre_med.other_anticoagulants_.txt,
+         ncrf1_pre_med.date_of_covid19_vaccination.txt,
+         ncrf1_pre_med.any_other_issue_of_significance_to_note.txt
          ) %>%
   add_numeric(exclude = exclude_cols_numeric)
 
@@ -201,8 +228,28 @@ Create vector of variable names for categorical variables
 ```{r Vector categorical variables}
 variables_categorical <- c(
   "ncrf1_pre_med.had_covid19_vaccine",
+  "ncrf1_pre_med.glatiramer_acetate",
+  "ncrf1_pre_med.interferon_beta",
+  "ncrf1_pre_med.oral_ms_therapy",
+  "ncrf1_pre_med.natalizumab",
+  "ncrf1_pre_med.rituximab",
+  "ncrf1_pre_med.other_immunomodulatory_medication",
   "ncrf1_pre_med.corticosteroids",
-  "ncrf1_pre_med.steroids"
+  "ncrf1_pre_med.steroids",
+  "ncrf1_pre_med.antiepileptic_medications",
+  "ncrf1_pre_med.chemotherapy",
+  "ncrf1_pre_med.antidepressants",
+  "ncrf1_pre_med.aspirin",
+  "ncrf1_pre_med.clopidogrel",
+  "ncrf1_pre_med.warfarin",
+  "ncrf1_pre_med.other_anticoagulants",
+  "ncrf1_pre_med.tpa_thrombectomy",
+  "ncrf1_pre_med.heparin",
+  "ncrf1_pre_med.nsaids",
+  "ncrf1_pre_med.ace_inhibitors",
+  "ncrf1_pre_med.angiotensin_ii_receptor_blockers",
+  "ncrf1_pre_med.statins",
+  "ncrf1_pre_med.illegal_substance_abuse"
   )
 variables_categorical
 ```
@@ -237,8 +284,28 @@ Create vector of variable names for numeric variables
 ```{r Vector numeric variables}
 variables_numeric <- c(
   "ncrf1_pre_med.had_covid19_vaccine_numeric",
+  "ncrf1_pre_med.glatiramer_acetate_numeric",
+  "ncrf1_pre_med.interferon_beta_numeric",
+  "ncrf1_pre_med.oral_ms_therapy_numeric",
+  "ncrf1_pre_med.natalizumab_numeric",
+  "ncrf1_pre_med.rituximab_numeric",
+  "ncrf1_pre_med.other_immunomodulatory_medication_numeric",
   "ncrf1_pre_med.corticosteroids_numeric",
-  "ncrf1_pre_med.steroids_numeric"
+  "ncrf1_pre_med.steroids_numeric",
+  "ncrf1_pre_med.antiepileptic_medications_numeric",
+  "ncrf1_pre_med.chemotherapy_numeric",
+  "ncrf1_pre_med.antidepressants_numeric",
+  "ncrf1_pre_med.aspirin_numeric",
+  "ncrf1_pre_med.clopidogrel_numeric",
+  "ncrf1_pre_med.warfarin_numeric",
+  "ncrf1_pre_med.other_anticoagulants_numeric",
+  "ncrf1_pre_med.tpa_thrombectomy_numeric",
+  "ncrf1_pre_med.heparin_numeric",
+  "ncrf1_pre_med.nsaids_numeric",
+  "ncrf1_pre_med.ace_inhibitors_numeric",
+  "ncrf1_pre_med.angiotensin_ii_receptor_blockers_numeric",
+  "ncrf1_pre_med.statins_numeric",
+  "ncrf1_pre_med.illegal_substance_abuse_numeric"        
   )
 variables_numeric
 ```
@@ -348,6 +415,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/ncrf1_pre_med_covidcns_clean.rds")
+    file = paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf1_pre_med_covidcns_clean.rds")
     )
 ```
