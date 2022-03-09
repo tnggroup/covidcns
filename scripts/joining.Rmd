@@ -117,6 +117,42 @@ age_covidcns_clean_selected %>%
 ```
 
 
+
+### als_covid_cns
+Read in & variable names
+```{r als_covid_cns Read in data & variable names}
+als_covid_cns <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/als_covid_cns.rds")
+  )
+
+als_covid_cns %>%
+  dim()
+```
+
+Dimensions
+```{r als_covid_cns Dimensions}
+als_covid_cns %>%
+  colnames()
+```
+
+Select columns for joining
+```{r als_covid_cns Select columns for joining}
+als_covid_cns_selected <-
+  als_covid_cns %>%
+  select(
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
+  )
+
+als_covid_cns_selected %>%
+  slice(1:5)
+```
+
+
+
 ### cage_covidcns_clean
 Read in & variable names
 ```{r cage_covidcns_clean Read in data & variable names}
@@ -145,6 +181,40 @@ cage_covidcns_clean_selected <-
   )
 
 cage_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### catatonia_covidcns_clean
+Read in & variable names
+```{r catatonia_covidcns_clean Read in data & variable names}
+catatonia_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/catatonia_covidcns_clean.rds")
+  )
+
+catatonia_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r catatonia_covidcns_clean Dimensions}
+catatonia_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r catatonia_covidcns_clean Select columns for joining}
+catatonia_covidcns_clean_selected <-
+  catatonia_covidcns_clean %>%
+  select(
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
+  )
+
+catatonia_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
@@ -195,7 +265,7 @@ dem_covidpositive_covidcns_clean %>%
   dim()
 ```
 
-Dimensions
+Dimensions 
 ```{r dem_covidpositive_covidcns_clean Dimensions}
 dem_covidpositive_covidcns_clean %>%
   colnames()
@@ -245,6 +315,39 @@ dem_memory_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
+
+### dem_quality_life_covidcns_clean
+Read in & variable names
+```{r dem_quality_life_covidcns_clean Read in data & variable names}
+dem_quality_life_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/dem_quality_life_covidcns_clean.rds")
+  )
+
+dem_quality_life_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r dem_quality_life_covidcns_clean Dimensions}
+dem_quality_life_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r dem_quality_life_covidcns_clean Select columns for joining}
+dem_quality_life_covidcns_clean_selected <-
+  dem_quality_life_covidcns_clean %>%
+  select(
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
+  )
+
+dem_quality_life_covidcns_clean_selected %>%
+  slice(1:5)
+```
 
 ### employment_covidcns_clean
 Read in & variable names
@@ -306,6 +409,40 @@ ethnicity_covidcns_clean_selected <-
   )
 
 ethnicity_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### facial_covidcns_clean
+Read in & variable names
+```{r facial_covidcns_clean Read in data & variable names}
+facial_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/facial_covidcns_clean.rds")
+  )
+
+facial_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r facial_covidcns_clean Dimensions}
+facial_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r facial_covidcns_clean Select columns for joining}
+facial_covidcns_clean_selected <-
+  facial_covidcns_clean %>%
+  select(
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
+  )
+
+facial_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
@@ -402,197 +539,74 @@ language_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
-
-### ncrf1_admission_covidcns_clean
+### nis_outp_covidcns_clean
 Read in & variable names
-```{r ncrf1_admission_covidcns_clean Read in data & variable names}
-ncrf1_admission_covidcns_clean <-
+```{r nis_outp_covidcns_clean Read in data & variable names}
+nis_outp_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf1_admission_covidcns_clean.rds")
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/nis_outp_covidcns_clean.rds")
   )
 
-ncrf1_admission_covidcns_clean %>%
+nis_outp_covidcns_clean %>%
   dim()
 ```
 
 Dimensions
-```{r ncrf1_admission_covidcns_clean Dimensions}
-ncrf1_admission_covidcns_clean %>%
+```{r nis_outp_covidcns_clean Dimensions}
+nis_outp_covidcns_clean %>%
   colnames()
 ```
 
 Select columns for joining
-```{r ncrf1_admission_covidcns_clean Select columns for joining}
-ncrf1_admission_covidcns_clean_selected <- 
-  ncrf1_admission_covidcns_clean %>%
+```{r nis_outp_covidcns_clean Select columns for joining}
+nis_outp_covidcns_clean_selected <-
+  nis_outp_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
   )
 
-ncrf1_admission_covidcns_clean_selected %>%
+nis_outp_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
 
-### ncrf1_vital_covidonly_covidcns_clean
+### nonmotor_covidcns_clean
 Read in & variable names
-```{r ncrf1_vital_covidonly_covidcns_clean Read in data & variable names}
-ncrf1_vital_covidonly_covidcns_clean <-
+```{r nonmotor_covidcns_clean Read in data & variable names}
+nonmotor_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf1_vital_covidonly_covidcns_clean.rds")
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/nonmotor_covidcns_clean.rds")
   )
 
-ncrf1_vital_covidonly_covidcns_clean %>%
+nonmotor_covidcns_clean %>%
   dim()
 ```
 
 Dimensions
-```{r ncrf1_vital_covidonly_covidcns_clean Dimensions}
-ncrf1_vital_covidonly_covidcns_clean %>%
+```{r nonmotor_covidcns_clean Dimensions}
+nonmotor_covidcns_clean %>%
   colnames()
 ```
 
 Select columns for joining
-```{r ncrf1_vital_covidonly_covidcns_clean Select columns for joining}
-ncrf1_vital_covidonly_covidcns_clean_selected <-
-  ncrf1_vital_covidonly_covidcns_clean %>%
+```{r nonmotor_covidcns_clean Select columns for joining}
+nonmotor_covidcns_clean_selected <-
+  nonmotor_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
   )
 
-ncrf1_vital_covidonly_covidcns_clean_selected %>%
+nonmotor_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
 
-### ncrf_clinical_frailty_clean
-Read in & variable names
-```{r ncrf_clinical_frailty_clean Read in data & variable names}
-ncrf_clinical_frailty_clean <-
-  read_rds(
-    file = 
-      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf_clinical_frailty_clean.rds")
-  )
-
-ncrf_clinical_frailty_clean %>%
-  dim()
-```
-
-Dimensions
-```{r ncrf_clinical_frailty_clean Dimensions}
-ncrf_clinical_frailty_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r ncrf_clinical_frailty_clean Select columns for joining}
-ncrf_clinical_frailty_clean_selected <- 
-  ncrf_clinical_frailty_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-ncrf_clinical_frailty_clean_selected %>%
-  slice(1:5)
-```
-
-
-### ncrf_comorbid_covidcns_clean
-Read in & variable names
-```{r ncrf_comorbid_covidcns_clean Read in data & variable names}
-ncrf_comorbid_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf_comorbid_covidcns_clean.rds")
-  )
-
-ncrf_comorbid_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r ncrf_comorbid_covidcns_clean Dimensions}
-ncrf_comorbid_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r ncrf_comorbid_covidcns_clean Select columns for joining}
-ncrf_comorbid_covidcns_clean_selected <- 
-  ncrf_comorbid_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-ncrf_comorbid_covidcns_clean_selected %>%
-  slice(1:5)
-```
-
-
-### ncrf_medication_covidcns_clean
-Read in & variable names
-```{r ncrf_medication_covidcns_clean Read in data & variable names}
-ncrf_medication_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf_medication_covidcns_clean.rds")
-  )
-
-ncrf_medication_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r ncrf_medication_covidcns_clean Dimensions}
-ncrf_medication_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r ncrf_medication_covidcns_clean Select columns for joining}
-ncrf_medication_covidcns_clean_selected <- 
-  ncrf_medication_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-ncrf_medication_covidcns_clean_selected %>%
-  slice(1:5)
-```
-
-
-### ncrf1_premed_vacc_steroids_covidcns_clean
-Read in & variable names
-```{r ncrf1_premed_vacc_steroids_covidcns_clean Read in data & variable names}
-ncrf1_premed_vacc_steroids_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf1_premed_vacc_steroids_covidcns_clean.rds")
-  )
-
-ncrf1_premed_vacc_steroids_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r ncrf1_premed_vacc_steroids_covidcns_clean Dimensions}
-ncrf1_premed_vacc_steroids_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r ncrf1_premed_vacc_steroids_covidcns_clean Select columns for joining}
-ncrf1_premed_vacc_steroids_covidcns_clean_selected <- 
-  ncrf1_premed_vacc_steroids_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-ncrf1_premed_vacc_steroids_covidcns_clean_selected %>%
-  slice(1:5)
-```
 
 
 ### past_medical_history_mental_health_covidcns_clean
@@ -653,6 +667,74 @@ past_medical_history_physical_health_covidcns_clean_selected <- past_medical_his
   )
 
 past_medical_history_physical_health_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### pcl5_covidcns_clean
+Read in & variable names
+```{r pcl5_covidcns_clean Read in data & variable names}
+pcl5_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/pcl5_covidcns_clean.rds")
+  )
+
+pcl5_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r pcl5_covidcns_clean Dimensions}
+pcl5_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r pcl5_covidcns_clean Select columns for joining}
+pcl5_covidcns_clean_selected <-
+  pcl5_covidcns_clean %>%
+  select(
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
+  )
+
+pcl5_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### phh_steroids_immunosuppressants_covidcns_clean
+Read in & variable names
+```{r phh_steroids_immunosuppressants_covidcns_clean Read in data & variable names}
+phh_steroids_immunosuppressants_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/phh_steroids_immunosuppressants_covidcns_clean.rds")
+  )
+
+phh_steroids_immunosuppressants_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r phh_steroids_immunosuppressants_covidcns_clean Dimensions}
+phh_steroids_immunosuppressants_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r phh_steroids_immunosuppressants_covidcns_clean Select columns for joining}
+phh_steroids_immunosuppressants_covidcns_clean_selected <-
+  phh_steroids_immunosuppressants_covidcns_clean %>%
+  select(
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
+  )
+
+phh_steroids_immunosuppressants_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
@@ -752,6 +834,40 @@ smelltaste_covidcns_clean_selected %>%
 ```
 
 
+### updrs_covidcns_clean
+Read in & variable names
+```{r updrs_covidcns_clean Read in data & variable names}
+updrs_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/updrs_covidcns_clean.rds")
+  )
+
+updrs_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r updrs_covidcns_clean Dimensions}
+updrs_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r updrs_covidcns_clean Select columns for joining}
+updrs_covidcns_clean_selected <-
+  updrs_covidcns_clean %>%
+  select(
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
+  )
+
+updrs_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
 ### vaccine_covidcns_clean
 Read in & variable names
 ```{r vaccine_covidcns_clean Read in data & variable names}
@@ -779,6 +895,346 @@ vaccine_covidcns_clean_selected <- vaccine_covidcns_clean %>%
   )
 
 vaccine_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+## Core Neuro
+
+### fourat_outp_covidcns_clean
+Read in & variable names
+```{r fourat_outp_covidcns_clean Read in data & variable names}
+fourat_outp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/fourat_outp_covidcns_clean.rds")
+  )
+
+fourat_outp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r fourat_outp_covidcns_clean Dimensions}
+fourat_outp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r fourat_outp_covidcns_clean Select columns for joining}
+fourat_outp_covidcns_clean_selected <-
+  fourat_outp_covidcns_clean %>%
+  select(
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
+  )
+
+fourat_outp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+## mh_case_report
+
+### moca_inp_covidcns_clean
+Read in & variable names
+```{r moca_inp_covidcns_clean Read in data & variable names}
+moca_inp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/moca_inp_covidcns_clean.rds")
+  )
+
+moca_inp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r moca_inp_covidcns_clean Dimensions}
+moca_inp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r moca_inp_covidcns_clean Select columns for joining}
+moca_inp_covidcns_clean_selected <-
+  moca_inp_covidcns_clean %>%
+  select(
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
+  )
+
+moca_inp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+## moca
+
+### cognitron_outp_covidcns_clean
+Read in & variable names
+```{r cognitron_outp_covidcns_clean Read in data & variable names}
+cognitron_outp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/cognitron_outp_covidcns_clean.rds")
+  )
+
+cognitron_outp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r cognitron_outp_covidcns_clean Dimensions}
+cognitron_outp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r cognitron_outp_covidcns_clean Select columns for joining}
+cognitron_outp_covidcns_clean_selected <-
+  cognitron_outp_covidcns_clean %>%
+  select(
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
+  )
+
+cognitron_outp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### moca_outp_covidcns_clean
+Read in & variable names
+```{r moca_outp_covidcns_clean Read in data & variable names}
+moca_outp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/moca_outp_covidcns_clean.rds")
+  )
+
+moca_outp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r moca_outp_covidcns_clean Dimensions}
+moca_outp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r moca_outp_covidcns_clean Select columns for joining}
+moca_outp_covidcns_clean_selected <-
+  moca_outp_covidcns_clean %>%
+  select(
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
+  )
+
+moca_outp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+## ncrf
+
+
+
+### ncrf_clinical_frailty_clean
+Read in & variable names
+```{r ncrf_clinical_frailty_clean Read in data & variable names}
+ncrf_clinical_frailty_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf_clinical_frailty_clean.rds")
+  )
+
+ncrf_clinical_frailty_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ncrf_clinical_frailty_clean Dimensions}
+ncrf_clinical_frailty_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ncrf_clinical_frailty_clean Select columns for joining}
+ncrf_clinical_frailty_clean_selected <- 
+  ncrf_clinical_frailty_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+ncrf_clinical_frailty_clean_selected %>%
+  slice(1:5)
+```
+
+
+### ncrf_comorbid_covidcns_clean
+Read in & variable names
+```{r ncrf_comorbid_covidcns_clean Read in data & variable names}
+ncrf_comorbid_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf_comorbid_covidcns_clean.rds")
+  )
+
+ncrf_comorbid_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ncrf_comorbid_covidcns_clean Dimensions}
+ncrf_comorbid_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ncrf_comorbid_covidcns_clean Select columns for joining}
+ncrf_comorbid_covidcns_clean_selected <- 
+  ncrf_comorbid_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+ncrf_comorbid_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### ncrf_medication_covidcns_clean
+Read in & variable names
+```{r ncrf_medication_covidcns_clean Read in data & variable names}
+ncrf_medication_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf_medication_covidcns_clean.rds")
+  )
+
+ncrf_medication_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ncrf_medication_covidcns_clean Dimensions}
+ncrf_medication_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ncrf_medication_covidcns_clean Select columns for joining}
+ncrf_medication_covidcns_clean_selected <- 
+  ncrf_medication_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+ncrf_medication_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+
+
+
+### ncrf1_admission_covidcns_clean
+Read in & variable names
+```{r ncrf1_admission_covidcns_clean Read in data & variable names}
+ncrf1_admission_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf1_admission_covidcns_clean.rds")
+  )
+
+ncrf1_admission_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ncrf1_admission_covidcns_clean Dimensions}
+ncrf1_admission_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ncrf1_admission_covidcns_clean Select columns for joining}
+ncrf1_admission_covidcns_clean_selected <- 
+  ncrf1_admission_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+ncrf1_admission_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### ncrf1_vital_covidonly_covidcns_clean
+Read in & variable names
+```{r ncrf1_vital_covidonly_covidcns_clean Read in data & variable names}
+ncrf1_vital_covidonly_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf1_vital_covidonly_covidcns_clean.rds")
+  )
+
+ncrf1_vital_covidonly_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ncrf1_vital_covidonly_covidcns_clean Dimensions}
+ncrf1_vital_covidonly_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ncrf1_vital_covidonly_covidcns_clean Select columns for joining}
+ncrf1_vital_covidonly_covidcns_clean_selected <-
+  ncrf1_vital_covidonly_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+ncrf1_vital_covidonly_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+### ncrf1_premed_vacc_steroids_covidcns_clean
+Read in & variable names
+```{r ncrf1_premed_vacc_steroids_covidcns_clean Read in data & variable names}
+ncrf1_premed_vacc_steroids_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf1_premed_vacc_steroids_covidcns_clean.rds")
+  )
+
+ncrf1_premed_vacc_steroids_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ncrf1_premed_vacc_steroids_covidcns_clean Dimensions}
+ncrf1_premed_vacc_steroids_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ncrf1_premed_vacc_steroids_covidcns_clean Select columns for joining}
+ncrf1_premed_vacc_steroids_covidcns_clean_selected <- 
+  ncrf1_premed_vacc_steroids_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+ncrf1_premed_vacc_steroids_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
