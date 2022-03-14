@@ -203,6 +203,7 @@ dat <- dat %>%
 Create list of all unique values
 ```{r List unique values}
 ulst <- sapply(dat, unique)
+llst <- sapply(dat, levels)
 ```
 
 
@@ -357,7 +358,6 @@ dat <- dat %>%
     )
                 )
          )
-
 ```
 
 Recheck date variables
@@ -401,6 +401,24 @@ Re-check dates
 dat %>%
   select(all_of(variables_date)) %>%
   tbl_summary(missing_text = "Missing")
+```
+
+# Text variables
+
+Inspect text variables
+```{r Inspect text vars}
+variables_text <- c(
+  "ncrf1_pre_med.illegal_substance_abuse_.txt",
+  "ncrf1_pre_med.other_immunomodulatory_medication_.txt",
+  "ncrf1_pre_med.other_anticoagulants_.txt",
+  "ncrf1_pre_med.any_other_issue_of_significance_to_note.txt"
+)
+
+dat %>%
+  select(all_of(variables_text)) %>%
+  tbl_summary(
+    missing_text = "Missing"
+  )
 ```
 
 
