@@ -1,3 +1,4 @@
+# AUTHOR: Valentina Giunchiglia
 
 filter_below_thresh <- function(df, columns, threshold){
   for (col in columns){
