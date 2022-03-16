@@ -1,0 +1,717 @@
+---
+title: "COVIDCNS Physical Health History (Interim/Temporary) Cleaning Script"
+author: "Zain Ahmad"
+date: "14/03/2022"
+output: html_document
+---
+
+
+All arguments should be in their own row, including the first argument
+Closing bracket should have its own row
+Functions with a single argument can have this on the same line
+One argument can be hashed out per line for debugging errors
+
+Chunk names should be all lower case except:
+Study name (COVIDCNS) all caps
+Capitalised first word
+
+Ensure that you have deleted/untracked .DS_Store before your initial commit
+Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+Add the add_numeric function - used to convert character variables into numeric variables
+Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+Add the imp_check function - used to check variables for implausible values
+Add the cont_clean function - used to check continuous variables for implausible values
+```{r Read in functions}
+source(file = "../functions/add_numeric_1.R")
+source(file = "../functions/remove_duplicates.R")
+source(file = "../functions/sumscores.R")
+source(file = "../functions/package_check.R")
+source(file = "../functions/imp_check_1.R")
+source(file = "../functions/cont_clean.R")
+```
+
+Use package_check to install and load dependencies
+Load tidyverse last
+```{r Install load dependencies}
+packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
+package_check(packages)
+```
+
+Read in file with path to ilovedata channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Read in file with path to ilovedata channel on teams}
+source(file = "../credentials/paths.R")
+```
+
+# Read in the data: COVIDCNS Physical Health History (Interim/Temporary)
+Change this heading to the name of your questionnaire/demographic
+Load COVIDCNS data
+
+Do not change variable names from the NLP names that are produced by the extraction
+EXCEPT in exceptional circumstances
+Document ANY changes to variable names in the issues spreadsheet "https://docs.google.com/spreadsheets/d/1a2gL8c0eH2pZXNTbnPzkDYQGeeVXbLKU8BUpYM0moe8/edit?usp=sharing"
+
+- For variable names, use ONLY 'questionnaire.variable_name'
+- For dataset, only use snake_case naming
+- When using pipe operator '%>%', each function should begin on a new line
+- Do not add empty lines at the beginning or end of a chunk
+- Use only tidyverse functions wherever possible
+- When naming chunks, begin with the name of the dataset (COVIDCNS)
+
+## COVIDCNS data
+```{r COVIDCNS load data}
+covidcns_dat <- read_rds(
+  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/phh_covid_cns.rds")
+  )
+  
+# Check variable names in dataframe
+covidcns_dat %>%
+  colnames()
+
+# Inspect dimensions of dataframe 
+covidcns_dat %>%
+  dim()
+```
+
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+```{r COVIDCNS specify excluded columns}
+exclude_cols_numeric <- c(
+  "ID",
+  "sample",
+  "startDate",
+  "endDate",
+  "phh.nbsp",
+  "phh.nbsp.1",
+  "phh.",
+  "phh..1",
+  "phh..2",
+  "phh.nbsp.2",
+  "phh.nbsp.3",
+  "phh..3",
+  "phh..4",
+  "phh..5",
+  "phh.nbsp.4",
+  "phh.nbsp.5",
+  "phh..6",
+  "phh..7",
+  "phh..8",
+  "phh.osteoarthritis.1",
+  "phh.rheumatoid_arthritis.1",
+  "phh.other_arthritistext.txt"
+  )
+```
+
+Select & rename relevant columns
+```{r COVIDCNS select}
+covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
+  drop_na(externalDataReference) %>% # Drop participants with no ID
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
+  add_column(sample = "COVIDCNS",
+             .after = "externalDataReference") %>% # Create new sample column
+  select(
+         ID = externalDataReference, # ID
+         sample,
+         startDate,
+         endDate,
+         phh.epilepsy_or_convulsions,
+         phh.migraines,
+         phh.multiple_sclerosis,
+         phh.parkinsons_disease,
+         phh.brain_tumour,
+         phh.severe_memory_loss_,
+         phh.cerebral_palsy,
+         phh.dont_know,
+         phh.prefer_not_to_answer,
+         phh.none_of_the_above,
+         phh.steroids,
+         phh.immunosuppressants,
+         phh.non_steroid_antiinflammatory_drugs,
+         phh.thyroid_hormones,
+         phh.bronchodilators,
+         phh.non_steroid_antiinflammatory_drugs,
+         phh.longterm_prescription_medication,
+         phh.nbsp,
+         phh.nbsp.1,
+         phh.,
+         phh..1,
+         phh..2,
+         phh.nbsp.2,
+         phh.nbsp.3,
+         phh..3,
+         phh..4,
+         phh..5,
+         phh.nbsp.4,
+         phh.nbsp.5,
+         phh..6,
+         phh..7,
+         phh..8,
+         phh.osteoarthritis,
+         phh.rheumatoid_arthritis,
+         phh.other_arthritis,
+         phh.other_arthritistext.txt,
+         phh.osteoarthritis.1,
+         phh.rheumatoid_arthritis.1,
+         phh.other_arthritis,
+         phh.osteoarthritis.2,
+         phh.rheumatoid_arthritis.2,
+         phh.other_arthritis.2,
+         phh.osteoarthritis.3, 
+         phh.rheumatoid_arthritis.3,
+         phh.other_arthritis.3 
+         ) %>%
+  add_numeric_1(exclude = exclude_cols_numeric)
+
+# Inspect colnames
+covidcns_dat_id %>%
+  colnames()
+```
+
+Look at number of people excluded
+The number of people to be excluded should be negative
+```{r COVIDCNS number excluded}
+# Inspect dimensions of new data set
+covidcns_dat_id %>%
+  dim()
+
+# Inspect number of rows dropped
+covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
+covidcns_excluded
+```
+
+Check missingness by missmap
+```{r COVIDCNS inspect missingness}
+covidcns_miss_map <- covidcns_dat_id %>% 
+  missmap()
+
+covidcns_miss_map
+```
+
+Create dat as copy of covidcns_dat_id for brevity
+This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
+```{r Create dat}
+dat <- covidcns_dat_id 
+
+# Check
+dat %>% glimpse()
+```
+
+Recode Non-answer values to 3 digits
+-555 'Not applicable' response from participant
+-777 Seen but not answered
+-888 Don't know
+-999 Prefer not to answer/Prefer not to say
+`NA` Were not shown the question (genuinely missing value)
+When we code someone as being 'not applicable' by deduction, we use `NA_real_`
+```{r Recode NA values}
+dat <- dat %>%
+  mutate(across(ends_with("numeric"),
+                ~case_when(
+                  . == -55 ~ -555,
+                  . == -77 ~ -777,
+                  . == -88 ~ -888,
+                  . == -99 ~ -999,
+                  TRUE ~ .)))
+```
+
+Create list of all unique values
+```{r List unique values}
+ulst <- sapply(dat, unique)
+llst <- sapply(dat, levels)
+```
+
+
+# Cleaning Categorical Variables
+
+Name your vectors in line with the chunks below
+Number the vectors or name them intuitively if you have multiple vectors
+Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
+
+Create sequential vectors of categorical values for variables
+Save vectors to a list
+Add variable names as names of list
+```{r Vector categorical values}
+vals_cat_1 <- c(
+  "Not Epilepsy or convulsions",
+  "Epilepsy or convulsions",
+  NA
+)
+
+vals_cat_2 <- c(
+  "Not Migraines",
+  "Migraines",
+  NA
+)
+
+vals_cat_3 <- c(
+  "Not Multiple sclerosis",
+  "Multiple sclerosis",
+  NA
+)
+
+vals_cat_4 <- c(
+  "Not Parkinson's disease",
+  "Parkinson's disease",
+  NA
+)
+
+vals_cat_5 <- c(
+  "Not Brain tumour",
+  "Brain tumour",
+  NA
+)
+
+vals_cat_6 <- c(
+  "Not Severe memory loss (like Alzheimer's)",
+  "Severe memory loss (like Alzheimer's)",
+  NA
+)
+
+vals_cat_7 <- c(
+  "Not Cerebral palsy",
+  "Cerebral palsy",
+  NA
+)
+
+vals_cat_8 <- c(
+  "Not Don't know",
+  "Don't know",
+  NA
+)
+
+vals_cat_9 <- c(
+  "Not Prefer not to answer",
+  "Prefer not to answer",
+  NA
+)
+
+vals_cat_10 <- c(
+  "Not None of the above",
+  "None of the above",
+  NA
+)
+
+vals_cat_yns <- c(
+  "Seen but not answered",
+  "No",
+  "Yes",
+  NA
+)
+
+vals_cat_ynsp <- c(
+  "Prefer not to say",
+  "Seen but not answered",
+  "No",
+  "Yes",
+  NA
+)
+
+vals_cat_13 <- c(
+  "Not Osteoarthritis",
+  "Osteoarthritis",
+  NA
+)
+
+vals_cat_14 <- c(
+  "Not Rheumatoid arthritis",
+  "Rheumatoid arthritis",
+  NA
+)
+
+vals_cat_15 <- c(
+  "Not Other arthritis:",
+  "Other arthritis:",
+  NA
+)
+```
+
+Create list of numeric values vectors
+```{r List categorical values vectors}
+values_cat_list <- list(
+  vals_cat_1,
+  vals_cat_2,
+  vals_cat_3,
+  vals_cat_4,
+  vals_cat_5,
+  vals_cat_6,
+  vals_cat_7,
+  vals_cat_8,
+  vals_cat_9,
+  vals_cat_10,
+  
+  vals_cat_yns,
+  vals_cat_yns,
+  vals_cat_yns,
+  vals_cat_yns,
+  vals_cat_yns,
+  
+  vals_cat_ynsp,
+  
+  vals_cat_13,
+  vals_cat_14,
+  vals_cat_15,
+
+  vals_cat_yns,
+  vals_cat_yns,
+  vals_cat_yns,
+  vals_cat_yns,
+  vals_cat_yns,
+  vals_cat_yns
+)
+```
+
+Create vector of categorical variables 
+```{r Vector categorical variables}
+variables_cat <- c(
+  "phh.epilepsy_or_convulsions",
+  "phh.migraines",
+  "phh.multiple_sclerosis",
+  "phh.parkinsons_disease",
+  "phh.brain_tumour",
+  "phh.severe_memory_loss_",
+  "phh.cerebral_palsy",
+  "phh.dont_know",
+  "phh.prefer_not_to_answer",
+  "phh.none_of_the_above",
+  
+  #yns
+  "phh.steroids",
+  "phh.immunosuppressants",
+  "phh.non_steroid_antiinflammatory_drugs",
+  "phh.thyroid_hormones",
+  "phh.bronchodilators",
+  
+  #ynsp
+  "phh.longterm_prescription_medication",
+  
+  "phh.osteoarthritis",
+  "phh.rheumatoid_arthritis",
+  "phh.other_arthritis",
+  
+  #yns
+  "phh.osteoarthritis.2",
+  "phh.rheumatoid_arthritis.2",
+  "phh.other_arthritis.2",
+  "phh.osteoarthritis.3",
+  "phh.rheumatoid_arthritis.3",
+  "phh.other_arthritis.3"
+)
+```
+
+Set names of list to variable names
+```{r Set list names}
+names(values_cat_list) <- variables_cat
+```
+
+Use imp_check iteratively to find if any implausible values
+```{r Imp_check categorical variables}
+# Create empty list
+imp_list_cat <- list()
+
+# Loop over each variable, checking against relevant set of values from list
+# Add imp_message to list
+for (i in 1:length(variables_cat)) {
+  imp_list_cat[i] <- imp_check_1(data = dat,
+                                 variables = names(values_cat_list)[i],
+                                 values = values_cat_list[[i]]) 
+
+}
+
+# Name list with var names to correspond to imp_messages
+names(imp_list_cat) <- variables_cat
+
+# View list of imp_messages with corresponding var names
+print(imp_list_cat)
+```
+
+Produce summary table of variables
+```{r Summary table categorical variables}
+dat %>%
+  tbl_summary(
+    include = all_of(variables_cat),
+    missing_text = "Missing")
+```
+
+
+# Cleaning Numeric Variables
+
+Name your vectors in line with the chunks below
+Number the vectors or name them intuitively if you have multiple vectors
+Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
+
+Create sequential vectors of numeric values for variables
+Save vectors to a list
+Add variable names as names of list
+```{r Vector numeric values}
+vals_num_1 <- c(
+  0,
+  1,
+  NA
+)
+
+vals_num_2 <- c(
+  0,
+  1,
+  -777,
+  NA
+)
+
+vals_num_3 <- c(
+  0,
+  1,
+  -777,
+  -999,
+  NA
+)
+
+```
+
+Create list of numeric values vectors
+```{r List numeric values vectors}
+values_num_list <- list(
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  
+  vals_num_2,
+  vals_num_2,
+  vals_num_2,
+  vals_num_2,
+  vals_num_2,
+  
+  vals_num_3,
+  
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  
+  vals_num_2,
+  vals_num_2,
+  vals_num_2,
+  vals_num_2,
+  vals_num_2,
+  vals_num_2
+)
+```
+
+Create vector of categorical domains variables 
+```{r Vector numeric variables}
+variables_num <- c(
+  "phh.epilepsy_or_convulsions_numeric",
+  "phh.migraines_numeric",
+  "phh.multiple_sclerosis_numeric",
+  "phh.parkinsons_disease_numeric",
+  "phh.brain_tumour_numeric",
+  "phh.severe_memory_loss__numeric",
+  "phh.cerebral_palsy_numeric",
+  "phh.dont_know_numeric",
+  "phh.prefer_not_to_answer_numeric",
+  "phh.none_of_the_above_numeric",
+  
+  #yns
+  "phh.steroids_numeric",
+  "phh.immunosuppressants_numeric",
+  "phh.non_steroid_antiinflammatory_drugs_numeric",
+  "phh.thyroid_hormones_numeric",
+  "phh.bronchodilators_numeric",
+  
+  #ynsp
+  "phh.longterm_prescription_medication_numeric",
+  
+  "phh.osteoarthritis_numeric",
+  "phh.rheumatoid_arthritis_numeric",
+  "phh.other_arthritis_numeric",
+  
+  #yns
+  "phh.osteoarthritis.2_numeric",
+  "phh.rheumatoid_arthritis.2_numeric",
+  "phh.other_arthritis.2_numeric",
+  "phh.osteoarthritis.3_numeric",
+  "phh.rheumatoid_arthritis.3_numeric",
+  "phh.other_arthritis.3_numeric"
+)
+```
+
+Set names of list to variable names
+```{r Set list names}
+names(values_num_list) <- variables_num
+```
+
+Use imp_check iteratively
+Use imp_check iteratively to find if any implausible values
+```{r Imp_check numeric variables}
+# Create empty list
+imp_list_num <- list()
+
+# Loop over each variable, checking against relevant set of values from list
+# Add imp_message to list
+for (i in 1:length(variables_num)) {
+  imp_list_num[i] <- imp_check_1(data = dat,
+                                 variables = names(values_num_list)[i],
+                                 values = values_num_list[[i]]) 
+
+}
+
+# Name list with var names to correspond to imp_messages
+names(imp_list_num) <- variables_num
+
+# View list of imp_messages with corresponding var names
+print(imp_list_num)
+```
+
+Produce summary table of variables
+```{r Summary table numeric variables}
+dat %>%
+  tbl_summary(
+    include = all_of(variables_num),
+    missing_text = "Missing")
+```
+
+
+# Cleaning Continuous Variables
+
+Create vector of continuous variables
+```{r Create cont vars vector}
+variables_cont <- c(
+  "phh.osteoarthritis.1",
+  "phh.rheumatoid_arthritis.1"
+)
+```
+
+Inspect continuous variables
+```{r Tnspect cont vars}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p100})"))
+```
+
+Transform continuous variables to numeric
+```{r Cont vars to num}
+dat <- dat %>%
+  mutate(across(
+    all_of(variables_cont),
+    ~as.numeric(.)
+                )
+         )
+```
+
+Remove -77 values from continuous variables
+```{r Cont vars remove -77}
+dat <- dat %>% 
+  mutate(across(
+    all_of(variables_cont),
+    ~na_if(., -77)
+                )
+         )
+```
+
+Create matrix of limits for continuous variables
+Matrix is series of vectors (lower, upper)
+Age limits: 0-117 years (oldest person in world)
+```{r Create matrix limits}
+limits_mat <- rbind(
+  c(0, 117),
+  c(0, 117)
+  )
+```
+
+Set row and col names of limits_mat
+This allows your to easily refer back to limits_mat for a summary
+```{r Set lim_mat names}
+rownames(limits_mat) <- variables_cont
+colnames(limits_mat) <- c("Lower", "Upper")
+```
+
+Use cont_clean to check if any implausible values and provide replacement vectors
+```{r Cont_clean cont vars}
+cont_list <- cont_clean(
+  variables = variables_cont,
+  limits_mat = limits_mat,
+  dat = dat
+)
+
+cont_list
+```
+
+Re-inspect variables after cleaning
+```{r Inspect after cleaning}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p100})")
+  )
+```
+
+
+# Text variables
+
+Inspect text variables
+```{r Inspect text vars}
+variables_text <- c(
+  "phh.nbsp",
+  "phh.nbsp.1",
+  "phh.",
+  "phh..1",
+  "phh..2",
+  "phh.nbsp.2",
+  "phh.nbsp.3",
+  "phh..3",
+  "phh..4",
+  "phh..5",
+  "phh.nbsp.4",
+  "phh.nbsp.5",
+  "phh..6",
+  "phh..7",
+  "phh..8",
+  "phh.other_arthritistext.txt"
+)
+
+dat %>%
+  select(all_of(variables_text)) %>%
+  tbl_summary(
+    missing_text = "Missing"
+  )
+```
+
+# Save cleaned data
+
+Check colnames before exporting final dataset
+```{r Check colnames}
+colnames(dat)
+```
+
+# COVIDCNS
+```{r Write cleaned COVIDCNS variables to a .rds file}
+dat %>%
+  saveRDS(
+    file = paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/PHH_interimtemp_covidcns_clean.rds")
+    )
+```
