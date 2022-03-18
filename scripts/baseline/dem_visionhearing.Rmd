@@ -1,7 +1,7 @@
 ---
-title: "COVIDCNS NCRF Previous Medications Cleaning Scripts"
+title: "COVIDCNS Demographics Vision and Hearing Cleaning Script"
 author: "Zain Ahmad"
-date: "20/02/2022"
+date: "14/03/2022"
 output: html_document
 ---
 
@@ -43,7 +43,7 @@ source(file = "../functions/add_numeric.R")
 source(file = "../functions/remove_duplicates.R")
 source(file = "../functions/sumscores.R")
 source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check.R")
+source(file = "../functions/imp_check_1.R")
 ```
 
 Use package_check to install and load dependencies
@@ -59,7 +59,7 @@ Ensure that your credentials directory is correctly located
 source(file = "../credentials/paths.R")
 ```
 
-# Read in the data: Neuro Case Report Form Previous Medications
+# Read in the data: COVIDCNS Demographics Vision and Hearing
 Change this heading to the name of your questionnaire/demographic
 Load COVIDCNS data
 
@@ -77,7 +77,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/neuro_case_report/ncrf1_pre_med_covid_cns.rds")
+  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/dem_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -96,8 +96,7 @@ exclude_cols_numeric <- c(
   "ID",
   "sample",
   "startDate",
-  "endDate",
-  "ncrf1_pre_med.date_of_covid19_vaccination.txt"
+  "endDate"
   )
 ```
 
@@ -113,11 +112,8 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          sample,
          startDate,
          endDate,
-         ncrf1_pre_med.had_covid19_vaccine,
-         ncrf1_pre_med.corticosteroids,
-         ncrf1_pre_med.steroids,
-         ncrf1_pre_med.date_of_covid19_vaccination.txt
-         
+         dem.how_would_you_describe_your_vision,
+         dem.how_would_you_describe_your_hearing
          ) %>%
   add_numeric(exclude = exclude_cols_numeric)
 
@@ -185,33 +181,77 @@ Name your vectors in line with the chunks below
 Number the vectors or name them intuitively if you have multiple vectors
 Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
 
-Create vector of categorical values for variables
+Create sequential vectors of categorical values for variables
+Save vectors to a list
+Add variable names as names of list
 ```{r Vector categorical values}
-values_categorical <- c(
-  "Yes",
-  "No",
-  "Unknown",
+vals_cat_1 <- c(
+  "Prefer not to answer",
   "Seen but not answered",
+  "Normal (i.e. 20/20)",
+  "Corrected to normal",
+  "Visually impaired",
   NA
-  )
-values_categorical
+)
+
+vals_cat_2 <- c(
+  "Prefer not to answer",
+  "Seen but not answered",
+  "Normal",
+  "Corrected to normal",
+  "Hearing impaired",
+  NA
+)
 ```
 
-Create vector of variable names for categorical variables
+Create list of numeric values vectors
+```{r List categorical values vectors}
+values_cat_list <- list(
+  vals_cat_1,
+  vals_cat_2
+)
+```
+
+Create vector of categorical domains variables 
 ```{r Vector categorical variables}
-variables_categorical <- c(
-  "ncrf1_pre_med.had_covid19_vaccine",
-  "ncrf1_pre_med.corticosteroids",
-  "ncrf1_pre_med.steroids"
-  )
-variables_categorical
+variables_cat <- c(
+  "dem.how_would_you_describe_your_vision",
+  "dem.how_would_you_describe_your_hearing"
+)
 ```
 
-Use imp_check function to find if any implausible values and obtain summary table of variables
+Set names of list to variable names
+```{r Set list names}
+names(values_cat_list) <- variables_cat
+```
+
+Use imp_check iteratively to find if any implausible values
 ```{r Imp_check categorical variables}
-imp_check(data = dat,
-          variables = variables_categorical,
-          values = values_categorical)
+# Create empty list
+imp_list_cat <- list()
+
+# Loop over each variable, checking against relevant set of values from list
+# Add imp_message to list
+for (i in 1:length(variables_cat)) {
+  imp_list_cat[i] <- imp_check_1(data = dat,
+                                 variables = names(values_cat_list)[i],
+                                 values = values_cat_list[[i]]) 
+
+}
+
+# Name list with var names to correspond to imp_messages
+names(imp_list_cat) <- variables_cat
+
+# View list of imp_messages with corresponding var names
+print(imp_list_cat)
+```
+
+Produce summary table of variables
+```{r Summary table categorical variables}
+dat %>%
+  tbl_summary(
+    include = all_of(variables_cat),
+    missing_text = "Missing")
 ```
 
 
@@ -221,119 +261,69 @@ Name your vectors in line with the chunks below
 Number the vectors or name them intuitively if you have multiple vectors
 Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
 
-Create vector of numeric values 
+Create sequential vectors of numeric values for variables
+Save vectors to a list
+Add variable names as names of list
 ```{r Vector numeric values}
-values_numeric <- c(
+vals_num_1 <- c(
   0,
   1,
+  2,
   -777,
-  -888,
+  -999,
   NA
-  )
-values_numeric
-```
-
-Create vector of variable names for numeric variables
-```{r Vector numeric variables}
-variables_numeric <- c(
-  "ncrf1_pre_med.had_covid19_vaccine_numeric",
-  "ncrf1_pre_med.corticosteroids_numeric",
-  "ncrf1_pre_med.steroids_numeric"
-  )
-variables_numeric
-```
-
-Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r Imp_check numeric variables}
-imp_check(data = dat,
-          variables = variables_numeric,
-          values = values_numeric)
-```
-
-
-# Cleaning Dates
-
-Create vector of date variables
-```{r Vector date variables}
-variables_date <- c(
-  "ncrf1_pre_med.date_of_covid19_vaccination.txt"
 )
 ```
 
-Inspect date variables
-```{r COVIDCNS inspect dates}
+Create list of numeric values vectors
+```{r List numeric values vectors}
+values_num_list <- list(
+  vals_num_1,
+  vals_num_1
+)
+```
+
+Create vector of categorical domains variables 
+```{r Vector numeric variables}
+variables_num <- c(
+  "dem.how_would_you_describe_your_vision_numeric",
+  "dem.how_would_you_describe_your_hearing_numeric"
+)
+```
+
+Set names of list to variable names
+```{r Set list names}
+names(values_num_list) <- variables_num
+```
+
+Use imp_check iteratively
+Use imp_check iteratively to find if any implausible values
+```{r Imp_check numeric variables}
+# Create empty list
+imp_list_num <- list()
+
+# Loop over each variable, checking against relevant set of values from list
+# Add imp_message to list
+for (i in 1:length(variables_num)) {
+  imp_list_num[i] <- imp_check_1(data = dat,
+                                 variables = names(values_num_list)[i],
+                                 values = values_num_list[[i]]) 
+
+}
+
+# Name list with var names to correspond to imp_messages
+names(imp_list_num) <- variables_num
+
+# View list of imp_messages with corresponding var names
+print(imp_list_num)
+```
+
+Produce summary table of variables
+```{r Summary table numeric variables}
 dat %>%
-  select(all_of(variables_date)) %>%
-  glimpse()
-```
-
-Replace -77 values with NA as POSIX will reject -77 as a value when converting
-```{r COVIDCNS recode -77 to NA}
-dat <- dat %>% 
-  mutate(across(
-    all_of(variables_date),
-    ~na_if(., "-77")
-                )
-         )
-```
-
-Parse dates using lubridate
-```{r COVIDCNS parse dates}
-
-dat <- dat %>% 
-  mutate(across(
-    all_of(variables_date),
-    ~lubridate::parse_date_time(
-    x = .,
-    orders = c("d m y", "d/m/y", "d.m.y"),
-    tz = "Europe/London"
-    )
-                )
-         )
-
-```
-
-Recheck date variables
-```{r COVIDCNS inspect dates}
-dat %>%
-  select(all_of(variables_date)) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
-Define limits for variable and list reasoning below
-Variable name:
-- Upper: latest data extraction, cannot have test in the future
-- Lower: 30/01/2020, first confirmed UK COVID cases 
-
-```{r Define limits}
-upper_limit <- as.POSIXct("2022-02-22")
-lower_limit <- as.POSIXct("2020-01-30")
-```
-
-Recode variable outliers to -666
-```{r Recode outliers to NA}
-dat <- dat %>%
-    mutate(across(
-    all_of(variables_date),
-    ~ifelse(
-      . > upper_limit | # bigger than the upper limit
-        . < lower_limit, # smaller than the lower limit
-      yes = NA_real_,
-      no = .
-        )
-    )
-) %>%
-  mutate(across(
-    all_of(variables_date),
-    ~as.POSIXct(., origin = lubridate::origin))
-  )
-```
-
-Re-check dates
-```{r COVID CNS recheck dates}
-dat %>%
-  select(all_of(variables_date)) %>%
-  tbl_summary(missing_text = "Missing")
+  tbl_summary(
+    include = all_of(variables_num),
+    missing_text = "Missing")
 ```
 
 
@@ -348,6 +338,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/ncrf1_pre_med_covidcns_clean.rds")
+    file = paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/dem_visionhearing_covidcns_clean.rds")
     )
 ```
