@@ -343,6 +343,39 @@ dem_quality_life_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
+
+### dem_visionhearing_covidcns_clean
+Read in & variable names
+```{r dem_visionhearing_covidcns_clean Read in data & variable names}
+dem_visionhearing_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/dem_visionhearing_covidcns_clean.rds")
+  )
+
+dem_visionhearing_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r dem_visionhearing_covidcns_clean Dimensions}
+dem_visionhearing_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r dem_visionhearing_covidcns_clean Select columns for joining}
+dem_visionhearing_covidcns_clean_selected <-
+  dem_visionhearing_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+dem_visionhearing_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
 ### employment_covidcns_clean
 Read in & variable names
 ```{r employment_covidcns_clean Read in data & variable names}
@@ -1432,6 +1465,37 @@ ncrf1_pre_med_covidcns_clean_selected %>%
 ```
 
 
+### ncrf1_vital_covidcns_clean
+Read in & variable names
+```{r ncrf1_vital_covidcns_clean Read in data & variable names}
+ncrf1_vital_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/ncrf1_vital_covidcns_clean.rds")
+  )
+
+ncrf1_vital_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ncrf1_vital_covidcns_clean Dimensions}
+ncrf1_vital_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ncrf1_vital_covidcns_clean Select columns for joining}
+ncrf1_vital_covidcns_clean_selected <-
+  ncrf1_vital_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+ncrf1_vital_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
 ### ncrf2_care_covidcns_clean
 Read in & variable names
 ```{r ncrf2_care_covidcns_clean Read in data & variable names}
@@ -1637,28 +1701,31 @@ catatonia_covidcns_clean_selected,
     cfs_covidcns_clean_selected,
     dem_covidpositive_covidcns_clean_selected,
     dem_memory_covidcns_clean_selected,
-dem_quality_life_covidcns_clean_selected,
+    dem_quality_life_covidcns_clean_selected,
+    dem_visionhearing_covidcns_clean,
     employment_covidcns_clean_selected,
     ethnicity_covidcns_clean_selected,
-facial_covidcns_clean_selected,
+    facial_covidcns_clean_selected,
     gad7_covidcns_clean_selected,
     highest_qualification_covidcns_clean_selected,
     language_covidcns_clean_selected,
-nis_outp_covidcns_clean_selected,
-nonmotor_covidcns_clean_selected,
+    nis_outp_covidcns_clean_selected,
+    nonmotor_covidcns_clean_selected,
     past_medical_history_mental_health_covidcns_clean_selected,
     past_medical_history_physical_health_covidcns_clean_selected,
-pcl5_covidcns_clean_selected,
-PHH_interimtemp_covidcns_clean_selected,
+    pcl5_covidcns_clean_selected,
+    PHH_interimtemp_covidcns_clean_selected,
     phq9_covidcns_clean_selected,
     sex_gender_sexuality_covidcns_clean_selected,
     smelltaste_covidcns_clean_selected,
-trauma_covidcns_clean_selected,
-updrs_covidcns_clean_selected,
+    trauma_covidcns_clean_selected,
+    updrs_covidcns_clean_selected,
     vaccine_covidcns_clean_selected,
+    #core_neuro
 fourat_outp_covidcns_clean_selected,
-moca_inp_covidcns_clean_selected,
-cognitron_outp_covidcns_clean_selected,
+    moca_inp_covidcns_clean_selected,
+    cognitron_outp_covidcns_clean_selected,
+    moca_outp_covidcns_clean_selected,
     ncrf_clinical_frailty_clean_selected,
 ncrf_medication_covidcns_clean_selected,
     ncrf_comorbid_covidcns_clean_selected,
@@ -1669,7 +1736,7 @@ ncrf1_cic_covidcns_clean_selected,
 ncrf1_comorbid_covidcns_clean_selected,
 ncrf1_lab_covidcns_clean_selected,
 ncrf1_pre_med_covidcns_clean_selected,
-    ncrf1_vital_covidonly_covidcns_clean_selected,
+ncrf1_vital_covidcns_clean_selected,
     ncrf1_pre_med_covidcns_clean_selected,
 ncrf2_care_covidcns_clean_selected,
 ncrf2_lab_covidcns_clean_selected,
