@@ -693,34 +693,34 @@ pcl5_covidcns_clean_selected %>%
 ```
 
 
-### phh_steroids_immunosuppressants_covidcns_clean
+### PHH_interimtemp_covidcns_clean
 Read in & variable names
-```{r phh_steroids_immunosuppressants_covidcns_clean Read in data & variable names}
-phh_steroids_immunosuppressants_covidcns_clean <-
+```{r PHH_interimtemp_covidcns_clean Read in data & variable names}
+PHH_interimtemp_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/phh_steroids_immunosuppressants_covidcns_clean.rds")
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/PHH_interimtemp_covidcns_clean.rds")
   )
 
-phh_steroids_immunosuppressants_covidcns_clean %>%
+PHH_interimtemp_covidcns_clean %>%
   dim()
 ```
 
 Dimensions
-```{r phh_steroids_immunosuppressants_covidcns_clean Dimensions}
-phh_steroids_immunosuppressants_covidcns_clean %>%
+```{r PHH_interimtemp_covidcns_clean Dimensions}
+PHH_interimtemp_covidcns_clean %>%
   colnames()
 ```
 
 Select columns for joining
-```{r phh_steroids_immunosuppressants_covidcns_clean Select columns for joining}
-phh_steroids_immunosuppressants_covidcns_clean_selected <-
-  phh_steroids_immunosuppressants_covidcns_clean %>%
+```{r PHH_interimtemp_covidcns_clean Select columns for joining}
+PHH_interimtemp_covidcns_clean_selected <-
+  PHH_interimtemp_covidcns_clean %>%
   select(
     -all_of(exclude_variables)
   )
 
-phh_steroids_immunosuppressants_covidcns_clean_selected %>%
+PHH_interimtemp_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
@@ -819,6 +819,37 @@ smelltaste_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
+
+### trauma_covidcns_clean
+Read in & variable names
+```{r trauma_covidcns_clean Read in data & variable names}
+trauma_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/trauma_covidcns_clean.rds")
+  )
+
+trauma_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r trauma_covidcns_clean Dimensions}
+trauma_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r trauma_covidcns_clean Select columns for joining}
+trauma_covidcns_clean_selected <-
+  trauma_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+trauma_covidcns_clean_selected %>%
+  slice(1:5)
+```
 
 ### updrs_covidcns_clean
 Read in & variable names
@@ -1524,7 +1555,7 @@ nonmotor_covidcns_clean_selected,
     past_medical_history_mental_health_covidcns_clean_selected,
     past_medical_history_physical_health_covidcns_clean_selected,
 pcl5_covidcns_clean_selected,
-phh_steroids_immunosuppressants_covidcns_clean_selected,
+PHH_interimtemp_covidcns_clean_selected,
     phq9_covidcns_clean_selected,
     sex_gender_sexuality_covidcns_clean_selected,
     smelltaste_covidcns_clean_selected,
