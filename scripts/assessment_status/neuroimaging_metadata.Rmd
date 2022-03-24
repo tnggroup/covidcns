@@ -1,0 +1,333 @@
+---
+title: "COVIDCNS Neuroimaging Metadata Cleaning Script"
+author: "Zain Ahmad"
+date: "24/03/2022"
+output: html_document
+---
+
+
+All arguments should be in their own row, including the first argument
+Closing bracket should have its own row
+Functions with a single argument can have this on the same line
+One argument can be hashed out per line for debugging errors
+
+Chunk names should be all lower case except:
+Study name (COVIDCNS) all caps
+Capitalised first word
+
+Ensure that you have deleted/untracked .DS_Store before your initial commit
+Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+Add the package_check function - used to install and load dependencies
+Add the imp_check function - used to check variables for implausible values
+```{r Read in functions}
+source(file = "../functions/package_check.R")
+source(file = "../functions/imp_check_1.R")
+source(file = "../functions/imp_check.R")
+```
+
+Use package_check to install and load dependencies
+Load tidyverse last
+```{r Install load dependencies}
+packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
+package_check(packages)
+```
+
+Read in file with path to ilovedata channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Read in file with path to ilovedata channel on teams}
+source(file = "../credentials/paths.R")
+```
+
+# Read in the data: COVIDCNS Neuroimaging Metadata
+Change this heading to the name of your questionnaire/demographic
+Load COVIDCNS data
+
+Do not change variable names from the NLP names that are produced by the extraction
+EXCEPT in exceptional circumstances
+Document ANY changes to variable names in the issues spreadsheet "https://docs.google.com/spreadsheets/d/1a2gL8c0eH2pZXNTbnPzkDYQGeeVXbLKU8BUpYM0moe8/edit?usp=sharing"
+
+- For variable names, use ONLY 'questionnaire.variable_name'
+- For dataset, only use snake_case naming
+- When using pipe operator '%>%', each function should begin on a new line
+- Do not add empty lines at the beginning or end of a chunk
+- Use only tidyverse functions wherever possible
+- When naming chunks, begin with the name of the dataset (COVIDCNS)
+
+## COVIDCNS data
+```{r COVIDCNS load data}
+covidcns_dat <- read_csv(
+  file = paste0(ilovedata, "/data_raw/covidcns/Covid_CNS_neuro_data_03.03.2022.csv"),
+  col_types = list(
+    kit_id = col_character(),
+    primary_site = col_character(),
+    site_name = col_character(),
+    recurited_at_site = col_character(),
+    recurited_at_site_name = col_character(),
+    processing_problems = col_character(),
+    notes = col_character()
+  )
+  )
+  
+# Check variable names in dataframe
+covidcns_dat %>%
+  colnames()
+
+# Inspect dimensions of dataframe 
+covidcns_dat %>%
+  dim()
+```
+
+Select & rename relevant columns
+```{r COVIDCNS select}
+covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
+  drop_na(kit_id) %>% # Drop participants with no ID
+  distinct(kit_id, .keep_all = TRUE) %>% # Remove duplicate IDs
+  add_column(sample = "COVIDCNS",
+             .after = "kit_id") %>% # Create new sample column
+  select(
+         ID = kit_id, # ID
+         primary_site_code = primary_site,
+         primary_site_name = site_name,
+         recruitment_site_code = recurited_at_site,
+         recruitment_site_name = recurited_at_site_name,
+         processing_problems,
+         notes
+         )
+
+# Inspect colnames
+covidcns_dat_id %>%
+  colnames()
+```
+
+Look at number of people excluded
+The number of people to be excluded should be negative
+```{r COVIDCNS number excluded}
+# Inspect dimensions of new data set
+covidcns_dat_id %>%
+  dim()
+
+# Inspect number of rows dropped
+covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
+covidcns_excluded
+```
+
+Check missingness by missmap
+```{r COVIDCNS inspect missingness}
+covidcns_miss_map <- covidcns_dat_id %>% 
+  missmap()
+
+covidcns_miss_map
+```
+
+Create dat as copy of covidcns_dat_id for brevity
+This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
+```{r Create dat}
+dat <- covidcns_dat_id 
+
+# Check
+dat %>% glimpse()
+```
+
+Create list of all unique values
+```{r List unique values}
+ulst <- sapply(dat, unique)
+```
+
+
+# Cleaning Categorical Variables
+
+Name your vectors in line with the chunks below
+Number the vectors or name them intuitively if you have multiple vectors
+Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
+
+Create sequential vectors of categorical values for variables
+Save vectors to a list
+Add variable names as names of list
+```{r Vector categorical values}
+vals_cat_1 <- c(
+  "RJZ",
+  "RET",
+  "RGT",
+  "RM3",
+  "RV5",
+  "RTH",
+  "RJ1",
+  "7A4",
+  "RHQ",
+  "RRV",
+  NA
+)
+
+vals_cat_2 <- c(
+  "KCH",
+  "Liverpool",
+  "Cambridge",
+  "Salford Royal",
+  "SLaM",
+  "Oxford",
+  "GSTT",
+  "Cardiff",
+  "Sheffield",
+  "UCLH",
+  NA
+)
+
+vals_cat_3 <- c(
+  "RJZ01",
+  "RET20",
+  "RGT01",
+  "REM21",
+  "REMRQ",
+  "RM301",
+  "RV504",
+  "RTH08",
+  "RJ122",
+  "7A4BV",
+  "RHQHH",
+  "RRVNQ",
+  NA
+)
+
+vals_cat_4 <- c(
+  "King's College Hospital (Denmark Hill)",
+  "The Walton Centre",
+  "Addenbrooke's Hospital",
+  "Aintree University Hospital",
+  "The Royal Liverpool University Hospital",
+  "Salford Royal Hospital",
+  "Maudsley Hospital",
+  "John Radcliffe Hospital",
+  "St Thomas' Hospital",
+  "University Hospital of Wales",
+  "Royal Hallamshire Hospital",
+  "The National Hospital for Neurology and Neurosurgery",
+  NA
+)
+```
+
+Create list of numeric values vectors
+```{r List categorical values vectors}
+values_cat_list <- list(
+  vals_cat_1,
+  vals_cat_2,
+  vals_cat_3,
+  vals_cat_4
+)
+```
+
+Create vector of categorical domains variables 
+```{r Vector categorical variables}
+variables_cat <- c(
+  "primary_site_code",
+  "primary_site_name",
+  "recruitment_site_code",
+  "recruitment_site_name"
+)
+```
+
+Set names of list to variable names
+```{r Set list names}
+names(values_cat_list) <- variables_cat
+```
+
+Use imp_check iteratively to find if any implausible values
+```{r Imp_check categorical variables}
+# Create empty list
+imp_list_cat <- list()
+
+# Loop over each variable, checking against relevant set of values from list
+# Add imp_message to list
+for (i in 1:length(variables_cat)) {
+  imp_list_cat[i] <- imp_check_1(data = dat,
+                                 variables = names(values_cat_list)[i],
+                                 values = values_cat_list[[i]]) 
+
+}
+
+# Name list with var names to correspond to imp_messages
+names(imp_list_cat) <- variables_cat
+
+# View list of imp_messages with corresponding var names
+print(imp_list_cat)
+```
+
+Produce summary table of variables
+```{r Summary table categorical variables}
+dat %>%
+  tbl_summary(
+    include = all_of(variables_cat),
+    missing_text = "Missing")
+```
+
+# Recoding Incorrect Variables
+
+Variable is coded wrong
+```{r Inspect incorrect variable}
+dat %>%
+  select(
+    recruitment_site_name) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Recode incorrect variable
+```{r Recode incorrect variable}
+dat <- dat %>% 
+  mutate(across(recruitment_site_name,
+                ~case_when(
+                  . == "THE ROYAL LIVERPOOL UNIVERSITY HOSPITAL (RLUH NHS TRUST)" ~ "The Royal Liverpool University Hospital",
+                  TRUE ~ .)))
+```
+
+Re-check variable coding
+```{r Recheck variable coding}
+imp_check(variables = "recruitment_site_name",
+          values = vals_cat_4,
+          data = dat)
+```
+
+# Text variables
+
+Inspect text variables
+```{r Inspect text vars}
+variables_text <- c(
+  "processing_problems",
+  "notes"
+)
+
+dat %>%
+  select(all_of(variables_text)) %>%
+  tbl_summary(
+    missing_text = "Missing"
+  )
+```
+
+# Save cleaned data
+
+Check colnames before exporting final dataset
+```{r Check colnames}
+colnames(dat)
+```
+
+# COVIDCNS
+```{r Write cleaned COVIDCNS variables to a .rds file}
+dat %>%
+  saveRDS(
+    file = paste0(ilovedata, "/data/covidcns/COVID_CNS_neuroimaging_metadata_clean.rds")
+    )
+```
