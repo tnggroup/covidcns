@@ -1001,7 +1001,7 @@ dat <- dat %>%
 Re-check coding
 ```{r COVIDCNS recheck coding}
 dat %>%
-  select(phh.nbsp.3) %>%
+  select(phh.nbsp.2) %>%
   tbl_summary(missing_text = "Missing")
 ```
 
