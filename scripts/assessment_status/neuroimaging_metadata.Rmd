@@ -304,11 +304,10 @@ imp_check(variables = "recruitment_site_name",
 Add column for attempted scan (all in list)
 ```{r Add attempted scan column}
 dat <- dat %>%
-  mutate(
-    attempted_scan = 1
-  )
+  mutate(attempted_scan = 1)
 
-dat %>% tbl_summary(include = attempted_scan)
+dat %>%
+  tbl_summary(include = attempted_scan)
 ```
 
 
