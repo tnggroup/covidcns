@@ -301,6 +301,18 @@ imp_check(variables = "recruitment_site_name",
           data = dat)
 ```
 
+Add column for attempted scan (all in list)
+```{r Add attempted scan column}
+dat <- dat %>%
+  mutate(
+    attempted_scan = 1
+  )
+
+dat %>% tbl_summary(include = attempted_scan)
+```
+
+
+
 # Text variables
 
 Inspect text variables
