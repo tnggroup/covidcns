@@ -1147,70 +1147,6 @@ ncrf_medication_covidcns_clean_selected %>%
 ```
 
 
-### ncrf1_comorbid_covidcns_clean
-Read in & variable names
-```{r ncrf1_comorbid_covidcns_clean Read in data & variable names}
-ncrf1_comorbid_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf1_comorbid_covidcns_clean.rds")
-  )
-
-ncrf1_comorbid_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r ncrf1_comorbid_covidcns_clean Dimensions}
-ncrf1_comorbid_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r ncrf1_comorbid_covidcns_clean Select columns for joining}
-ncrf1_comorbid_covidcns_clean_selected <- 
-  ncrf1_comorbid_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-ncrf1_comorbid_covidcns_clean_selected %>%
-  slice(1:5)
-```
-
-
-### ncrf_medication_covidcns_clean
-Read in & variable names
-```{r ncrf_medication_covidcns_clean Read in data & variable names}
-ncrf_medication_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf_medication_covidcns_clean.rds")
-  )
-
-ncrf_medication_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r ncrf_medication_covidcns_clean Dimensions}
-ncrf_medication_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r ncrf_medication_covidcns_clean Select columns for joining}
-ncrf_medication_covidcns_clean_selected <- 
-  ncrf_medication_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-ncrf_medication_covidcns_clean_selected %>%
-  slice(1:5)
-```
-
-
 ### ncrf1_admission_covidcns_clean
 Read in & variable names
 ```{r ncrf1_admission_covidcns_clean Read in data & variable names}
@@ -1433,68 +1369,9 @@ ncrf1_vital_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
-### ncrf1_pre_med_covidcns_clean
-Read in & variable names
-```{r ncrf1_pre_med_covidcns_clean Read in data & variable names}
-ncrf1_pre_med_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf1_pre_med_covidcns_clean.rds")
-  )
-
-ncrf1_pre_med_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r ncrf1_pre_med_covidcns_clean Dimensions}
-ncrf1_pre_med_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r ncrf1_pre_med_covidcns_clean Select columns for joining}
-ncrf1_pre_med_covidcns_clean_selected <- 
-  ncrf1_pre_med_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-ncrf1_pre_med_covidcns_clean_selected %>%
-  slice(1:5)
-```
 
 
-### ncrf1_vital_covidcns_clean
-Read in & variable names
-```{r ncrf1_vital_covidcns_clean Read in data & variable names}
-ncrf1_vital_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf1_vital_covidcns_clean.rds")
-  )
-
-ncrf1_vital_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r ncrf1_vital_covidcns_clean Dimensions}
-ncrf1_vital_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r ncrf1_vital_covidcns_clean Select columns for joining}
-ncrf1_vital_covidcns_clean_selected <-
-  ncrf1_vital_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-ncrf1_vital_covidcns_clean_selected %>%
-  slice(1:5)
-```
+  
 
 ### ncrf2_care_covidcns_clean
 Read in & variable names
@@ -1695,9 +1572,9 @@ cognitron_selected %>%
 tibble_list <- 
   list(
    age_covidcns_clean_selected,
-als_covidcns_clean_selected,
+    als_covidcns_clean_selected,
     cage_covidcns_clean_selected,
-catatonia_covidcns_clean_selected,
+    catatonia_covidcns_clean_selected,
     cfs_covidcns_clean_selected,
     dem_covidpositive_covidcns_clean_selected,
     dem_memory_covidcns_clean_selected,
@@ -1722,12 +1599,13 @@ catatonia_covidcns_clean_selected,
     updrs_covidcns_clean_selected,
     vaccine_covidcns_clean_selected,
     # core_neuro
-fourat_outp_covidcns_clean_selected,
+    fourat_outp_covidcns_clean_selected,
+   # mh_case_report
     moca_inp_covidcns_clean_selected,
     # moca
     cognitron_outp_covidcns_clean_selected,
     moca_outp_covidcns_clean_selected,
-    # case report
+    # neuro_case_report
     ncrf_clinical_frailty_clean_selected,
     ncrf_medication_covidcns_clean_selected,
     # ncrf1
