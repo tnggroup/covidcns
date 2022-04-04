@@ -77,9 +77,67 @@ exclude_variables <-
 ```
 
 
-
-
 # Read in the data
+
+## Assessment status
+
+### COVID_CNS_casecontrol_clean
+Read in & variable names
+```{r COVID_CNS_casecontrol_clean Read in data & variable names}
+COVID_CNS_casecontrol_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/assessment_status/COVID_CNS_casecontrol_clean.rds")
+  )
+
+COVID_CNS_casecontrol_clean %>%
+  dim()
+```
+
+Dimensions
+```{r COVID_CNS_casecontrol_clean Dimensions}
+COVID_CNS_casecontrol_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r COVID_CNS_casecontrol_clean Select columns for joining}
+COVID_CNS_casecontrol_clean_selected <-
+  COVID_CNS_casecontrol_clean
+
+COVID_CNS_casecontrol_clean_selected %>%
+  slice(1:5)
+```
+
+
+### COVID_CNS_neuroimaging_metadata_clean
+Read in & variable names
+```{r COVID_CNS_neuroimaging_metadata_clean Read in data & variable names}
+COVID_CNS_neuroimaging_metadata_clean <-
+  read_rds(
+    file = 
+      paste0(ilovedata, "/data/latest_freeze/covidcns/assessment_status/COVID_CNS_neuroimaging_metadata_clean.rds")
+  )
+
+COVID_CNS_neuroimaging_metadata_clean %>%
+  dim()
+```
+
+Dimensions
+```{r COVID_CNS_neuroimaging_metadata_clean Dimensions}
+COVID_CNS_neuroimaging_metadata_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r COVID_CNS_neuroimaging_metadata_clean Select columns for joining}
+COVID_CNS_neuroimaging_metadata_clean_selected <-
+  COVID_CNS_neuroimaging_metadata_clean
+
+COVID_CNS_neuroimaging_metadata_clean_selected %>%
+  slice(1:5)
+```
+
 
 ## Demographics
 
@@ -1571,7 +1629,9 @@ cognitron_selected %>%
 ```{r List of tibbles to join}
 tibble_list <- 
   list(
-   age_covidcns_clean_selected,
+    COVID_CNS_casecontrol_clean_selected,
+    COVID_CNS_neuroimaging_metadata_clean_selected,
+    age_covidcns_clean_selected,
     als_covidcns_clean_selected,
     cage_covidcns_clean_selected,
     catatonia_covidcns_clean_selected,
