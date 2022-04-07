@@ -34,7 +34,7 @@ remove(list = ls())
 ```
 
 Add the package_check function - used to install and load dependencies
-Add the imp_check function - used to check variables for implausible values
+Add the imp_clean function - used to check variables for implausible values
 ```{r Read in functions}
 source(file = "../functions/package_check.R")
 source(file = "../functions/imp_clean.R")
