@@ -2,7 +2,8 @@
 #' 
 #' @description Sumscores is a function that generates summary scores for 
 #' questionnaires. It takes in a matrix of numerical responses and generates a 
-#'   summary score for the selected questionnaire.
+#' summary score for the selected questionnaire along with a count of NAs for
+#' the scoring variables
 #'
 #' @author Zain Ahmad
 #' 
@@ -11,14 +12,13 @@
 #' @param reverse a logical denoting whether the sumscore requires reverse keying
 #' @param reverse_vars a vector of the variable colnams which are to be reverse keyed
 #' @param coding_keys a vector of the coding direction of the question items.  (-1, 0, 1) 1 will add, -1 will subtract, 0 will omit.
-#' @param na_limit the number of NAs to allow, default 0
-#' @param method "mean_impute" or "zero_replace" (default), the method to use when replacing NAs, mean imputation or zero replacement 
+#' @param na_allowed the number of NAs to allow, default 0
 #' @param min_item the minimum value of items in the questionnaire
 #' @param max_item the maximum value of items in the questionnaire
 #' @param min_score is the known minimum value of the sumscore
 #' @param max_score is the known maximum value of the sumscore
 #' 
-#' @return A vector of sumscores x where length(x) == nrow(input) 
+#' @return A list of 2 items: a vector of sumscores x where length(x) == nrow(input), and a vector of the row-wise NA count
 #' 
 #' @examples
 #' sumscores(dat, c(w,x,y,z), c(1,1,1,1), 0, 5, 0, 20)
@@ -28,7 +28,7 @@
 #' 
 
 
-sumscores <- function(input, sum_vars, reverse = FALSE, reverse_vars, coding_keys, na_limit=0, method = "zero_replace", min_item, max_item, min_score, max_score){
+sumscores <- function(input, sum_vars, reverse = FALSE, reverse_vars, coding_keys, na_allowed=0, min_item, max_item, min_score, max_score){
   
   # imports tidyverse inside the function
   require(tidyverse)
@@ -82,24 +82,14 @@ sumscores <- function(input, sum_vars, reverse = FALSE, reverse_vars, coding_key
   # count NAs per row
   input$na.count <- apply(input, 1, function(x) sum(is.na(x)))
   
+  # save NA count per row before input is transformed to matrix
+  na.count_out <- input$na.count
+  
   # Add zero to coding_keys to account for na.count column
   coding_keys <- c(coding_keys, 0)
   
-  # find rows with na_count > na_limit, change na values to 0 in those rows
-  if (na_limit != 0){
-    
-    if (method != "zero_replace" & method != "mean_impute"){
-      stop("Method is incorrectly specified")
-    }
-    
-    if (method == "zero_replace"){
-      input[input["na.count"] > na_limit, ][is.na(input[input["na.count"] > na_limit, ])] <- 0
-    }
-    
-    #if (method == "mean_impute"){
-    #  input[input["na.count"] > na_limit, ][is.na(input[input["na.count"] > na_limit, ])] <- 0
-    #}
-  }
+  # find rows with na_count <= na_allowed, change na values to 0 in those rows
+  input[input["na.count"] <= na_allowed, ][is.na(input[input["na.count"] <= na_allowed, ])] <- 0
   
   # handle negatively coded items and calculate
   coding_keys <- as.matrix(coding_keys)
@@ -120,6 +110,16 @@ sumscores <- function(input, sum_vars, reverse = FALSE, reverse_vars, coding_key
     warning("\nScores vector contains missing values.")
   }
   
-  # return vector of sumscores
-  return(as.numeric(scores))
+  # create empty output list
+  out_list <- list()
+  
+  # set list items as scores and na_count
+  out_list[[1]] <- as.numeric(scores)
+  out_list[[2]] <- na.count_out
+  
+  # name list
+  names(out_list) <- c("scores", "na.count")
+  
+  # return outputs
+  return(out_list)
 }
