@@ -169,9 +169,12 @@ dat <- dat %>%
                   TRUE ~ .)))
 ```
 
-Create list of all unique values
-```{r List unique values}
+Create lists of all unique values and levels
+Use the unique list as a reference for numeric variables
+Use the levels list as a reference for categorical variables
+```{r List unique values levels}
 ulst <- sapply(dat, unique)
+llst <- sapply(dat, levels)
 ```
 
 
@@ -181,32 +184,27 @@ Name your vectors in line with the chunks below
 Number the vectors or name them intuitively if you have multiple vectors
 Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
 
-Create sequential vectors of categorical values for variables
-Save vectors to a list
-Add variable names as names of list
+Create sequential vectors of categorical values
 ```{r Vector categorical values}
 vals_cat_1 <- c(
   
   NA
 )
-
 vals_cat_2 <- c(
   
   NA
 )
-
 vals_cat_3 <- c(
   
   NA
 )
-
 vals_cat_4 <- c(
   
   NA
 )
 ```
 
-Create list of numeric values vectors
+Create list of categorical values vectors
 ```{r List categorical values vectors}
 values_cat_list <- list(
   vals_cat_1,
@@ -216,44 +214,34 @@ values_cat_list <- list(
 )
 ```
 
-Create vector of categorical domains variables 
-```{r Vector categorical variables}
-variables_cat <- c(
-  "questionnaire.variable_name"
+Remove values vectors from environment
+```{r Remove values vectors}
+rm(
+  vals_cat_1,
+  vals_cat_2,
+  vals_cat_3,
+  vals_cat_4
 )
 ```
 
 Set names of list to variable names
 ```{r Set list names}
-names(values_cat_list) <- variables_cat
+names(values_cat_list) <- c(
+  "questionnaire.variable_name"
+)
 ```
 
-Use imp_check iteratively to find if any implausible values
-```{r Imp_check categorical variables}
-# Create empty list
-imp_list_cat <- list()
-
-# Loop over each variable, checking against relevant set of values from list
-# Add imp_message to list
-for (i in 1:length(variables_cat)) {
-  imp_list_cat[i] <- imp_check_1(data = dat,
-                                 variables = names(values_cat_list)[i],
-                                 values = values_cat_list[[i]]) 
-
-}
-
-# Name list with var names to correspond to imp_messages
-names(imp_list_cat) <- variables_cat
-
-# View list of imp_messages with corresponding var names
-print(imp_list_cat)
+Use imp_clean to find if any implausible values
+```{r Imp_clean categorical variables}
+imp_clean(values_list = values_cat_list,
+          dat = dat)
 ```
 
 Produce summary table of variables
 ```{r Summary table categorical variables}
 dat %>%
   tbl_summary(
-    include = all_of(variables_cat),
+    include = all_of(names(values_cat_list)),
     missing_text = "Missing")
 ```
 
@@ -264,15 +252,12 @@ Name your vectors in line with the chunks below
 Number the vectors or name them intuitively if you have multiple vectors
 Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
 
-Create sequential vectors of numeric values for variables
-Save vectors to a list
-Add variable names as names of list
+Create sequential vectors of numeric values
 ```{r Vector numeric values}
 vals_num_1 <- c(
   
   NA
 )
-
 vals_num_2 <- c(
   
   NA
@@ -287,65 +272,53 @@ values_num_list <- list(
 )
 ```
 
-Create vector of categorical domains variables 
-```{r Vector numeric variables}
-variables_num <- c(
-  "questionnaire.variable_name"
+Remove values vectors from environment
+```{r Remove values vectors}
+rm(
+  vals_num_1,
+  vals_num_2
 )
 ```
 
 Set names of list to variable names
 ```{r Set list names}
-names(values_num_list) <- variables_num
+names(values_num_list) <- c(
+  "questionnaire.variable_name"
+)
 ```
 
-Use imp_check iteratively
-Use imp_check iteratively to find if any implausible values
-```{r Imp_check numeric variables}
-# Create empty list
-imp_list_num <- list()
-
-# Loop over each variable, checking against relevant set of values from list
-# Add imp_message to list
-for (i in 1:length(variables_num)) {
-  imp_list_num[i] <- imp_check_1(data = dat,
-                                 variables = names(values_num_list)[i],
-                                 values = values_num_list[[i]]) 
-
-}
-
-# Name list with var names to correspond to imp_messages
-names(imp_list_num) <- variables_num
-
-# View list of imp_messages with corresponding var names
-print(imp_list_num)
+Use imp_clean to find if any implausible values
+```{r Imp_clean numeric variables}
+imp_clean(values_list = values_num_list,
+          dat = dat)
 ```
 
 Produce summary table of variables
 ```{r Summary table numeric variables}
 dat %>%
   tbl_summary(
-    include = all_of(variables_num),
+    include = all_of(names(values_num_list)),
     missing_text = "Missing")
 ```
 
 
 # Recoding Incorrect Variables
 
-Variable is coded wrong
-```{r Inspect incorrect variable}
-dat %>%
-  select(
-    questionnaire.variable_name,
-    questionnaire.variable_name) %>%
-  tbl_summary(missing_text = "Missing")
+Use recode_check to ascertain implausible value
+```{r Recode_check variable coding}
+variable_values <- c(
+  # add correct values here
+  NA
+)
+recode_check(data = dat,
+             variables = "questionnaire.variable_name",
+             values = variable_values)
 ```
 
 Recode incorrect variable
 Can be removed after data recoded in qualtrics and after data export
 If variables are found to be incorrect:
-Report the error in the qualtrics issues spreadsheet
-Add as action point on teams with yourself and Molly tagged
+Report the error in the issue log spreadsheet
 Recode the variable yourself using `case_when` as below
 Continue cleaning your script with the recoded variable until fixed from source
 DO NOT run this chunk multiple times: it will mess up the variable coding, requiring you to run the script again from the beginning
@@ -363,111 +336,192 @@ dat <- dat %>%
 
 Re-check variable coding
 ```{r Recheck variable coding}
-dat %>%
-  select(
-    questionnaire.variable_name,
-    questionnaire.variable_name) %>%
-  tbl_summary(missing_text = "Missing")
+recode_check(data = dat,
+             variables = "questionnaire.variable_name",
+             values = variable_values)
 ```
 
 
 # Cleaning Continuous Variables
 
-Inspect range prior to cleaning
-```{r Check range of values}
-dat %>%
-  select(variable_one) %>%
-  tbl_summary()
+Create vector of continuous variables
+```{r Create cont vars vector}
+variables_cont <- c(
+  "questionnaire.variable_name"
+)
 ```
 
+Inspect continuous variables
+Use the question labels to ascertain context at this point and check for obvious outliers
+The percentiles can be modified to exclude nonanswer values as appropriate to your data
+```{r Inspect cont vars}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
+```
+
+Check unique values in continuous variables
+If the fields contain text at this point, use the chunk below to clean manually
+```{r Cont vars unique}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  sapply(., unique)
+```
+
+Manually clean continuous variables to ensure parsing as numeric
+Use the output from the chunk above and clean the variable manually here until there are no 'rogue' values
+Case_when is type-specific so number must be specified as char and the variable mutated to numeric as below
+REMOVE THIS CHUNK IF NOT NECESSARY
+```{r Cont vars manual clean}
+dat <- dat %>%
+  mutate(across(questionnaire.variable_name,
+                ~case_when(str_detect(questionnaire.variable_name, "pattern") ~ "1",
+                           TRUE ~ .)
+                )
+         )
+```
+
+Mutate variables to numeric after cleaning manually
+This step is necessary to check for non-integer values
+Modify the all_of statement as required: DO NOT MUTATE TO NUMERIC UNNECESSARILY
+REMOVE THIS CHUNK IF NOT NECESSARY
+```{r Cont vars to numeric}
+dat <- dat %>%
+  mutate(across(all_of(variables_cont),
+                ~as.numeric(.)
+                )
+         )
+```
+
+Transform nonanswer values to 3 digit
+```{r Cont vars nonanswer}
+dat <- dat %>%
+  mutate(across(
+    all_of(variables_cont),
+    ~case_when(. == -55 ~ -555,
+               . == -77 ~ -777,
+               . == -88 ~ -888,
+               . == -99 ~ -999,
+               TRUE ~ .)
+                )
+         )
+```
+
+Transform negative values to positive excluding nonanswer
+ONLY USE THIS CHUNK IF RELEVANT TO YOUR DATA: DELETE IF NOT
+```{r Cont vars neg to pos}
+dat <- dat %>%
+  mutate(across(
+    all_of(variables_cont),
+    ~case_when(. == -555 ~ -555,
+               . == -777 ~ -777,
+               . == -888 ~ -888,
+               . == -999 ~ -999,
+               TRUE ~ abs(.))
+                )
+         )
+```
+
+Recheck continuous variables
+```{r Recheck cont vars}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
+```
+
+Create matrix of limits for continuous variables
+Matrix is series of vectors (lower, upper)
 Define limits for variable and list reasoning below
 Variable name:
-- Upper: reasoning
-- Lower: reasoning
-
-```{r Define limits}
-variable_one_upper_limit = 
-variable_one_lower_limit = 
+- Upper: 
+- Lower: 
+```{r Create matrix limits}
+limits_mat <- rbind(
+  c(,),
+  )
 ```
 
-Count number of outliers in variable
-```{r Outlier count}
-dat %>%
-  filter(
-    variable_one > variable_one_upper_limit | # bigger than the upper limit
-      variable_one < variable_one_lower_limit & variable_one > -555 # smaller than the lower limit
-      # or special conditions
-    ) %>%
-  nrow()
+Set row and col names of limits_mat
+This allows your to easily refer back to limits_mat for a summary
+```{r Set lim_mat names}
+rownames(limits_mat) <- variables_cont
+colnames(limits_mat) <- c("Lower", "Upper")
 ```
 
-Recode variable outliers to -666
-```{r Recode outliers to -666}
+Use cont_clean to check if any implausible values and provide replacement vectors
+Cont_clean will not proceed if variables are not numeric type, clean manually above if necessary
+```{r Cont_clean cont vars}
+cont_list <- cont_clean(
+  variables = variables_cont,
+  limits_mat = limits_mat,
+  dat = dat
+)
+for (i in 1:length(variables_cont)){
+  print(paste0("Implausibles in ", variables_cont[i], ": ", cont_list[[variables_cont[i]]]$Count))
+}
+```
+
+Mutate variables with implausible values removed
+```{r Mutate cont vars}
 dat <- dat %>%
-    mutate(
-      variable_one = 
-        if_else(
-          variable_one > variable_one_upper_limit | # bigger than the upper limit
-           variable_one < variable_one_lower_limit & variable_one > -555, # smaller than the lower limit
-            # or special conditions
-          true = -666,
-          false = variable_one,
-          missing = NA_real_
-        )
-    )
+  mutate(
+    questionnaire.variable_name = cont_list$questionnaire.variable_name$Replacement
+  )
 ```
 
-Re-inspect variable after cleaning
-```{r Inspect after recoding to -666}
+Re-inspect variables after cleaning
+```{r Inspect after cleaning}
 dat %>%
-  select(variable_one) %>%
-  tbl_summary()
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})")
+  )
 ```
 
 
 # Cleaning Dates
 
 Create vector of date variables
-```{r Vector date variables}
+```{r Vector date vars}
 variables_date <- c(
   "questionnaire.variable_name"
 )
 ```
 
 Inspect date variables
-```{r COVIDCNS inspect dates}
+```{r Inspect date vars}
 dat %>%
   select(all_of(variables_date)) %>%
   glimpse()
 ```
 
-Replace -77 values with NA as POSIX will reject -77 as a value when converting
-```{r COVIDCNS recode -77 to NA}
+Replace -77 values with NA: POSIX will reject -77 as a value when converting
+```{r Date vars recode -77 to NA}
 dat <- dat %>% 
-  mutate(across(
-    all_of(variables_date),
-    ~na_if(., "-77")
+  mutate(across(all_of(variables_date),
+                ~na_if(., "-77")
                 )
          )
 ```
 
 Parse dates using lubridate
-```{r COVIDCNS parse dates}
-
+```{r Parse date vars}
 dat <- dat %>% 
-  mutate(across(
-    all_of(variables_date),
-    ~lubridate::parse_date_time(
-    x = .,
-    orders = c("d m y", "d/m/y", "d.m.y"),
-    tz = "Europe/London"
-    )
+  mutate(across(all_of(variables_date),
+                ~lubridate::parse_date_time(x = .,
+                                            orders = c("d m y", "d/m/y", "d.m.y"),
+                                            tz = "Europe/London")
                 )
          )
 ```
 
 Recheck date variables
-```{r COVIDCNS inspect dates}
+```{r Inspect date vars}
 dat %>%
   select(all_of(variables_date)) %>%
   tbl_summary(missing_text = "Missing")
@@ -475,38 +529,52 @@ dat %>%
 
 Define limits for variable and list reasoning below
 Variable name:
-- Upper: latest data extraction, cannot have test in the future
-- Lower: 30/01/2020, first confirmed UK COVID cases 
-
-```{r Define limits}
-upper_limit <- as.POSIXct("2022-02-22")
-lower_limit <- as.POSIXct("2020-01-30")
+- Upper: 
+- Lower: 
+```{r Date vars define limits}
+upper_limit <- as.POSIXct("yyyy-mm-dd")
+lower_limit <- as.POSIXct("yyyy-mm-dd")
 ```
 
-Recode variable outliers to -666
-```{r Recode outliers to NA}
+Recode variable outliers to NA
+```{r Date vars recode outliers to NA}
 dat <- dat %>%
-    mutate(across(
-    all_of(variables_date),
-    ~ifelse(
-      . > upper_limit | # bigger than the upper limit
-        . < lower_limit, # smaller than the lower limit
-      yes = NA_real_,
-      no = .
-        )
-    )
-) %>%
-  mutate(across(
-    all_of(variables_date),
-    ~as.POSIXct(., origin = lubridate::origin))
-  )
+    mutate(across(all_of(variables_date),
+                  ~ifelse(. > upper_limit | # bigger than the upper limit
+                          . < lower_limit, # smaller than the lower limit
+                          yes = NA_real_,
+                          no = .)
+                  )
+           ) %>%
+  mutate(across(all_of(variables_date),
+                ~as.POSIXct(.,
+                            origin = lubridate::origin)
+                )
+         )
 ```
 
 Re-check dates
-```{r COVID CNS recheck dates}
+```{r Recheck date vars}
 dat %>%
   select(all_of(variables_date)) %>%
   tbl_summary(missing_text = "Missing")
+```
+
+
+# Cleaning Textual Variables
+
+Create vector of text variables
+```{r Vector text vars}
+variables_text <- c(
+  "questionnaire.variable_name"
+)
+```
+
+View text variables
+```{r Check text vars}
+dat %>%
+  select(all_of(variables_text)) %>%
+  tbl_summary()
 ```
 
 
@@ -535,36 +603,38 @@ Create required variables for sumscore arguments
 keys <- c(
   # should be a vector of 1s, 0s or -1s
   )
-
 sum_vars <- c(
   "questionnaire.variable_name_numeric"
   # all variable names to add
   )
 ```
 
-
 Generate sumscores from questionnaire data and use mutate onto dat as new column
 sumscores assumes that all items in the questionnaire have the SAME minimum and maximum scores for ALL items, ensure that this is correct before proceeding
 
 When adding the column name for your sumscore use "questionnaire.score_name"
 
-Generate sumscores and add as new column
-```{r Generate sumscores}
-dat <- dat %>% 
-  mutate(
-    questionnaire.sum_score = 
-         sumscores(input = dat,
-                   sum_vars = sum_vars,
-                   coding_keys = keys,
-                   na_limit = 0,
-                   min_item = ,
-                   max_item = ,
-                   min_score = ,
-                   max_score = 
-                   )
-         )
+Sumscores will produce a list of 2 elements, the first is "scores", the second is "na.count"
 
+Generate sumscores
+```{r Generate sumscores}
+sum_out <- sumscores(input = dat,
+                     sum_vars = sum_vars,
+                     coding_keys = keys,
+                     na_allowed = 0,
+                     min_item = ,
+                     max_item = ,
+                     min_score = ,
+                     max_score = 
+                     )
 ```
+
+Add sumscores as new column
+```{r Add sumscores}
+dat <- dat %>% 
+  mutate(questionnaire.sum_score = sum_out$scores)
+```
+
 
 # Create binary phenotypes
 Add explanation of binary phenotype here:
