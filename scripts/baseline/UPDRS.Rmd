@@ -1,0 +1,780 @@
+--
+title: "COVIDCNS UPDRS Cleaning Script"
+author: "Zain Ahmad"
+date: "03/03/2022"
+output: html_document
+---
+
+
+All arguments should be in their own row, including the first argument
+Closing bracket should have its own row
+Functions with a single argument can have this on the same line
+One argument can be hashed out per line for debugging errors
+
+Chunk names should be all lower case except:
+Study name (COVIDCNS) all caps
+Capitalised first word
+
+Ensure that you have deleted/untracked .DS_Store before your initial commit
+Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+Add the add_numeric function - used to convert character variables into numeric variables
+Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+Add the imp_check function - used to check variables for implausible values
+```{r Read in functions}
+source(file = "../functions/add_numeric.R")
+source(file = "../functions/remove_duplicates.R")
+source(file = "../functions/sumscores.R")
+source(file = "../functions/package_check.R")
+source(file = "../functions/imp_check_1.R")
+```
+
+Use package_check to install and load dependencies
+Load tidyverse last
+```{r Install load dependencies}
+packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
+package_check(packages)
+```
+
+Read in file with path to ilovecovidcns channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "../credentials/paths.R")
+```
+
+# Read in the data: COVIDCNS Unified Parkinson's Disease Rating Scale
+Change this heading to the name of your questionnaire/demographic
+Load COVIDCNS data
+
+Do not change variable names from the NLP names that are produced by the extraction
+EXCEPT in exceptional circumstances
+Document ANY changes to variable names in the issues spreadsheet "https://docs.google.com/spreadsheets/d/1a2gL8c0eH2pZXNTbnPzkDYQGeeVXbLKU8BUpYM0moe8/edit?usp=sharing"
+
+- For variable names, use ONLY 'questionnaire.variable_name'
+- For dataset, only use snake_case naming
+- When using pipe operator '%>%', each function should begin on a new line
+- Do not add empty lines at the beginning or end of a chunk
+- Use only tidyverse functions wherever possible
+- When naming chunks, begin with the name of the dataset (COVIDCNS)
+
+## COVIDCNS data
+```{r COVIDCNS load data}
+covidcns_dat <- read_rds(
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/updrs_covid_cns.rds")
+  )
+  
+# Check variable names in dataframe
+covidcns_dat %>%
+  colnames()
+# Inspect dimensions of dataframe 
+covidcns_dat %>%
+  dim()
+```
+
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+```{r COVIDCNS specify excluded columns}
+exclude_cols_numeric <- c(
+  "ID",
+  "sample",
+  "startDate",
+  "endDate"
+  )
+```
+
+Select & rename relevant columns
+```{r COVIDCNS select}
+covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
+  drop_na(externalDataReference) %>% # Drop participants with no ID
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
+  add_column(sample = "COVIDCNS",
+             .after = "externalDataReference") %>% # Create new sample column
+  select(
+         ID = externalDataReference, # ID
+         sample,
+         startDate,
+         endDate,
+         updrs.trouble_reading_handwriting_past,
+         updrs.hobbies_trouble_past_week,
+         updrs.trouble_turning_bed_past,
+         updrs.shaking_tremor_past_week,
+         updrs.left_arm,
+         updrs.right_arm,
+         updrs.left_leg,
+         updrs.right_leg,
+         updrs.whole_body,
+         updrs.deep_chair_car_seat,
+         updrs.balance_walking_past_week,
+         updrs.feet_floor_freeze_stuck,
+         updrs.speech_past_week_problems,
+         updrs.awake_saliva_sleep_past,
+         updrs.made_soft_chopped_avoid,
+         updrs.trouble_handling_finger_foods,
+         updrs.zippers_putting_problems_dressing,
+         updrs.personal_hygiene_hair_slow,
+         updrs.start_happening_required_question,
+         updrs.start_happening_required_question.1,
+         updrs.start_happening_required_question.2,
+         updrs.start_happening_required_question.3,
+         updrs.start_happening_required_question.4,
+         updrs.start_happening_required_question.5,
+         updrs.start_happening_required_question.6,
+         updrs.start_happening_required_question.7,
+         updrs.start_happening_required_question.8,
+         updrs.start_happening_required_question.9,
+         updrs.start_happening_required_question.10,
+         updrs.start_happening_required_question.11,
+         updrs.start_happening_required_question.12
+         ) %>%
+  add_numeric(exclude = exclude_cols_numeric)
+# Inspect colnames
+covidcns_dat_id %>%
+  colnames()
+```
+
+Look at number of people excluded
+The number of people to be excluded should be negative
+```{r COVIDCNS number excluded}
+# Inspect dimensions of new data set
+covidcns_dat_id %>%
+  dim()
+# Inspect number of rows dropped
+covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
+covidcns_excluded
+```
+
+Check missingness by missmap
+```{r COVIDCNS inspect missingness}
+covidcns_miss_map <- covidcns_dat_id %>% 
+  missmap()
+covidcns_miss_map
+```
+
+Create dat as copy of covidcns_dat_id for brevity
+This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
+```{r Create dat}
+dat <- covidcns_dat_id 
+# Check
+dat %>% glimpse()
+```
+
+Recode Non-answer values to 3 digits
+-555 'Not applicable' response from participant
+-777 Seen but not answered
+-888 Don't know
+-999 Prefer not to answer/Prefer not to say
+`NA` Were not shown the question (genuinely missing value)
+When we code someone as being 'not applicable' by deduction, we use `NA_real_`
+```{r Recode NA values}
+dat <- dat %>%
+  mutate(across(ends_with("numeric"),
+                ~case_when(
+                  . == -55 ~ -555,
+                  . == -77 ~ -777,
+                  . == -88 ~ -888,
+                  . == -99 ~ -999,
+                  TRUE ~ .)))
+```
+
+Create list of all unique values
+```{r List unique values}
+ulst <- sapply(dat, unique)
+llst <- sapply(dat, levels)
+```
+
+
+# Cleaning Categorical Variables
+
+Name your vectors in line with the chunks below
+Number the vectors or name them intuitively if you have multiple vectors
+Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
+
+Create sequential vectors of categorical values for variables
+Save vectors to a list
+Add variable names as names of list
+```{r Vector categorical values}
+values_cat_list <- list(
+  c(
+    "Seen but not answered",
+    "Normal - Not at all (no problems).",
+    "Slight - My writing is slow, clumsy or uneven, but all words are clear.",
+    "Mild - Some words are unclear and difficult to read.",
+    "Moderate - Many words are unclear and difficult to read.",
+    "Severe - Most or all words cannot be read.",
+    NA
+  ),
+  
+  c(
+    "Seen but not answered",
+    "Normal - Not at all (no problems).",
+    "Slight - I am a bit slow but do these activities easily.",
+    "Mild - I have some difficulty doing these activities.",
+    "Moderate - I have major problems doing these activities, but still do most.",
+    "Severe - I am unable to do most or all of these activities.",
+    NA
+  ),
+  
+  c(
+    "Seen but not answered",
+    "Normal - Not at all (no problems).",
+    "Slight - I have a bit of trouble turning, but I do not need any help.",
+    "Mild - I have a lot of trouble turning and need occasional help from someone else.",
+    "Moderate - To turn over I often need help from someone else.",
+    "Severe - I am unable to turn over without help from someone else.",
+    NA
+  ),
+  
+  c(
+    "Seen but not answered",
+    "Normal - Not at all. I have no shaking or tremor.",
+    "Slight - Shaking or tremor occurs but does not cause problems with any activities.",
+    "Mild - Shaking or tremor causes problems with only a few activities.",
+    "Moderate - Shaking or tremor causes problems with many of my daily activities.",
+    "Severe - Shaking or tremor causes problems with most or all activities.",
+    NA
+  ),
+  
+  c(
+    "Not Left arm",
+    "Left arm",
+    NA
+  ),
+  
+  c(
+    "Not Right arm",
+    "Right arm",
+    NA
+  ),
+  
+  c(
+    "Not Left leg",
+    "Left leg",
+    NA
+  ),
+  
+  c(
+    "Not Right leg",
+    "Right leg",
+    NA
+  ),
+  
+  c(
+    "Not Whole body",
+    "Whole body",
+    NA
+  ),
+  
+  c(
+    "Seen but not answered",
+    "Normal - Not at all (no problems).",
+    "Slight - I am slow or awkward, but I usually can do it on my first try.",
+    "Mild - I need more than one try to get up or need occasional help.",
+    "Moderate - I sometimes need help to get up, but most times I can still do it on my own.",
+    "Severe - I need help most or all of the time.",
+    NA
+  ),
+  
+  c(
+    "Seen but not answered",
+    "Normal - Not at all (no problems).",
+    "Slight - I am slightly slow or may drag a leg. I never use a walking aid.",
+    "Mild - I occasionally use a walking aid, but I do not need any help from another person.",
+    "Moderate - I usually use a walking aid (cane, walker) to walk safely without falling. However, I do not usually need the support of another person.",
+    "Severe - I usually use the support of another person to walk safely without falling.",
+    NA
+  ),
+  
+  c(
+    "Seen but not answered",
+    "Normal - Not at all (no problems).",
+    "Slight - I briefly freeze but I can easily start to walk again. I do not need help from someone else or a walking aid (cane or walker) because of freezing.",
+    "Mild - I freeze and have trouble starting to walk again, but I do not need someone's help or a walking aid (cane or walker) because of freezing.",
+    "Moderate - When I freeze I have a lot of trouble starting to walk again and, because of freezing, I sometimes need to use a walking aid or need someone else's help.",
+    "Severe - Because of freezing, most or all of the time, I need to use a walking aid or someone's help.",
+    NA
+  ),
+  
+  c(
+    "Seen but not answered",
+    "Normal - Not at all (no problems)",
+    "Slight - My speech is soft, slurred or uneven, but it does not cause others to ask me to repeat myself.",
+    "Mild - My speech causes people to ask me to occasionally repeat myself, but not everyday.",
+    "Moderate - My speech is unclear enough that others ask me to repeat myself every day even though most of my speech is understood.",
+    "Severe - Most or all of my speech cannot be understood.",
+    NA
+  ),
+  
+  c(
+    "Seen but not answered",
+    "Normal - Not at all (no problems).",
+    "Slight - I have too much saliva, but do not drool.",
+    "Mild - I have some drooling during sleep, but none when I am awake.",
+    "Moderate - I have some drooling when I am awake, but I usually do not need tissues or a handkerchief.",
+    "Severe - I have so much drooling that I regularly need to use tissues or a handkerchief to protect my clothes.",
+    NA
+  ),
+  
+  c(
+    "Seen but not answered",
+    "Normal - No problems.",
+    "Slight - I am aware of slowness in my chewing or increased effort at swallowing, but I do not choke or need to have my food specially prepared.",
+    "Mild - I need to have my pills cut or my food specially prepared because of chewing or swallowing problems, but I have not choked over the past week.",
+    "Moderate - I choked at least once in the past week.",
+    "Severe - Because of chewing and swallowing problems, I need a feeding tube.",
+    NA
+  ),
+  
+  c(
+    "Seen but not answered",
+    "Normal - Not at all (no problems).",
+    "Slight - I am slow, but I do not need any help handling my food and have not had food spills while eating.",
+    "Mild - I am slow with my eating and have occasional food spills. I may need help with a few tasks such as cutting meat.",
+    "Moderate - I need help with many eating tasks but can manage some alone.",
+    "Severe - I need help for most or all eating tasks.",
+    NA
+  ),
+  
+  c(
+    "Seen but not answered",
+    "Normal - Not at all (no problems).",
+    "Slight - I am slow but I do not need help.",
+    "Mild - I need someone else to help me with some dressing tasks.",
+    "Moderate - I need help for many dressing tasks.",
+    "Severe - I need help for most or all of my dressing tasks.",
+    NA
+  ),
+  
+  c(
+    "Seen but not answered",
+    "Normal - Not at all (no problems).",
+    "Slight - I am slow but I do not need any help.",
+    "Mild - I need someone else to help me with some hygiene tasks.",
+    "Moderate - I need help for many hygiene tasks.",
+    "Severe - I need help for most or all of my hygiene tasks.",
+    NA
+  ),
+  
+  c(
+    "Don't know",
+    "Seen but not answered",
+    "No – I had this problem before I had COVID-19",
+    "Yes – this problem started after I had COVID-19 or during my infection with it",
+    NA
+  ),
+  c(
+    "Don't know",
+    "Seen but not answered",
+    "No – I had this problem before I had COVID-19",
+    "Yes – this problem started after I had COVID-19 or during my infection with it",
+    NA
+  ),
+  
+  c(
+    "Don't know",
+    "Seen but not answered",
+    "No – I had this problem before I had COVID-19",
+    "Yes – this problem started after I had COVID-19 or during my infection with it",
+    NA
+  ),
+  c(
+    "Don't know",
+    "Seen but not answered",
+    "No – I had this problem before I had COVID-19",
+    "Yes – this problem started after I had COVID-19 or during my infection with it",
+    NA
+  ),
+  
+  c(
+    "Don't know",
+    "Seen but not answered",
+    "No – I had this problem before I had COVID-19",
+    "Yes – this problem started after I had COVID-19 or during my infection with it",
+    NA
+  ),
+  c(
+    "Don't know",
+    "Seen but not answered",
+    "No – I had this problem before I had COVID-19",
+    "Yes – this problem started after I had COVID-19 or during my infection with it",
+    NA
+  ),
+  
+  c(
+    "Don't know",
+    "Seen but not answered",
+    "No – I had this problem before I had COVID-19",
+    "Yes – this problem started after I had COVID-19 or during my infection with it",
+    NA
+  ),
+  c(
+    "Don't know",
+    "Seen but not answered",
+    "No – I had this problem before I had COVID-19",
+    "Yes – this problem started after I had COVID-19 or during my infection with it",
+    NA
+  ),
+  
+  c(
+    "Don't know",
+    "Seen but not answered",
+    "No – I had this problem before I had COVID-19",
+    "Yes – this problem started after I had COVID-19 or during my infection with it",
+    NA
+  ),
+  c(
+    "Don't know",
+    "Seen but not answered",
+    "No – I had this problem before I had COVID-19",
+    "Yes – this problem started after I had COVID-19 or during my infection with it",
+    NA
+  ),
+  
+  c(
+    "Don't know",
+    "Seen but not answered",
+    "No – I had this problem before I had COVID-19",
+    "Yes – this problem started after I had COVID-19 or during my infection with it",
+    NA
+  ),
+  c(
+    "Don't know",
+    "Seen but not answered",
+    "No – I had this problem before I had COVID-19",
+    "Yes – this problem started after I had COVID-19 or during my infection with it",
+    NA
+  ),
+  
+  c(
+    "Don't know",
+    "Seen but not answered",
+    "No – I had this problem before I had COVID-19",
+    "Yes – this problem started after I had COVID-19 or during my infection with it",
+    NA
+  )
+)
+```
+
+Set names of list to variable names
+```{r Set list names categorical variables}
+names(values_cat_list) <- c(
+  "updrs.trouble_reading_handwriting_past",
+  "updrs.hobbies_trouble_past_week",
+  "updrs.trouble_turning_bed_past",
+  "updrs.shaking_tremor_past_week",
+  "updrs.left_arm",
+  "updrs.right_arm",
+  "updrs.left_leg",
+  "updrs.right_leg",
+  "updrs.whole_body",
+  "updrs.deep_chair_car_seat",
+  "updrs.balance_walking_past_week",
+  "updrs.feet_floor_freeze_stuck",
+  "updrs.speech_past_week_problems",
+  "updrs.awake_saliva_sleep_past",
+  "updrs.made_soft_chopped_avoid",
+  "updrs.trouble_handling_finger_foods",
+  "updrs.zippers_putting_problems_dressing",
+  "updrs.personal_hygiene_hair_slow",
+  "updrs.start_happening_required_question",
+  "updrs.start_happening_required_question.1",
+  "updrs.start_happening_required_question.2",
+  "updrs.start_happening_required_question.3",
+  "updrs.start_happening_required_question.4",
+  "updrs.start_happening_required_question.5",
+  "updrs.start_happening_required_question.6",
+  "updrs.start_happening_required_question.7",
+  "updrs.start_happening_required_question.8",
+  "updrs.start_happening_required_question.9",
+  "updrs.start_happening_required_question.10",
+  "updrs.start_happening_required_question.11",
+  "updrs.start_happening_required_question.12"
+)
+```
+
+Use imp_check iteratively to find if any implausible values
+```{r Imp_check categorical variables}
+# Create empty list
+imp_list_cat <- list()
+# Loop over each variable, checking against relevant set of values from list
+# Add imp_message to list
+for (i in 1:length(names(values_cat_list))) {
+  imp_list_cat[i] <- imp_check_1(data = dat,
+                                 variables = names(values_cat_list)[i],
+                                 values = values_cat_list[[i]]) 
+}
+# Name list with var names to correspond to imp_messages
+names(imp_list_cat) <- names(values_cat_list)
+# View list of imp_messages with corresponding var names
+print(imp_list_cat)
+```
+
+Produce summary table of variables
+```{r Summary table categorical variables}
+dat %>%
+  tbl_summary(
+    include = all_of(names(values_cat_list)),
+    missing_text = "Missing")
+```
+
+
+# Cleaning Numeric Variables
+
+Name your vectors in line with the chunks below
+Number the vectors or name them intuitively if you have multiple vectors
+Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
+
+Create sequential vectors of numeric values for variables
+Save vectors to a list
+Add variable names as names of list
+```{r Vector numeric values}
+vals_num_1 <- c(
+  0,
+  1,
+  2,
+  3,
+  4,
+  -777,
+  NA
+)
+vals_num_2 <- c(
+  0,
+  1,
+  -777,
+  NA
+)
+vals_num_3 <- c(
+  0,
+  1,
+  -777,
+  -888,
+  NA
+)
+```
+
+Save values vectors to list
+```{r List values vectors}
+values_num_list <- list(
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_2,
+  vals_num_2,
+  vals_num_2,
+  vals_num_2,
+  vals_num_2,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_3,
+  vals_num_3,
+  vals_num_3,
+  vals_num_3,
+  vals_num_3,
+  vals_num_3,
+  vals_num_3,
+  vals_num_3,
+  vals_num_3,
+  vals_num_3,
+  vals_num_3,
+  vals_num_3,
+  vals_num_3
+)
+```
+
+Remove values vectors from environment
+```{r Remove values vectors}
+rm(
+  vals_num_1,
+  vals_num_2,
+  vals_num_3
+)
+```
+
+Set names of list to variable names
+```{r Set list names numeric variables}
+names(values_num_list) <- c(
+  "updrs.trouble_reading_handwriting_past_numeric",
+  "updrs.hobbies_trouble_past_week_numeric",
+  "updrs.trouble_turning_bed_past_numeric",
+  "updrs.shaking_tremor_past_week_numeric",
+  "updrs.left_arm_numeric",
+  "updrs.right_arm_numeric",
+  "updrs.left_leg_numeric",
+  "updrs.right_leg_numeric",
+  "updrs.whole_body_numeric",
+  "updrs.deep_chair_car_seat_numeric",
+  "updrs.balance_walking_past_week_numeric",
+  "updrs.feet_floor_freeze_stuck_numeric",
+  "updrs.speech_past_week_problems_numeric",
+  "updrs.awake_saliva_sleep_past_numeric",
+  "updrs.made_soft_chopped_avoid_numeric",
+  "updrs.trouble_handling_finger_foods_numeric",
+  "updrs.zippers_putting_problems_dressing_numeric",
+  "updrs.personal_hygiene_hair_slow_numeric",
+  "updrs.start_happening_required_question_numeric",
+  "updrs.start_happening_required_question.1_numeric",
+  "updrs.start_happening_required_question.2_numeric",
+  "updrs.start_happening_required_question.3_numeric",
+  "updrs.start_happening_required_question.4_numeric",
+  "updrs.start_happening_required_question.5_numeric",
+  "updrs.start_happening_required_question.6_numeric",
+  "updrs.start_happening_required_question.7_numeric",
+  "updrs.start_happening_required_question.8_numeric",
+  "updrs.start_happening_required_question.9_numeric",
+  "updrs.start_happening_required_question.10_numeric",
+  "updrs.start_happening_required_question.11_numeric",
+  "updrs.start_happening_required_question.12_numeric"
+)
+```
+
+Use imp_check iteratively to find if any implausible values
+```{r Imp_check numeric variables}
+# Create empty list
+imp_list_num <- list()
+# Loop over each variable, checking against relevant set of values from list
+# Add imp_message to list
+for (i in 1:length(names(values_num_list))) {
+  imp_list_num[i] <- imp_check_1(data = dat,
+                                 variables = names(values_num_list)[i],
+                                 values = values_num_list[[i]]) 
+}
+# Name list with var names to correspond to imp_messages
+names(imp_list_num) <- names(values_num_list)
+# View list of imp_messages with corresponding var names
+print(imp_list_num)
+```
+
+Produce summary table of variables
+```{r Summary table numeric variables}
+dat %>%
+  tbl_summary(
+    include = all_of(names(values_num_list)),
+    missing_text = "Missing")
+```
+
+
+# Produce sumscores
+
+Reference the scoring guidance that you have used for your questionnaire here "link"
+
+If changing na_limit, CHECK your guidance, na_limit > 0 will replace NAs with 0, ensure that this is correct for your scoring guidance before proceeding
+
+Create vector of item coding
+The coding_keys vector must contain 1s for all variables to be added and -1 for all variables to be subtracted.
+Putting 0 in the vector will omit the variable at that position.
+length(coding_keys) MUST be the same as the number of variables to be summed
+
+sum_vars vector should contain ONLY and ALL variable names needed for scoring, do not add "ID" or "sample" etc.
+
+If using reverse keying:
+MAKE SURE that Reverse = TRUE is included as an argument, reverse keying will not work without this
+reverse_vars should contain all variable names to be reverse keyed
+If running multiple sumscores requiring reverse keying, a single reverse_vars vector containing all of the variable names to be reverse keyed is sufficient: `%in%` will pick the relevant variables for each sumscore
+
+The warnings "Scores vector contains missing values." and "Input contains non-answer values. These will be converted to NA_real_ for this calculation." are normal. They are there to inform you that some sumscores have not been calculated due to non-answer values (e.g. -777) being present. Any other errors or warnings need to be investigated.
+
+Create required variables for sumscore arguments
+```{r Sumscores inputs}
+keys <- c(
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1
+  )
+sum_vars <- c(
+  "updrs.trouble_reading_handwriting_past_numeric",
+  "updrs.hobbies_trouble_past_week_numeric",
+  "updrs.trouble_turning_bed_past_numeric",
+  "updrs.shaking_tremor_past_week_numeric",
+  "updrs.left_arm_numeric",
+  "updrs.right_arm_numeric",
+  "updrs.left_leg_numeric",
+  "updrs.right_leg_numeric",
+  "updrs.whole_body_numeric",
+  "updrs.deep_chair_car_seat_numeric",
+  "updrs.balance_walking_past_week_numeric",
+  "updrs.feet_floor_freeze_stuck_numeric",
+  "updrs.speech_past_week_problems_numeric",
+  "updrs.awake_saliva_sleep_past_numeric",
+  "updrs.made_soft_chopped_avoid_numeric",
+  "updrs.trouble_handling_finger_foods_numeric",
+  "updrs.zippers_putting_problems_dressing_numeric",
+  "updrs.personal_hygiene_hair_slow_numeric"
+  )
+```
+
+
+Generate sumscores from questionnaire data and use mutate onto dat as new column
+sumscores assumes that all items in the questionnaire have the SAME minimum and maximum scores for ALL items, ensure that this is correct before proceeding
+
+When adding the column name for your sumscore use "questionnaire.score_name"
+
+Generate sumscores and add as new column
+```{r Generate sumscores}
+dat <- dat %>% 
+  mutate(
+    updrs.sum_score = 
+         sumscores(input = dat,
+                   sum_vars = sum_vars,
+                   coding_keys = keys,
+                   na_allowed = 0
+                   min_item = 0,
+                   max_item = 4,
+                   min_score = 0,
+                   max_score = 72
+                   )[["scores"]]
+         )
+```
+
+# Save cleaned data
+
+Check colnames before exporting final dataset
+```{r Check colnames}
+colnames(dat)
+```
+
+# COVIDCNS
+```{r Write cleaned COVIDCNS variables to a .rds file}
+dat %>%
+  saveRDS(
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/updrs_covidcns_clean.rds")
+    )
+```
