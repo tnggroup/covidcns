@@ -1,0 +1,436 @@
+---
+title: "Sex, Gender, Transgender, Sexuality - COVID CNS"
+author: "Alicia Peel"
+date: "18/01/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+Add the add_numeric function - used to convert character variables into numeric variables.
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+```{r Read in functions}
+ source(file = "../functions/add_numeric_1.R")
+ source(file = "../functions/remove_duplicates.R")
+ source(file = "../functions/sumscores.R")
+ source(file = "../functions/package_check.R")
+ source(file = "../functions/imp_check.R")
+```
+
+Use package_check to install and load dependencies
+Load tidyverse last
+```{r Install load dependencies}
+packages <- c(
+  "summarytools", 
+  "sjlabelled", 
+  "Amelia", 
+  "gtsummary", 
+  "tidyverse"
+  )
+package_check(packages)
+```
+
+Retrieve recent date
+We are using the recent date to save files with paste0() as an extension to not overwrite old versions
+```{r Recent date}
+date <- Sys.Date()
+date
+```
+
+Read in file with path to ilovecovidcns channel on Teams
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "../credentials/paths.R")
+```
+
+# Read in the data: Demographics
+
+## CNS data
+```{r CNS read in data}
+cns_data <- readRDS(
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/dem_covid_cns.rds")
+  )
+  
+# Check variable names in dataframe
+cns_data %>%
+  colnames()
+# Inspect dimensions of dataframe 
+cns_data %>%
+  dim()
+```
+
+Specify columns to be excluded from add_numeric function
+```{r CNS specify excluded columns}
+exclude_cols_numeric <- c(
+  "ID",
+  "sample",
+  "startDate",
+  "endDate"
+  )
+```
+
+Select & rename relevant columns
+```{r CNS select}
+cns_data_id <- cns_data %>% #new dataset with ID
+  drop_na(externalDataReference) %>% # Drop participants with no ID
+  distinct(externalDataReference, .keep_all = TRUE) %>% # Changed to distinct due to NA coercion
+  add_column(sample = "CNS", 
+             .after = "externalDataReference") %>% # Create new sample column
+  select(
+         ID = externalDataReference, # ID
+         sample,
+         startDate,
+         endDate,
+         dem.medical_history_birth_relevant,
+         dem.what_gender_do_you_identify_with,
+         dem.do_you_consider_yourself_to_be_transgender,
+         dem.what_is_your_sexual_orientation,
+         dem.have_you_ever_been_pregnant
+         ) %>%
+  add_numeric_1(exclude = exclude_cols_numeric)
+
+# Inspect colnames
+cns_data_id %>%
+  colnames()
+```
+
+Look at number of people excluded
+```{r CNS number excluded}
+# Inspect dimensions of new data set
+cns_data_id %>%
+  dim()
+
+# Inspect number of rows dropped
+cns_excluded <- dim(cns_data_id)[1] - dim(cns_data)[1]
+cns_excluded
+```
+
+Inspect numeric variables
+```{r CNS inspect numeric variables}
+cns_data_id %>%
+  select(all_of(ends_with("numeric"))) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Check missingness by missmap
+```{r CNS inspect missingness}
+ cns_miss_map <- cns_data_id %>% 
+   missmap()
+
+ cns_miss_map
+```
+
+Rename data for cleaning
+```{r Rename data set}
+dat <- cns_data_id
+#Check
+dat %>% glimpse()
+```
+
+Recode Non-answer values to 3 digits
+-555 'Not applicable' response from participant
+-777 Seen but not answered
+-888 Don't know
+-999 Prefer not to answer/Prefer not to say
+`NA` Were not shown the question (genuinely missing value)
+When we code someone as being 'not applicable' by deduction, we use `NA_real_`
+```{r Recode NA values}
+dat <- dat %>%
+  mutate(across(ends_with("numeric"),
+                ~case_when(
+                  . == -55 ~ -555,
+                  . == -77 ~ -777,
+                  . == -88 ~ -888,
+                  . == -99 ~ -999,
+                  TRUE ~ .)))
+```
+
+# Numeric 0-1 variables
+
+Cleaning numeric variables
+```{r vector of numeric values 0_1}
+values_numeric_0 <- c(
+  0,
+  1,
+  -777,
+  NA
+  )
+values_numeric_0
+```
+
+Create vector of variable names for numeric variables
+```{r vector numeric variables 0_1}
+variables_numeric_0 <- c(
+    "dem.medical_history_birth_relevant_numeric",
+    "dem.do_you_consider_yourself_to_be_transgender_numeric",
+    "dem.have_you_ever_been_pregnant_numeric"
+  )
+variables_numeric_0
+```
+
+Use imp_check function to find if any implausible values and obtain summary table of variables
+```{r imp_check numeric variables 0_1}
+imp_check(data = dat,
+           variables = variables_numeric_0,
+          values = values_numeric_0)
+```
+
+# Numeric 0-3 variables
+
+Cleaning numeric variables
+```{r vector of numeric values 0_3}
+values_numeric_0_3 <- c(
+  0,
+  1,
+  2,
+  3,
+  -777,
+  -888,
+  -999,
+  NA
+  )
+values_numeric_0_3
+```
+
+Vector of numeric variables
+```{r numeric variables vector 0_3} 
+variables_numeric_0_3 <- c(
+    "dem.what_gender_do_you_identify_with_numeric"
+  )
+variables_numeric_0_3
+```
+
+Use imp_check function to find if any implausible values and obtain summary table of variables
+```{r imp_check numeric variables 0_3}
+imp_check(data = dat,
+           variables = variables_numeric_0_3,
+          values = values_numeric_0_3)
+```
+
+# Numeric 1-5 variables
+
+Create vector of numeric values 
+```{r vector of numeric values 1_5}
+values_numeric_5 <- c(
+  0,
+  1,
+  2,
+  3,
+  4,
+  -777,
+  -999,
+  NA
+  )
+values_numeric_5
+```
+
+Vector of numeric variables
+```{r numeric variables vector 1_5}
+variables_numeric_5 <- c(
+    "dem.what_is_your_sexual_orientation_numeric"
+  )
+variables_numeric_5
+```
+
+Use imp_check function to find if any implausible values and obtain summary table of variables
+```{r imp_check numeric variables 1_5}
+imp_check(data = dat,
+           variables = variables_numeric_5,
+          values = values_numeric_5)
+```
+# Categorical 0-1 variables (sex)
+
+Create vector of categorical values for variables
+```{r vector of categorical labels sex}
+values_categorical_sex <- c(
+  "Male",
+  "Female",
+  "Seen but not answered",
+  NA
+  )
+values_categorical_sex
+```
+
+Create vector of variable names
+```{r vector categorical variables sex}
+variables_categorical_sex <- c(
+    "dem.medical_history_birth_relevant"
+  )
+variables_categorical_sex
+```
+
+Use imp_check function to find if any implausible values and obtain summary table of variables
+```{r imp_check categorical variables sex}
+imp_check(data = dat,
+           variables = variables_categorical_sex,
+          values = values_categorical_sex)
+```
+
+# Categorical 0-1 variables (yes/no)
+
+Create vector of categorical values for variables
+```{r vector of categorical labels y/n}
+values_categorical_0 <- c(
+  "No",
+  "Yes",
+  "Seen but not answered",
+  NA
+  )
+values_categorical_0
+```
+
+Create vector of variable names
+```{r vector categorical variables  y/n}
+variables_categorical_0 <- c(
+    "dem.do_you_consider_yourself_to_be_transgender",
+    "dem.have_you_ever_been_pregnant"
+  )
+variables_categorical_0
+```
+
+Use imp_check function to find if any implausible values and obtain summary table of variables
+```{r imp_check categorical variables  y/n}
+imp_check(data = dat,
+           variables = variables_categorical_0,
+          values = values_categorical_0)
+```
+
+# Categorical 0-3 variables
+
+Create vector of categorical values for variables
+```{r vector of categorical labels cat 0_3}
+values_categorical_0_3 <- c(
+  "Male",
+  "Female",
+  "Non-binary",
+  "Self-define",
+  "Seen but not answered",
+  "Don't know",
+  "Prefer not to answer",
+  NA
+  )
+values_categorical_0_3
+```
+
+Create vector of variable names
+```{r vector categorical variables  cat 0_3}
+variables_categorical_0_3 <- c(
+    "dem.what_gender_do_you_identify_with"
+  )
+variables_categorical_0_3
+```
+
+Use imp_check function to find if any implausible values and obtain summary table of variables 
+```{r imp_check categorical variables  cat 0_3}
+imp_check(data = dat,
+           variables = variables_categorical_0_3,
+          values = values_categorical_0_3)
+```
+
+Remove once cleaned on Qualtrics
+```{r Recode incorrect categorical variables cat 0_3}
+dat <- dat %>%
+  mutate(
+    across(all_of(variables_categorical_0_3), 
+           .fns = ~dplyr::recode(.,
+             "Prefer to self-define (please tell us more):" = "Self-define"
+            )
+          )
+  )
+```
+
+```{r Check correction applied cat 0_3}
+dat %>%
+  select(all_of(variables_categorical_0_3)) %>%
+  freq()
+```
+
+# Categorical 1-5 variables
+
+Create vector of categorical values for variables
+```{r vector of categorical labels cat 1_5}
+values_categorical_5 <- c(
+  "Heterosexual",
+  "Homosexual",
+  "Bisexual",
+  "Asexual",
+  "Other",
+  "Seen but not answered",
+  "Don't know",
+  "Prefer not to answer",
+  NA
+  )
+values_categorical_5
+```
+
+Create vector of variable names
+```{r vector categorical variables cat 1_5}
+variables_categorical_5 <- c(
+    "dem.what_is_your_sexual_orientation"
+  )
+variables_categorical_5
+```
+
+Use imp_check function to find if any implausible values and obtain summary table of variables
+```{r imp_check categorical variables cat 1_5}
+imp_check(data = dat,
+           variables = variables_categorical_5,
+          values = values_categorical_5)
+```
+
+Remove once cleaned on Qualtrics
+```{r Recode incorrect categorical variables}
+dat <- dat %>%
+  mutate(
+    across(all_of(variables_categorical_5), 
+           .fns = ~dplyr::recode(.,
+             "Prefer not to say" = "Prefer not to answer"
+            )
+          )
+  )
+```
+
+```{r Check correction applied}
+dat %>%
+  select(all_of(variables_categorical_5)) %>%
+  freq()
+```
+
+# Save cleaned data
+
+Check colnames before exporting final dataset
+```{r check colnames}
+colnames(dat)
+```
+
+Combined object for excluded participants
+```{r CNS EDGI save excluded participants}
+cns_excluded <- as.data.frame(cns_excluded)
+colnames(cns_excluded) <- c("Number of Participants Excluded")
+rownames(cns_excluded) <- c("CNS")
+cns_excluded
+```
+
+# CNS
+```{r Write cleaned CNS variables to a .rds file}
+dat %>% 
+  filter(sample == "CNS") %>%
+  saveRDS(
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/sex_gender_sexuality_covidcns_clean.rds")
+    )
+```
