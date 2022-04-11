@@ -50,17 +50,10 @@ packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
 package_check(packages)
 ```
 
-Retrieve recent date
-We are using the recent date to save files with paste0() as an extension to not overwrite old versions
-```{r Recent date}
-date <- Sys.Date()
-date
-```
-
-Read in file with path to ilovedata channel on Teams
+Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
-```{r Read in file with path to ilovedata channel on teams}
-source("../../../covidcns_data_credentials.R")
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "../credentials/paths.R")
 ```
 
 # Read in the data: Full Name of Questionnaire/Demographic
@@ -79,7 +72,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## Data
 ```{r load data}
 covidcns_dat <- read_rds(
-  file = paste0(filepath_data_raw, "/data_raw/2021-07-12/baseline/covid19_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/covid19_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -1131,7 +1124,7 @@ colnames(covidcns_dat_id)
 covidcns_dat_id %>% 
   filter(sample == "COVID-CNS") %>%  # select only GLAD participants
   saveRDS(
-    file = paste0(filepath_data_raw, "/data/latest_freeze/baseline/covid19_covid_cns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/covid19_covid_cns_clean.rds")
     )
 ```
 

@@ -48,8 +48,8 @@ date = Sys.Date()
 date
 ```
 
-## Read in file with path to ilovedata channel on Teams
-```{r Read in file with path to ilovedata channel on Teams}
+## Read in file with path to ilovecovidcns channel on Teams
+```{r Read in file with path to ilovecovidcns channel on Teams}
 source(file = "../credentials/paths.R")
 ```
 
@@ -58,7 +58,7 @@ source(file = "../credentials/paths.R")
 ## COVID CNS data 
 ```{r COVID CNS read in data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/gad7_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/gad7_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -277,12 +277,12 @@ dat <- dat %>%
          sumscores(input = dat,
                    sum_vars = sum_vars_gad7,
                    coding_keys = keys_gad7,
-                   na_limit = 0, 
+                   na_allowed = 0, 
                    min_item = 0,
                    max_item = 3,
                    min_score = 0,
                    max_score = 21
-                   )
+                   )[["scores"]]
          )
 
 dat %>%
@@ -381,7 +381,7 @@ cns_excluded
 dat %>% 
   filter(sample == "COVIDCNS") %>%  # select only COVIDCNS participants
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/gad7_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/gad7_covidcns_clean.rds")
     )
 ```
 

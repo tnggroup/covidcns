@@ -52,7 +52,7 @@ source("../credentials/paths.R")
 # Read in the data 
 ```{r COVID CNS employment data}
 covidcns_dat <- read_rds(file = 
-                   paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/impact_covid_cns.rds")
+                   paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/impact_covid_cns.rds")
                  )
 
 # check
@@ -422,8 +422,6 @@ colnames(covidcns_dat_id)
 covidcns_dat_id %>% 
   filter(sample == "COVID-CNS") %>%  # select only COVID-CNS participants
   saveRDS(file = 
-            paste0(ilovedata, "/data/latest_freeze/covidcns/employment_covidcns_clean.rds")
+            paste0(ilovecovidcns, "/data/latest_freeze/baseline/impact_covidcns_clean.rds")
     )
 ```
-
-
