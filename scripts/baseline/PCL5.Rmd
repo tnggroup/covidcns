@@ -5,7 +5,7 @@ date: "04/03/2022"
 output: html_document
 ---
 
-Cleaning script for PCL-5 following Zain's template script: https://github.com/tnggroup/ilovedata/pull/122/files.
+Cleaning script for PCL-5 following Zain's template script: https://github.com/tnggroup/ilovecovidcns/pull/122/files.
 
 # Set up
 ```{r Setup, include=FALSE}
@@ -22,11 +22,11 @@ remove(list = ls())
 ```
 
 ```{r Read in functions}
-source(file = "../../functions/add_numeric.R")
-source(file = "../../functions/remove_duplicates.R")
-source(file = "../../functions/sumscores.R")
-source(file = "../../functions/package_check.R")
-source(file = "../../functions/imp_check.R")
+source(file = "../functions/add_numeric.R")
+source(file = "../functions/remove_duplicates.R")
+source(file = "../functions/sumscores.R")
+source(file = "../functions/package_check.R")
+source(file = "../functions/imp_check.R")
 ```
 
 ```{r Install load dependencies}
@@ -39,8 +39,8 @@ date <- Sys.Date()
 date
 ```
 
-```{r Read in file with path to ilovedata channel on teams}
-source(file = "../../credentials/paths.R")
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "../credentials/paths.R")
 ```
 
 # Read in the data: CNS PTSD Checklist (PCL-5)
@@ -48,7 +48,7 @@ source(file = "../../credentials/paths.R")
 ## CNS
 ```{r CNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/pcl5_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/pcl5_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -320,12 +320,12 @@ dat <- dat %>%
          sumscores(input = dat,
                    sum_vars = sum_vars,
                    coding_keys = keys,
-                   na_limit = 0,
+                   na_allowed = 0,
                    min_item = 0,
                    max_item = 4,
                    min_score = 0,
                    max_score = 80 #checkthis
-                   )
+                   )[["scores"]]
          )
 ```
 
@@ -354,6 +354,6 @@ colnames(dat)
 ```{r Write cleaned GLAD variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/baseline/pcl5_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/pcl5_covidcns_clean.rds")
     )
 ```

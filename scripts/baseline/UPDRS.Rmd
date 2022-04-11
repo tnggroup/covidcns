@@ -755,7 +755,7 @@ dat <- dat %>%
          sumscores(input = dat,
                    sum_vars = sum_vars,
                    coding_keys = keys,
-                   na_allowed = 0
+                   na_allowed = 0,
                    min_item = 0,
                    max_item = 4,
                    min_score = 0,
