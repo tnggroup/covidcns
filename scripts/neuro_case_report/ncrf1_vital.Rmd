@@ -56,9 +56,9 @@ packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
 package_check(packages)
 ```
 
-Read in file with path to ilovedata channel on Teams
+Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
-```{r Read in file with path to ilovedata channel on teams}
+```{r Read in file with path to ilovecovidcns channel on teams}
 source(file = "../credentials/paths.R")
 ```
 
@@ -80,7 +80,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/neuro_case_report/ncrf1_vital_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/neuro_case_report/ncrf1_vital_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -627,33 +627,48 @@ variables_cont <- c(
 ```
 
 Inspect continuous variables
-```{r Tnspect cont vars}
+Use the question labels to ascertain context at this point and check for obvious outliers
+The percentiles can be modified to exclude nonanswer values as appropriate to your data
+```{r Inspect cont vars}
 dat %>%
   select(all_of(variables_cont)) %>%
   tbl_summary(
     missing_text = "Missing",
-    statistic = list(all_continuous() ~ "{median} ({p0}, {p100})"))
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
 ```
 
-Transform continuous variables to numeric
-```{r Cont vars to num}
+Mutate variables to numeric
+```{r Cont vars to numeric}
+dat <- dat %>%
+  mutate(across(all_of(variables_cont),
+                ~as.numeric(.)
+                )
+         )
+```
+
+Transform nonanswer values to 3 digit
+```{r Cont vars nonanswer}
 dat <- dat %>%
   mutate(across(
     all_of(variables_cont),
-    ~as.numeric(.)
+    ~case_when(. == -55 ~ -555,
+               . == -77 ~ -777,
+               . == -88 ~ -888,
+               . == -99 ~ -999,
+               TRUE ~ .)
                 )
          )
 ```
 
-Remove -77 values from continuous variables
-```{r Cont vars remove -77}
-dat <- dat %>% 
-  mutate(across(
-    all_of(variables_cont),
-    ~na_if(., -77)
-                )
-         )
+Recheck continuous variables
+```{r Recheck cont vars}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
 ```
+
 
 Create matrix of limits for continuous variables
 Matrix is series of vectors (lower, upper)
@@ -680,14 +695,16 @@ colnames(limits_mat) <- c("Lower", "Upper")
 ```
 
 Use cont_clean to check if any implausible values and provide replacement vectors
+Cont_clean will not proceed if variables are not numeric type, clean manually above if necessary
 ```{r Cont_clean cont vars}
 cont_list <- cont_clean(
   variables = variables_cont,
   limits_mat = limits_mat,
   dat = dat
 )
-
-cont_list
+for (i in 1:length(variables_cont)){
+  print(paste0("Implausibles in ", variables_cont[i], ": ", cont_list[[variables_cont[i]]]$Count))
+}
 ```
 
 Recode variables with implausible values removed
@@ -752,6 +769,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/neuro_case_report/ncrf1_vital_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_vital_covidcns_clean.rds")
     )
 ```

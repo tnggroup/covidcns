@@ -60,9 +60,9 @@ date <- Sys.Date()
 date
 ```
 
-Read in file with path to ilovedata channel on Teams
+Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
-```{r Read in file with path to ilovedata channel on teams}
+```{r Read in file with path to ilovecovidcns channel on teams}
 source(file = "../credentials/paths.R")
 ```
 
@@ -84,7 +84,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/neuro_case_report/ncrf_medication_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/neuro_case_report/ncrf2_med_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -209,22 +209,22 @@ Create vector of variable names for categorical variables
 ```{r vector categorical variables}
 variables_categorical <-
   c(
-    "ncrf_medication.oralorogastrics_fluids",
-    "ncrf_medication.antiviral",
-    "ncrf_medication.antibiotic",
-    "ncrf_medication.antimalarial",
-    "ncrf_medication.nsaid",
-    "ncrf_medication.angiotensin_receptor_blockers",
-    "ncrf_medication.antipsychotic",
-    "ncrf_medication.iv_fluids",
-    "ncrf_medication.corticosteroid",
-    "ncrf_medication.antifungal",
-    "ncrf_medication.ace_inhibitor",
-    "ncrf_medication.systemic_anticoagulation",
-    "ncrf_medication.anxiolytic",
-    "ncrf_medication.antidepressant",
-    "ncrf_medication.patient_enrolled_clinical_trial",
-    "ncrf_medication.immunomodulatory_medication"
+    "ncrf2_med.oralorogastrics_fluids",
+    "ncrf2_med.antiviral",
+    "ncrf2_med.antibiotic",
+    "ncrf2_med.antimalarial",
+    "ncrf2_med.nsaid",
+    "ncrf2_med.angiotensin_receptor_blockers",
+    "ncrf2_med.antipsychotic",
+    "ncrf2_med.iv_fluids",
+    "ncrf2_med.corticosteroid",
+    "ncrf2_med.antifungal",
+    "ncrf2_med.ace_inhibitor",
+    "ncrf2_med.systemic_anticoagulation",
+    "ncrf2_med.anxiolytic",
+    "ncrf2_med.antidepressant",
+    "ncrf2_med.patient_enrolled_clinical_trial",
+    "ncrf2_med.immunomodulatory_medication"
     )
 variables_categorical
 ```
@@ -262,23 +262,23 @@ Create vector of variable names for numeric variables
 ```{r vector numeric variables}
 variables_numeric <-
   c(
-    "ncrf_medication.oralorogastrics_fluids_numeric",
-    "ncrf_medication.antiviral_numeric",
-    "ncrf_medication.antibiotic_numeric",
-    "ncrf_medication.antimalarial_numeric",
-    "ncrf_medication.nsaid_numeric",
-    "ncrf_medication.angiotensin_receptor_blockers_numeric",
-    "ncrf_medication.antipsychotic_numeric",
-    "ncrf_medication.iv_fluids_numeric",
-    "ncrf_medication.iv_fluids_numeric",
-    "ncrf_medication.corticosteroid_numeric",
-    "ncrf_medication.antifungal_numeric",
-    "ncrf_medication.ace_inhibitor_numeric",
-    "ncrf_medication.systemic_anticoagulation_numeric",
-    "ncrf_medication.anxiolytic_numeric",
-    "ncrf_medication.antidepressant_numeric",
-    "ncrf_medication.patient_enrolled_clinical_trial_numeric",
-    "ncrf_medication.immunomodulatory_medication_numeric"
+    "ncrf2_med.oralorogastrics_fluids_numeric",
+    "ncrf2_med.antiviral_numeric",
+    "ncrf2_med.antibiotic_numeric",
+    "ncrf2_med.antimalarial_numeric",
+    "ncrf2_med.nsaid_numeric",
+    "ncrf2_med.angiotensin_receptor_blockers_numeric",
+    "ncrf2_med.antipsychotic_numeric",
+    "ncrf2_med.iv_fluids_numeric",
+    "ncrf2_med.iv_fluids_numeric",
+    "ncrf2_med.corticosteroid_numeric",
+    "ncrf2_med.antifungal_numeric",
+    "ncrf2_med.ace_inhibitor_numeric",
+    "ncrf2_med.systemic_anticoagulation_numeric",
+    "ncrf2_med.anxiolytic_numeric",
+    "ncrf2_med.antidepressant_numeric",
+    "ncrf2_med.patient_enrolled_clinical_trial_numeric",
+    "ncrf2_med.immunomodulatory_medication_numeric"
     )
 variables_numeric
 ```
@@ -303,6 +303,6 @@ colnames(dat)
 dat %>% 
   filter(sample == "COVIDCNS") %>%  # select only COVIDCNS participants
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/ncrf_medication_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf2_med_covidcns_clean.rds")
     )
 ```

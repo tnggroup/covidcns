@@ -55,10 +55,10 @@ date <- Sys.Date()
 date
 ```
 
-Read in file with path to ilovedata channel on Teams
+Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
-```{r Read in file with path to ilovedata channel on teams}
-source("../../../covidcns_data_credentials.R")
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "../credentials/paths.R")
 ```
 
 # Read in the data: Full Name of Questionnaire/Demographic
@@ -77,7 +77,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## Data
 ```{r load data}
 covidcns_dat <- read_rds(
-  file = paste0(filepath_data_raw, "/data_raw/2021-07-12/core_neuro/gcs_outpatient_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/core_neuro/gcs_outp_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -113,9 +113,9 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          sample,
          startDate,
          endDate,
-         gcs_outpatient.eyes,
-         gcs_outpatient.movements,
-         gcs_outpatient.verbal
+         gcs_outp.eyes,
+         gcs_outp.movements,
+         gcs_outp.verbal
          # other columns as necessary
          ) %>%
   add_numeric(exclude = exclude_cols_numeric)
@@ -159,7 +159,7 @@ Continue cleaning your script with the recoded variable until fixed from source
 DO NOT run this chunk multiple times: it will mess up the variable coding, requiring you to run the script again from the beginning
 ```{r recode incorrect variable}
 covidcns_dat_id <- covidcns_dat_id %>% 
-  mutate(across(gcs_outpatient.eyes_numeric,
+  mutate(across(gcs_outp.eyes_numeric,
                 ~case_when(
                   . == 1 ~ 0,
                   . == 2 ~ 1,
@@ -168,8 +168,8 @@ covidcns_dat_id <- covidcns_dat_id %>%
                   TRUE ~ .)))
 
 covidcns_dat_id <- covidcns_dat_id %>%
-    mutate(gcs_outpatient.eyes =
-           recode_factor(gcs_outpatient.eyes_numeric,
+    mutate(gcs_outp.eyes =
+           recode_factor(gcs_outp.eyes_numeric,
                          "0" = "Does not open eyes",
                          "1" = "Opens eyes in response to pain",
                          "2" = "Opens eyes in response to voice",
@@ -179,7 +179,7 @@ covidcns_dat_id <- covidcns_dat_id %>%
     )
 
 covidcns_dat_id <- covidcns_dat_id %>% 
-  mutate(across(gcs_outpatient.movements_numeric,
+  mutate(across(gcs_outp.movements_numeric,
                 ~case_when(
                   . == 1 ~ 0,
                   . == 2 ~ 1,
@@ -190,8 +190,8 @@ covidcns_dat_id <- covidcns_dat_id %>%
                   TRUE ~ .)))
 
 covidcns_dat_id <- covidcns_dat_id %>%
-    mutate(gcs_outpatient.movements =
-           recode_factor(gcs_outpatient.movements_numeric,
+    mutate(gcs_outp.movements =
+           recode_factor(gcs_outp.movements_numeric,
                          "0" = "Makes no movements",
                          "1" = "Extension to painful stimuli",
                          "2" = "Abnormal flexion to painful stimuli",
@@ -203,7 +203,7 @@ covidcns_dat_id <- covidcns_dat_id %>%
     )
 
 covidcns_dat_id <- covidcns_dat_id %>% 
-  mutate(across(gcs_outpatient.verbal_numeric,
+  mutate(across(gcs_outp.verbal_numeric,
                 ~case_when(
                   . == 1 ~ 0,
                   . == 2 ~ 1,
@@ -213,8 +213,8 @@ covidcns_dat_id <- covidcns_dat_id %>%
                   TRUE ~ .)))
 
 covidcns_dat_id <- covidcns_dat_id %>%
-    mutate(gcs_outpatient.verbal =
-           recode_factor(gcs_outpatient.verbal_numeric,
+    mutate(gcs_outp.verbal =
+           recode_factor(gcs_outp.verbal_numeric,
                          "0" = "Makes no sounds",
                          "1" = "Makes sounds",
                          "2" = "Words",
@@ -228,7 +228,7 @@ covidcns_dat_id <- covidcns_dat_id %>%
 Re-check variable coding
 ```{r recheck variable coding}
 covidcns_dat_id %>%
-  select(all_of(starts_with("gcs_outpatient"))) %>%
+  select(all_of(starts_with("gcs_outp"))) %>%
   tbl_summary(missing_text = "Missing")
 ```
 
@@ -261,9 +261,8 @@ colnames(covidcns_dat_id)
 # COVID-CNS
 ```{r Write cleaned GLAD variables to a .rds file}
 covidcns_dat_id %>% 
-  filter(sample == "COVID-CNS") %>%  # select only GLAD participants
   saveRDS(
-    file = paste0(filepath_data_raw, "/data/latest_freeze/core_neuro/gcs_outpatient_covid_cns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/gcs_outp_covid_cns_clean.rds")
     )
 ```
 
