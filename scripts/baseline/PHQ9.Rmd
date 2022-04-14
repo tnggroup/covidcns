@@ -52,7 +52,7 @@ source("../credentials/paths.R")
 # Read in the data 
 ```{r COVID CNS PHQ9 data}
 phq9 <- read_rds(file = 
-                   paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/phq9_covid_cns.rds")
+                   paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/phq9_covid_cns.rds")
                  )
 
 # check
@@ -393,12 +393,12 @@ phq9_id <- phq9_id %>%
          sumscores(input = phq9_id,
                    sum_vars = sum_vars,
                    coding_keys = keys,
-                   na_limit = 0,
+                   na_allowed = 0,
                    min_item = 0,
                    max_item = 3,
                    min_score = 0,
                    max_score = 27
-                   )
+                   )[["scores"]]
          )
 
 # check
@@ -529,9 +529,6 @@ export_variables <- c("ID",
 phq9_id %>% 
   select(all_of(export_variables)) %>% 
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/phq9_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/phq9_covidcns_clean.rds")
     )
 ```
-
-
-

@@ -1,10 +1,8 @@
 ---
-title: "COVIDCNS Demographic Memory"
+title: "COVIDCNS Nonmotor Cleaning Script"
 author: "Zain Ahmad"
-date: "01/02/2022"
-output:
-  pdf_document: default
-  html_document: default
+date: "03/03/2022"
+output: html_document
 ---
 
 
@@ -46,6 +44,7 @@ source(file = "../functions/remove_duplicates.R")
 source(file = "../functions/sumscores.R")
 source(file = "../functions/package_check.R")
 source(file = "../functions/imp_check.R")
+source(file = "../functions/imp_check_1.R")
 ```
 
 Use package_check to install and load dependencies
@@ -61,7 +60,7 @@ Ensure that your credentials directory is correctly located
 source(file = "../credentials/paths.R")
 ```
 
-# Read in the data: COVIDCNS Demographic Memory
+# Read in the data: COVIDCNS Nonmotor Questions
 Change this heading to the name of your questionnaire/demographic
 Load COVIDCNS data
 
@@ -79,13 +78,12 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/dem_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/nonmotor_covid_cns.rds")
   )
   
 # Check variable names in dataframe
 covidcns_dat %>%
   colnames()
-
 # Inspect dimensions of dataframe 
 covidcns_dat %>%
   dim()
@@ -106,22 +104,21 @@ Select & rename relevant columns
 ```{r COVIDCNS select}
 covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
   drop_na(externalDataReference) %>% # Drop participants with no ID
-  distinct(externalDataReference, .keep_all = TRUE) %>% # Changed to distinct due to NA coercion
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
   add_column(sample = "COVIDCNS",
              .after = "externalDataReference") %>% # Create new sample column
   select(
          ID = externalDataReference, # ID
          sample,
          startDate,
-         endDate,
-         dem.affects_concerned_live_memory,
-         dem.memory_problem_worse_year,
-         dem.affects_concerned_live_memory.1,
-         dem.affects_concerned_live_memory.2,
-         dem.has_your_memory_got_progressively_worse
+         nonmotor.choking_drink_problems_difficulty,
+         nonmotor.pass_urine_regularly_night,
+         nonmotor.sex_difficult_finding,
+         nonmotor.weak_standing_lying_sitting,
+         nonmotor.dream_talking_sleep_acting,
+         nonmotor.double_vision
          ) %>%
   add_numeric(exclude = exclude_cols_numeric)
-
 # Inspect colnames
 covidcns_dat_id %>%
   colnames()
@@ -133,7 +130,6 @@ The number of people to be excluded should be negative
 # Inspect dimensions of new data set
 covidcns_dat_id %>%
   dim()
-
 # Inspect number of rows dropped
 covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
 covidcns_excluded
@@ -143,15 +139,13 @@ Check missingness by missmap
 ```{r COVIDCNS inspect missingness}
 covidcns_miss_map <- covidcns_dat_id %>% 
   missmap()
-
 covidcns_miss_map
 ```
 
-Create dat as copy of covid_cns_dat_id for brevity
+Create dat as copy of covidcns_dat_id for brevity
 This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
 ```{r Create dat}
 dat <- covidcns_dat_id 
-
 # Check
 dat %>% glimpse()
 ```
@@ -177,134 +171,83 @@ dat <- dat %>%
 Create list of all unique values
 ```{r List unique values}
 ulst <- sapply(dat, unique)
+llst <- sapply(dat, levels)
 ```
 
 
-# Cleaning Categorical variables
+# Cleaning Categorical Variables
 
 Name your vectors in line with the chunks below
 Number the vectors or name them intuitively if you have multiple vectors
 Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
-
-Create vector of categorical values for variables
-```{r vector categorical values}
-values_categorical <- c(
-  "Yes",
-  "No",
-  "Don't know",
-  "Prefer not to say",
+```{r Vector categorical values}
+values_cat <- c(
   "Seen but not answered",
+  "No",
+  "Yes",
   NA
-  )
-values_categorical
+)
 ```
 
-Create vector of variable names for categorical variables
-```{r vector categorical variables}
-variables_categorical <-
-  c(
-    "dem.affects_concerned_live_memory",
-    "dem.memory_problem_worse_year",
-    "dem.affects_concerned_live_memory.1",
-    "dem.affects_concerned_live_memory.2",
-    "dem.has_your_memory_got_progressively_worse"
-    )
-variables_categorical
+Create vector of categorical domains variables 
+```{r Vector categorical variables}
+variables_cat <- c(
+  "nonmotor.choking_drink_problems_difficulty",
+  "nonmotor.pass_urine_regularly_night",
+  "nonmotor.sex_difficult_finding",
+  "nonmotor.weak_standing_lying_sitting",
+  "nonmotor.dream_talking_sleep_acting",
+  "nonmotor.double_vision"
+)
 ```
 
-Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r imp_check categorical variables}
+Use imp_check to find if any implausible values
+```{r Imp_check categorical variables}
 imp_check(data = dat,
-          variables = variables_categorical,
-          values = values_categorical)
-
+          variables = variables_cat,
+          values = values_cat)
 ```
 
-# Numeric variables
+
+
+# Cleaning Numeric Variables
 
 Name your vectors in line with the chunks below
 Number the vectors or name them intuitively if you have multiple vectors
 Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
-
-Create vector of numeric values 
-```{r vector numeric values}
-values_numeric <- c(
+```{r Vector numeric values}
+values_num <- c(
   0,
   1,
   -777,
-  -888,
-  -999,
   NA
-  )
-values_numeric
+)
 ```
 
-Create vector of variable names for numeric variables
-```{r vector numeric variables}
-variables_numeric <-
-  c(
-    "dem.affects_concerned_live_memory_numeric",
-    "dem.memory_problem_worse_year_numeric",
-    "dem.affects_concerned_live_memory.1_numeric",
-    "dem.affects_concerned_live_memory.2_numeric",
-    "dem.has_your_memory_got_progressively_worse_numeric"
-    )
-variables_numeric
+Create vector of categorical domains variables 
+```{r Vector numeric variables}
+variables_num <- c(
+  "nonmotor.choking_drink_problems_difficulty_numeric",
+  "nonmotor.pass_urine_regularly_night_numeric",
+  "nonmotor.sex_difficult_finding_numeric",
+  "nonmotor.weak_standing_lying_sitting_numeric",
+  "nonmotor.dream_talking_sleep_acting_numeric",
+  "nonmotor.double_vision_numeric"
+)
 ```
 
-Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r imp_check numeric variables memory got worse}
+Use imp_check to find if any implausible values
+```{r Imp_check numeric variables}
 imp_check(data = dat,
-          variables = variables_numeric,
-          values = values_numeric)
+          variables = variables_num,
+          values = values_num)
 ```
 
-Implausible values due to 2 values in affects concerned live memory 1
-View categorical and numeric
-1 = Yes, 2 = No
-```{r COVIDCNS check incorrect variable}
-dat %>%
-  select(
-    dem.affects_concerned_live_memory.1,
-    dem.affects_concerned_live_memory.1_numeric
-  )
-```
-Recode affects concerned live memory 1 variable
-```{r COVIDCNS recode incorrect variable}
-dat <- dat %>%
-  mutate(across(dem.affects_concerned_live_memory.1_numeric,
-                ~case_when(
-                  . == 2 ~ 0,
-                  TRUE ~ .)))
-```
-
-Recheck variable coding
-```{r imp_check numeric variables}
-imp_check(data = dat,
-          variables = "dem.affects_concerned_live_memory.1_numeric",
-          values = values_numeric)
-```
-
-Inspect variables after cleaning
-```{r COVIDCNS inspect variables final}
-dat %>%
-  tbl_summary(include = c(dem.affects_concerned_live_memory,
-                          dem.memory_problem_worse_year,
-                          dem.affects_concerned_live_memory.1,
-                          dem.affects_concerned_live_memory.2,
-                          dem.has_your_memory_got_progressively_worse,
-                          dem.affects_concerned_live_memory_numeric,
-                          dem.memory_problem_worse_year_numeric,
-                          dem.affects_concerned_live_memory.1_numeric,
-                          dem.affects_concerned_live_memory.2_numeric,
-                          dem.has_your_memory_got_progressively_worse_numeric),
-              missing_text = "Missing")
-```
 
 # Save cleaned data
 
 Check colnames before exporting final dataset
-```{r check colnames}
+```{r Check colnames}
 colnames(dat)
 ```
 
@@ -312,6 +255,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_memory_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/nonmotor_covidcns_clean.rds")
     )
 ```

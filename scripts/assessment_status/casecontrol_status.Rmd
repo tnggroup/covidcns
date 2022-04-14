@@ -34,10 +34,10 @@ remove(list = ls())
 ```
 
 Add the package_check function - used to install and load dependencies
-Add the imp_check function - used to check variables for implausible values
+Add the imp_clean function - used to check variables for implausible values
 ```{r Read in functions}
 source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check_1.R")
+source(file = "../functions/imp_clean.R")
 ```
 
 Use package_check to install and load dependencies
@@ -71,12 +71,12 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_csv(
-  file = paste0(ilovedata, "/data_raw/covidcns/COVID_CNS_case_control_status_04.03.2022.csv"),
+  file = paste0(ilovedata, "/data_raw/assessment_status/COVID_CNS_case_control_status_04.03.2022.csv"),
   col_types = list(
     identifier = col_character(),
     type = col_character(),
     updated_at = col_character()
-  )
+    )
   )
   
 # Check variable names in dataframe
@@ -93,13 +93,10 @@ Select & rename relevant columns
 covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
   drop_na(identifier) %>% # Drop participants with no ID
   distinct(identifier, .keep_all = TRUE) %>% # Remove duplicate IDs
-  add_column(sample = "COVIDCNS",
-             .after = "identifier") %>% # Create new sample column
   select(
-         ID = identifier, # ID
-         case_control = type,
-         updated_at
-         )
+    ID = identifier, # ID
+    case_control = type,
+    updated_at)
 
 # Inspect colnames
 covidcns_dat_id %>%
@@ -169,44 +166,24 @@ values_cat_list <- list(
 )
 ```
 
-Create vector of categorical domains variables 
-```{r Vector categorical variables}
-variables_cat <- c(
+Set names of list to variable names
+```{r Set list names}
+names(values_cat_list) <- c(
   "case_control"
 )
 ```
 
-Set names of list to variable names
-```{r Set list names}
-names(values_cat_list) <- variables_cat
-```
-
-Use imp_check iteratively to find if any implausible values
-```{r Imp_check categorical variables}
-# Create empty list
-imp_list_cat <- list()
-
-# Loop over each variable, checking against relevant set of values from list
-# Add imp_message to list
-for (i in 1:length(variables_cat)) {
-  imp_list_cat[i] <- imp_check_1(data = dat,
-                                 variables = names(values_cat_list)[i],
-                                 values = values_cat_list[[i]]) 
-
-}
-
-# Name list with var names to correspond to imp_messages
-names(imp_list_cat) <- variables_cat
-
-# View list of imp_messages with corresponding var names
-print(imp_list_cat)
+Use imp_clean to find if any implausible values
+```{r Imp_clean categorical variables}
+imp_clean(values_list = values_cat_list,
+          dat = dat)
 ```
 
 Produce summary table of variables
 ```{r Summary table categorical variables}
 dat %>%
   tbl_summary(
-    include = all_of(variables_cat),
+    include = all_of(names(values_cat_list)),
     missing_text = "Missing")
 ```
 
@@ -228,16 +205,22 @@ dat %>%
   glimpse()
 ```
 
-Parse dates using lubridate
-```{r COVIDCNS parse dates}
+Replace -77 values with NA: POSIX will reject -77 as a value when converting
+```{r Date varss recode -77 to NA}
 dat <- dat %>% 
-  mutate(across(
-    all_of(variables_date),
-    ~lubridate::parse_date_time(
-    x = .,
-    orders = c("%d/%m/%y %H:%M"),
-    tz = "Europe/London"
-    )
+  mutate(across(all_of(variables_date),
+                ~na_if(., "-77")
+                )
+         )
+```
+
+Parse dates using lubridate
+```{r Parse date vars}
+dat <- dat %>% 
+  mutate(across(all_of(variables_date),
+                ~lubridate::parse_date_time(x = .,
+                                            orders = c("d/m/y %H:%M"),
+                                            tz = "Europe/London")
                 )
          )
 ```
@@ -259,27 +242,25 @@ upper_limit <- as.POSIXct("2022-03-04")
 lower_limit <- as.POSIXct("2020-01-30")
 ```
 
-Recode variable outliers to -666
-```{r Recode outliers to NA}
+Recode variable outliers to NA
+```{r Date vars recode outliers to NA}
 dat <- dat %>%
-    mutate(across(
-    all_of(variables_date),
-    ~ifelse(
-      . > upper_limit | # bigger than the upper limit
-        . < lower_limit, # smaller than the lower limit
-      yes = NA_real_,
-      no = .
-        )
-    )
-) %>%
-  mutate(across(
-    all_of(variables_date),
-    ~as.POSIXct(., origin = lubridate::origin))
-  )
+    mutate(across(all_of(variables_date),
+                  ~ifelse(. > upper_limit | # bigger than the upper limit
+                          . < lower_limit, # smaller than the lower limit
+                          yes = NA_real_,
+                          no = .)
+                  )
+           ) %>%
+  mutate(across(all_of(variables_date),
+                ~as.POSIXct(.,
+                            origin = lubridate::origin)
+                )
+         )
 ```
 
 Re-check dates
-```{r COVID CNS recheck dates}
+```{r Recheck dates}
 dat %>%
   select(all_of(variables_date)) %>%
   tbl_summary(missing_text = "Missing")
@@ -297,6 +278,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovedata, "/data/covidcns/COVID_CNS_casecontrol_clean.rds")
+    file = paste0(ilovedata, "/data/assessment_status/COVID_CNS_casecontrol_clean.rds")
     )
 ```

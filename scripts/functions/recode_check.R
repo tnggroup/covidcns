@@ -1,10 +1,11 @@
-#' @title imp_check_1
+#' @title recode_check 
 #'
-#' @description imp_check_1 is a function that checks for implausible values in 
+#' @description recode_check is a function that checks for implausible values in 
 #' data. It takes in a vector of variable names, a vector of values and a
 #' a data frame. It checks whether there are any implausible values in the 
-#' given variables and returns a message indicating how many implausible
-#' values are in the dataset.
+#' given variables and returns a tbl_summary of the specified variables along
+#' a message indicating how many implausible values are in the dataset.
+#' This function is to be used to check variables when recoding only.
 #' 
 #' @author Zain Ahmad
 #' 
@@ -12,15 +13,15 @@
 #' @param variables a vector of variable names to be checked
 #' @param values a vector of item values to check against
 #' 
-#' @return  a message to indicate whether the variables contain
-#' implausible values
+#' @return sum_tab a summary table of the given variables, along with printing 
+#' a message to indicate whether the variables contain implausible values
 #' 
-#' @examples imp_check(data = df, variables = vars_vec, values = vals_vec)
+#' @examples recode_check(data = df, variables = vars_vec, values = vals_vec)
 #'
 #' @export
 #'
 
-imp_check_1 <- function(data, variables, values){
+recode_check <- function(data, variables, values){
   
   # require dependencies
   require(tidyverse)
@@ -28,6 +29,11 @@ imp_check_1 <- function(data, variables, values){
   
   # add negating in function
   `%nin%` = Negate(`%in%`)
+  
+  # create summary table of variables to be viewed
+  sum_tab <- data %>%
+    select(all_of(variables)) %>%
+    tbl_summary(missing_text = "Missing")
   
   # create count of implausible values
   imp_count <- data %>%
@@ -43,7 +49,8 @@ imp_check_1 <- function(data, variables, values){
   }
   
   # produce output
-  return(imp_message)
+  print(imp_message)
+  return(sum_tab)
   
   
 }

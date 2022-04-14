@@ -1,0 +1,185 @@
+---
+title: "ncrf2_vital"
+author: "Chelsea Mika Malouf"
+date: "04/03/2022"
+output: html_document
+---
+
+# Set up
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+```{r Clear global environment}
+remove(list = ls())
+```
+
+```{r Read in functions}
+source(file = "../functions/add_numeric_1.R")
+source(file = "../functions/remove_duplicates.R")
+source(file = "../functions/sumscores.R")
+source(file = "../functions/package_check.R")
+source(file = "../functions/imp_check_1.R")
+```
+
+```{r Install load dependencies}
+packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
+package_check(packages)
+```
+
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "../credentials/paths.R")
+```
+
+
+# Read in the data: NCRF2 Vital
+
+## COVIDCNS data
+```{r COVIDCNS load data}
+covidcns_dat <- read_rds(
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/neuro_case_report/ncrf2_vital_covid_cns.rds")
+  )
+  
+# Check variable names in dataframe
+covidcns_dat %>%
+  colnames()
+# Inspect dimensions of dataframe 
+covidcns_dat %>%
+  dim()
+```
+
+```{r COVIDCNS specify excluded columns}
+exclude_cols_numeric <- c(
+  "ID",
+  "sample",
+  "startDate",
+  "endDate",
+  "ncrf2_vital.lowest_gcs_during_admission.txt"
+  )
+```
+
+```{r COVIDCNS select}
+covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
+  drop_na(externalDataReference) %>% # Drop participants with no ID
+  distinct(externalDataReference, .keep_all = TRUE) %>% # Changed to distinct due to NA coercion
+  add_column(sample = "COVIDCNS",
+             .after = "externalDataReference") %>% # Create new sample column
+  select(
+         ID = externalDataReference, # ID
+         sample,
+         startDate,
+         endDate,
+         ncrf2_vital.lowest_gcs_during_admission.txt
+         ) 
+# Inspect colnames
+covidcns_dat_id %>%
+  colnames()
+```
+
+```{r COVIDCNS number excluded}
+# Inspect dimensions of new data set
+covidcns_dat_id %>%
+  dim()
+# Inspect number of rows dropped
+covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
+covidcns_excluded
+```
+
+```{r COVIDCNS inspect missingness}
+covidcns_miss_map <- covidcns_dat_id %>% 
+  missmap()
+covidcns_miss_map
+```
+
+```{r Create dat}
+dat <- covidcns_dat_id 
+# Check
+dat %>% glimpse()
+```
+
+# Recode Non-answer values to 3 digits
+-555 'Not applicable' response from participant
+-777 Seen but not answered
+-888 Don't know
+-999 Prefer not to answer/Prefer not to say
+`NA` Were not shown the question (genuinely missing value)
+When we code someone as being 'not applicable' by deduction, we use `NA_real_`
+```{r Recode NA values}
+dat <- dat %>%
+  mutate(across(ends_with("txt"),
+                ~case_when(
+                  . == "-55" ~ "-555",
+                  . == "-77" ~ "-777",
+                  . == "-88" ~ "-888",
+                  . == "-99" ~ "-999",
+                  TRUE ~ .)))
+```
+
+```{r List unique values}
+ulst <- sapply(dat, unique)
+```
+
+Create list of all unique values
+```{r List unique values}
+ulst <- sapply(dat, unique)
+```
+
+# Cleaning
+
+Inspect variables as they are all textual and require individual cleaning
+```{r COVIDCNS inspect variables}
+dat %>%
+  tbl_summary(include = 
+                c(
+                  ncrf2_vital.lowest_gcs_during_admission.txt
+                  ),
+              missing_text = "Missing")
+```
+
+# Recode incorrect variables
+
+
+## Recode lowest GCS during admission variable
+```{r COVIDCNS Recode lowest GCS during admission variable}
+dat <- dat %>% 
+  mutate(across(ncrf2_vital.lowest_gcs_during_admission.txt,
+                ~case_when(
+                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "unknown") |
+                    str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "N/K") ~  "Unknown",
+                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "N/A") ~ "-777", 
+                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "3 ") ~ "3",
+                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "04") | 
+                    str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "4 ") ~ "4",
+                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "/15") ~ "",
+                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "10") ~ "10",
+                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "13") ~ "13",
+                  TRUE ~ .)))
+```
+
+### Re-check lowest GCS during admission variable coding
+```{r COVIDCNS recheck lowest GCS during admission variable coding}
+dat %>%
+  select(all_of(starts_with("ncrf2_vital.lowest_gcs_during_admission.txt"))) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+
+# Save cleaned data
+
+Check colnames before exporting final dataset
+```{r check colnames}
+colnames(dat)
+```
+
+# COVIDCNS
+```{r Write cleaned COVIDCNS variables to a .rds file}
+dat %>%
+  saveRDS(
+    file = paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf2_vital_covidcns_clean.rds")
+    )
+```

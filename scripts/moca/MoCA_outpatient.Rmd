@@ -53,9 +53,9 @@ packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
 package_check(packages)
 ```
 
-Read in file with path to ilovedata channel on Teams
+Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
-```{r Read in file with path to ilovedata channel on teams}
+```{r Read in file with path to ilovecovidcns channel on teams}
 source(file = "../credentials/paths.R")
 ```
 
@@ -77,7 +77,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/moca/moca_outp_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/moca/moca_outp_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -169,7 +169,6 @@ dat <- dat %>%
                   moca_outp.abstraction.txt,
                   moca_outp.uncued_recall_scored_delayed.txt,
                   moca_outp.orientation.txt,
-                  moca_outp.total_score.txt,
                   moca_outp.did_the_participant_complete_a_moca),
                 ~case_when(
                   . == -55 ~ -555,
@@ -497,12 +496,12 @@ dat <- dat %>%
          sumscores(input = dat,
                    sum_vars = sum_vars,
                    coding_keys = keys,
-                   na_limit = 0,
+                   na_allowed = 0,
                    min_item = 0,
                    max_item = 6,
                    min_score = 0,
                    max_score = 30
-                   )
+                   )[["scores"]]
          )
 
 ```
@@ -554,6 +553,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/moca_outp_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/moca/moca_outp_covidcns_clean.rds")
     )
 ```

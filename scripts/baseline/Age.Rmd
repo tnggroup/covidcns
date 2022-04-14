@@ -27,15 +27,12 @@ knitr::opts_chunk$set(echo = TRUE,
 remove(list = ls())
 ```
 
-Add the add_numeric function - used to convert character variables into numeric variables.
 Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 ```{r Read in functions}
-source(file = "../functions/add_numeric_1.R")
 source(file = "../functions/remove_duplicates.R")
 source(file = "../functions/sumscores.R")
 source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check.R")
 ```
 
 Note: always load tidyverse last
@@ -58,8 +55,8 @@ date = Sys.Date()
 date
 ```
 
-## Read in file with path to ilovedata channel on Teams
-```{r Read in file with path to ilovedata channel on Teams}
+## Read in file with path to ilovecovidcns channel on Teams
+```{r Read in file with path to ilovecovidcns channel on Teams}
 source(file = "../credentials/paths.R")
 ```
 
@@ -68,7 +65,7 @@ source(file = "../credentials/paths.R")
 
 ```{r  read in data}
 dat <- read_rds(
-  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/dem_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/dem_covid_cns.rds")
   ) 
   
 # check variable names in dataframe
@@ -530,7 +527,7 @@ export_variables <- dat_clean %>%
 dat_clean %>% 
   select(all_of(export_variables)) %>% 
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/age_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/age_covidcns_clean.rds")
     )
 ```
 
@@ -538,12 +535,6 @@ dat_clean %>%
 ```{r INTERNAL ONLY Write cleaned variables to a .rds file}
 dat_clean %>% 
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/age_covidcns_clean_INTERNAL_ONLY.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/age_covidcns_clean_INTERNAL_ONLY.rds")
     )
 ```
-
-
-
-
-
-

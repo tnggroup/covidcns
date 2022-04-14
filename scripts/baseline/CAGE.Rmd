@@ -53,9 +53,9 @@ packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
 package_check(packages)
 ```
 
-Read in file with path to ilovedata channel on Teams
+Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
-```{r Read in file with path to ilovedata channel on teams}
+```{r Read in file with path to ilovecovidcns channel on teams}
 source(file = "../credentials/paths.R")
 ```
 
@@ -77,7 +77,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/cage_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/cage_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -294,29 +294,30 @@ sumscores assumes that all items in the questionnaire have the SAME minimum and 
 
 When adding the column name for your sumscore use "questionnaire.score_name"
 
-Generate sumscores and add as new column
+Generate sumscores
 ```{r Generate sumscores}
-dat <- dat %>% 
-  mutate(
-    cage.sum_score = 
-         sumscores(input = dat,
-                   sum_vars = sum_vars,
-                   coding_keys = keys,
-                   na_limit = 0,
-                   min_item = 0,
-                   max_item = 1,
-                   min_score = 0,
-                   max_score = 4
-                   )
-         )
+sum_out <- sumscores(input = dat,
+                     sum_vars = sum_vars,
+                     coding_keys = keys,
+                     na_allowed = 0,
+                     min_item = 0,
+                     max_item = 1,
+                     min_score = 0,
+                     max_score = 4
+                     )
+```
 
+Add sumscores as new column
+```{r Add sumscores}
+dat <- dat %>% 
+  mutate(cage.sum_score = sum_out$scores)
 ```
 
 
 # Create binary variables
 Alcohol use requiring investigation from CAGE sumscores – cut off score of 2 and above
 
-Create numeric binary alcoholism investigation variable
+Create numeric binary alcohol use disorder investigation variable
 ```{r Numeric binary investigation variable}
 dat <- dat %>%
   mutate(
@@ -331,15 +332,15 @@ dat %>%
   tbl_summary()
 ```
 
-Create categorical binary alcoholism investigation variable
+Create categorical binary alcohol use disorder investigation variable
 ```{r Categorical binary investigation variable}
 dat <- dat %>%
   mutate(
     cage.investigate =
       recode_factor(
         cage.investigate_numeric,
-        "0" = "Do not investigate for alcoholism",
-        "1" = "Investigate for alcoholism"
+        "0" = "Do not investigate for alcohol use disorder",
+        "1" = "Investigate for alcohol use disorder"
       )
   )
 dat %>%
@@ -359,6 +360,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/cage_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/cage_covidcns_clean.rds")
     )
 ```

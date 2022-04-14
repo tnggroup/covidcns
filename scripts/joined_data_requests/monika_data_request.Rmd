@@ -1,0 +1,161 @@
+---
+title: "Monika Data Request"
+author: "Zain Ahmad"
+date: "13/04/2022"
+output: html_document
+---
+
+Data request for ethnicity and covid positive date
+
+# Set up
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+Add the add_numeric function - used to convert character variables into numeric variables
+Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+Add the imp_check function - used to check variables for implausible values
+```{r Read in functions}
+source(file = "./functions/add_numeric.R")
+source(file = "./functions/remove_duplicates.R")
+source(file = "./functions/sumscores.R")
+source(file = "./functions/package_check.R")
+source(file = "./functions/imp_check.R")
+```
+
+Use package_check to install and load dependencies
+Load tidyverse last
+```{r Install load dependencies}
+packages <- c(
+  "summarytools",
+  "sjlabelled", 
+  "tidyverse"
+  )
+
+package_check(packages)
+```
+
+Retrieve the recent date
+We are using the recent date to save files with paste0() as an extension to not overwrite old versions
+```{r Recent date}
+date = Sys.Date()
+date
+```
+
+Read in file with path to ilovecovidcns channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "credentials/paths.R")
+```
+
+### ethnicity_covidcns_clean
+Read in & variable names
+```{r ethnicity_covidcns_clean Read in data & variable names}
+ethnicity_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_ethnicity_covidcns_clean.rds")
+  )
+
+ethnicity_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ethnicity_covidcns_clean Dimensions}
+ethnicity_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ethnicity_covidcns_clean Select columns for joining}
+ethnicity_covidcns_clean_selected <-
+  ethnicity_covidcns_clean
+
+ethnicity_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### ncrf1_admission_covidcns_clean
+Read in & variable names
+```{r ncrf1_admission_covidcns_clean Read in data & variable names}
+ncrf1_admission_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_admission_covidcns_clean.rds")
+  )
+
+ncrf1_admission_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ncrf1_admission_covidcns_clean Dimensions}
+ncrf1_admission_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ncrf1_admission_covidcns_clean Select columns for joining}
+ncrf1_admission_covidcns_clean_selected <- 
+  ncrf1_admission_covidcns_clean %>%
+  select(
+    ncrf1_admission.date_of_positive_covid19_test.txt
+  )
+
+ncrf1_admission_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+## List of tibbles to join
+```{r List of tibbles to join}
+tibble_list <- 
+  list(
+    ethnicity_covidcns_clean_selected,
+    ncrf1_admission_covidcns_clean_selected
+    )
+```
+
+Joining of demographics and questionnaires
+```{r Joining of demographics and questionnaires}
+data_joined <- 
+  plyr::join_all(
+    tibble_list,
+    by = c(
+      "ID"
+      )
+    )
+```
+
+Check dimensions of joined tibble
+```{r Check dimensions of joined tibble}
+data_joined %>%
+  dim()
+```
+
+```{r}
+data_joined %>% 
+  colnames()
+```
+
+# Save joined data set
+```{r monika Save joint data set}
+write.xlsx(x = data_joined,
+           file = "/Users/zainahmad/Desktop/monika_ethnicity_covidpositive.xlsx")
+```

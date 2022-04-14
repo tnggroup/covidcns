@@ -53,9 +53,9 @@ packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
 package_check(packages)
 ```
 
-Read in file with path to ilovedata channel on Teams
+Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
-```{r Read in file with path to ilovedata channel on teams}
+```{r Read in file with path to ilovecovidcns channel on teams}
 source(file = "../credentials/paths.R")
 ```
 
@@ -77,7 +77,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/dem_1_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/dem_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -97,8 +97,8 @@ exclude_cols_numeric <- c(
   "sample",
   "startDate",
   "endDate",
-  "dem_1.long_ago_diagnosed_required",
-  "dem_1.long_ago_diagnosed_required.1"
+  "dem.long_ago_diagnosed_required",
+  "dem.long_ago_diagnosed_required.1"
   )
 ```
 
@@ -114,10 +114,10 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          sample,
          startDate,
          endDate,
-         dem_1.diagnosed_required_question_covid19,
-         dem_1.long_ago_diagnosed_required,
-         dem_1.long_ago_diagnosed_required.1,
-         dem_1.diagnosed_covid19_experienced_similar
+         dem.diagnosed_required_question_covid19,
+         dem.long_ago_diagnosed_required,
+         dem.long_ago_diagnosed_required.1,
+         dem.diagnosed_covid19_experienced_similar
          ) %>%
   add_numeric(exclude = exclude_cols_numeric)
 
@@ -181,12 +181,12 @@ ulst <- sapply(dat, unique)
 Inspect variables prior to cleaning: mix of categorical and continuous
 ```{r COVIDCNS inspect variables}
 dat %>%
-  tbl_summary(include = c(dem_1.diagnosed_required_question_covid19,
-                          dem_1.long_ago_diagnosed_required,
-                          dem_1.long_ago_diagnosed_required.1,
-                          dem_1.diagnosed_covid19_experienced_similar,
-                          dem_1.diagnosed_required_question_covid19_numeric,
-                          dem_1.diagnosed_covid19_experienced_similar_numeric),
+  tbl_summary(include = c(dem.diagnosed_required_question_covid19,
+                          dem.long_ago_diagnosed_required,
+                          dem.long_ago_diagnosed_required.1,
+                          dem.diagnosed_covid19_experienced_similar,
+                          dem.diagnosed_required_question_covid19_numeric,
+                          dem.diagnosed_covid19_experienced_similar_numeric),
               missing_text = "Missing")
 ```
 
@@ -214,8 +214,8 @@ Create vector of variable names for categorical variables
 ```{r vector categorical variables}
 variables_categorical <-
   c(
-    "dem_1.diagnosed_required_question_covid19",
-    "dem_1.diagnosed_covid19_experienced_similar"
+    "dem.diagnosed_required_question_covid19",
+    "dem.diagnosed_covid19_experienced_similar"
     )
 variables_categorical
 ```
@@ -252,8 +252,8 @@ Create vector of variable names for numeric variables
 ```{r vector numeric variables}
 variables_numeric <-
   c(
-    "dem_1.diagnosed_required_question_covid19_numeric",
-    "dem_1.diagnosed_covid19_experienced_similar_numeric"
+    "dem.diagnosed_required_question_covid19_numeric",
+    "dem.diagnosed_covid19_experienced_similar_numeric"
     )
 variables_numeric
 ```
@@ -270,25 +270,25 @@ imp_check(data = dat,
 ## Long ago diagnosed years
 ```{r check range of values}
 dat %>%
-  select("dem_1.long_ago_diagnosed_required") %>%
+  select("dem.long_ago_diagnosed_required") %>%
   tbl_summary()
 ```
 
 Set limits
-Variable name: dem_1.long_ago_diagnosed_required (years)
+Variable name: dem.long_ago_diagnosed_required (years)
 - Lower: 0, as could be less than a year
 - Upper: 2 as of present (Feb 2021), cannot be diagnosed before 2019
 *** *Check
 ```{r define limits}
-dem_1.long_ago_diagnosed_required_upper_limit = 2
-dem_1.long_ago_diagnosed_required_lower_limit = 0
+dem.long_ago_diagnosed_required_upper_limit = 2
+dem.long_ago_diagnosed_required_lower_limit = 0
 ```
 
 ```{r outlier count}
 dat %>%
   filter(
-    dem_1.long_ago_diagnosed_required > dem_1.long_ago_diagnosed_required_upper_limit | # bigger than the upper limit
-      dem_1.long_ago_diagnosed_required < dem_1.long_ago_diagnosed_required_lower_limit & dem_1.long_ago_diagnosed_required > -555 # smaller than the lower limit
+    dem.long_ago_diagnosed_required > dem.long_ago_diagnosed_required_upper_limit | # bigger than the upper limit
+      dem.long_ago_diagnosed_required < dem.long_ago_diagnosed_required_lower_limit & dem.long_ago_diagnosed_required > -555 # smaller than the lower limit
       # or special conditions
     ) %>%
   nrow()
@@ -297,13 +297,13 @@ dat %>%
 ```{r Recode outliers to -666}
 dat <- dat %>%
     mutate(
-      dem_1.long_ago_diagnosed_required = 
+      dem.long_ago_diagnosed_required = 
         if_else(
-          dem_1.long_ago_diagnosed_required > dem_1.long_ago_diagnosed_required_upper_limit | # bigger than the upper limit
-           dem_1.long_ago_diagnosed_required < dem_1.long_ago_diagnosed_required_lower_limit & dem_1.long_ago_diagnosed_required > -555, # smaller than the lower limit
+          dem.long_ago_diagnosed_required > dem.long_ago_diagnosed_required_upper_limit | # bigger than the upper limit
+           dem.long_ago_diagnosed_required < dem.long_ago_diagnosed_required_lower_limit & dem.long_ago_diagnosed_required > -555, # smaller than the lower limit
             # or special conditions
           true = -666,
-          false = dem_1.long_ago_diagnosed_required,
+          false = dem.long_ago_diagnosed_required,
           missing = NA_real_
         )
     )
@@ -311,32 +311,32 @@ dat <- dat %>%
 
 ```{r inspect after recoding to -666}
 dat %>%
-  select("dem_1.long_ago_diagnosed_required") %>%
+  select("dem.long_ago_diagnosed_required") %>%
   tbl_summary()
 ```
 
 ## Long ago diagnosed (months)
 ```{r check range of values}
 dat %>%
-  select("dem_1.long_ago_diagnosed_required.1") %>%
+  select("dem.long_ago_diagnosed_required.1") %>%
   tbl_summary()
 ```
 
 Set limits
-Variable name: dem_1.long_ago_diagnosed_required.1 (months)
+Variable name: dem.long_ago_diagnosed_required.1 (months)
 - Lower: 0, as could be less than a month
 - Upper: 12 (12 months in a year)
 *** *Check
 ```{r define limits}
-dem_1.long_ago_diagnosed_required.1_upper_limit = 12
-dem_1.long_ago_diagnosed_required.1_lower_limit = 0
+dem.long_ago_diagnosed_required.1_upper_limit = 12
+dem.long_ago_diagnosed_required.1_lower_limit = 0
 ```
 
 ```{r outlier count}
 dat %>%
   filter(
-    dem_1.long_ago_diagnosed_required.1 > dem_1.long_ago_diagnosed_required.1_upper_limit | # bigger than the upper limit
-      dem_1.long_ago_diagnosed_required.1 < dem_1.long_ago_diagnosed_required.1_lower_limit & dem_1.long_ago_diagnosed_required.1 > -555 # smaller than the lower limit
+    dem.long_ago_diagnosed_required.1 > dem.long_ago_diagnosed_required.1_upper_limit | # bigger than the upper limit
+      dem.long_ago_diagnosed_required.1 < dem.long_ago_diagnosed_required.1_lower_limit & dem.long_ago_diagnosed_required.1 > -555 # smaller than the lower limit
       # or special conditions
     ) %>%
   nrow()
@@ -345,13 +345,13 @@ dat %>%
 ```{r Recode outliers to -666}
 dat <- dat %>%
     mutate(
-      dem_1.long_ago_diagnosed_required.1 = 
+      dem.long_ago_diagnosed_required.1 = 
         if_else(
-          dem_1.long_ago_diagnosed_required.1 > dem_1.long_ago_diagnosed_required.1_upper_limit | # bigger than the upper limit
-           dem_1.long_ago_diagnosed_required.1 < dem_1.long_ago_diagnosed_required.1_lower_limit & dem_1.long_ago_diagnosed_required.1 > -555, # smaller than the lower limit
+          dem.long_ago_diagnosed_required.1 > dem.long_ago_diagnosed_required.1_upper_limit | # bigger than the upper limit
+           dem.long_ago_diagnosed_required.1 < dem.long_ago_diagnosed_required.1_lower_limit & dem.long_ago_diagnosed_required.1 > -555, # smaller than the lower limit
             # or special conditions
           true = -666,
-          false = dem_1.long_ago_diagnosed_required.1,
+          false = dem.long_ago_diagnosed_required.1,
           missing = NA_real_
         )
     )
@@ -359,19 +359,19 @@ dat <- dat %>%
 
 ```{r inspect after recoding to -666}
 dat %>%
-  select("dem_1.long_ago_diagnosed_required.1") %>%
+  select("dem.long_ago_diagnosed_required.1") %>%
   tbl_summary()
 ```
 
 Inspect variables after cleaning
 ```{r COVIDCNS inspect variables}
 dat %>%
-  tbl_summary(include = c(dem_1.diagnosed_required_question_covid19,
-                          dem_1.long_ago_diagnosed_required,
-                          dem_1.long_ago_diagnosed_required.1,
-                          dem_1.diagnosed_covid19_experienced_similar,
-                          dem_1.diagnosed_required_question_covid19_numeric,
-                          dem_1.diagnosed_covid19_experienced_similar_numeric),
+  tbl_summary(include = c(dem.diagnosed_required_question_covid19,
+                          dem.long_ago_diagnosed_required,
+                          dem.long_ago_diagnosed_required.1,
+                          dem.diagnosed_covid19_experienced_similar,
+                          dem.diagnosed_required_question_covid19_numeric,
+                          dem.diagnosed_covid19_experienced_similar_numeric),
               missing_text = "Missing")
 ```
 
@@ -386,6 +386,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/covidpositive_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_covidpositive_covidcns_clean.rds")
     )
 ```

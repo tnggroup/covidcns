@@ -1,7 +1,7 @@
 ---
-title: "COVIDCNS 4-AT Outpatient Cleaning Script"
+title: "COVIDCNS Facial Cleaning Script"
 author: "Zain Ahmad"
-date: "22/02/2022"
+date: "03/03/2022"
 output: html_document
 ---
 
@@ -59,7 +59,7 @@ Ensure that your credentials directory is correctly located
 source(file = "../credentials/paths.R")
 ```
 
-# Read in the data: COVIDCNS 4-AT Outpatient
+# Read in the data: COVIDCNS Facial Questions
 Change this heading to the name of your questionnaire/demographic
 Load COVIDCNS data
 
@@ -77,13 +77,12 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/core_neuro/fourat_outp_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/facial_covid_cns.rds")
   )
   
 # Check variable names in dataframe
 covidcns_dat %>%
   colnames()
-
 # Inspect dimensions of dataframe 
 covidcns_dat %>%
   dim()
@@ -112,13 +111,13 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          sample,
          startDate,
          endDate,
-         fourat_outp.asleep_attempt_patient_address,
-         fourat_outp.birth_place_current_year,
-         fourat_outp.assist_initial_understanding_attentionask,
-         fourat_outp.mental_function_arising_fluctuating
+         facial.face_difficulty_move_find,
+         facial.smile_mouth_affected_side,
+         facial.eyebrows_raise_affected_side,
+         facial.mouth_moves_lips_pucker,
+         facial.experience_required_start_question
          ) %>%
   add_numeric(exclude = exclude_cols_numeric)
-
 # Inspect colnames
 covidcns_dat_id %>%
   colnames()
@@ -130,7 +129,6 @@ The number of people to be excluded should be negative
 # Inspect dimensions of new data set
 covidcns_dat_id %>%
   dim()
-
 # Inspect number of rows dropped
 covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
 covidcns_excluded
@@ -140,7 +138,6 @@ Check missingness by missmap
 ```{r COVIDCNS inspect missingness}
 covidcns_miss_map <- covidcns_dat_id %>% 
   missmap()
-
 covidcns_miss_map
 ```
 
@@ -148,7 +145,6 @@ Create dat as copy of covidcns_dat_id for brevity
 This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
 ```{r Create dat}
 dat <- covidcns_dat_id 
-
 # Check
 dat %>% glimpse()
 ```
@@ -189,33 +185,27 @@ Save vectors to a list
 Add variable names as names of list
 ```{r Vector categorical values}
 vals_cat_1 <- c(
-  "Normal (fully alert, but not agitated, throughout assessment)",
-  "Mild sleepiness for < 10 seconds after waking, then normal",
-  "Clearly abnormal",
   "Seen but not answered",
+  "I have no difficulty",
+  "One side (left or right)",
+  "Both sides",
   NA
 )
-
+# repeat x 3
 vals_cat_2 <- c(
-  "No mistakes",
-  "2 or more mistakes/untestable",
-  "1 mistake",
   "Seen but not answered",
+  "Not at all",
+  "Only if I concentrate",
+  "A little",
+  "Almost normally",
+  "Normally",
   NA
 )
-
 vals_cat_3 <- c(
-  "Achieves 7 months or more correctly",
-  "Starts but scores < 7 months/refuses to start",
-  "Untestable (cannot start because unwell, drowsy, inattentive)",
+  "Don't know",
   "Seen but not answered",
-  NA
-)
-
-vals_cat_4 <- c(
-  "Yes",
-  "No",
-  "Seen but not answered",
+  "No - I had these symptoms or experiences before I had COVID-19",
+  "Yes - they started after I had COVID-19 or during my infection with it",
   NA
 )
 ```
@@ -225,18 +215,20 @@ Create list of numeric values vectors
 values_cat_list <- list(
   vals_cat_1,
   vals_cat_2,
-  vals_cat_3,
-  vals_cat_4
+  vals_cat_2,
+  vals_cat_2,
+  vals_cat_3
 )
 ```
 
 Create vector of categorical domains variables 
 ```{r Vector categorical variables}
 variables_cat <- c(
-  "fourat_outp.asleep_attempt_patient_address",
-  "fourat_outp.birth_place_current_year",
-  "fourat_outp.assist_initial_understanding_attentionask",
-  "fourat_outp.mental_function_arising_fluctuating"
+  "facial.face_difficulty_move_find",
+  "facial.smile_mouth_affected_side",
+  "facial.eyebrows_raise_affected_side",
+  "facial.mouth_moves_lips_pucker",
+  "facial.experience_required_start_question"
 )
 ```
 
@@ -249,19 +241,15 @@ Use imp_check iteratively to find if any implausible values
 ```{r Imp_check categorical variables}
 # Create empty list
 imp_list_cat <- list()
-
 # Loop over each variable, checking against relevant set of values from list
 # Add imp_message to list
 for (i in 1:length(variables_cat)) {
   imp_list_cat[i] <- imp_check_1(data = dat,
                                  variables = names(values_cat_list)[i],
                                  values = values_cat_list[[i]]) 
-
 }
-
 # Name list with var names to correspond to imp_messages
 names(imp_list_cat) <- variables_cat
-
 # View list of imp_messages with corresponding var names
 print(imp_list_cat)
 ```
@@ -292,11 +280,20 @@ vals_num_1 <- c(
   -777,
   NA
 )
-
 vals_num_2 <- c(
   0,
   1,
+  2,
+  3,
+  4,
   -777,
+  NA
+)
+vals_num_3 <- c(
+  0,
+  1,
+  -777,
+  -888,
   NA
 )
 ```
@@ -305,19 +302,21 @@ Create list of numeric values vectors
 ```{r List numeric values vectors}
 values_num_list <- list(
   vals_num_1,
-  vals_num_1,
-  vals_num_1,
-  vals_num_2
+  vals_num_2,
+  vals_num_2,
+  vals_num_2,
+  vals_num_3
 )
 ```
 
 Create vector of categorical domains variables 
 ```{r Vector numeric variables}
 variables_num <- c(
-  "fourat_outp.asleep_attempt_patient_address_numeric",
-  "fourat_outp.birth_place_current_year_numeric",
-  "fourat_outp.assist_initial_understanding_attentionask_numeric",
-  "fourat_outp.mental_function_arising_fluctuating_numeric"
+  "facial.face_difficulty_move_find_numeric",
+  "facial.smile_mouth_affected_side_numeric",
+  "facial.eyebrows_raise_affected_side_numeric",
+  "facial.mouth_moves_lips_pucker_numeric",
+  "facial.experience_required_start_question_numeric"
 )
 ```
 
@@ -331,19 +330,15 @@ Use imp_check iteratively to find if any implausible values
 ```{r Imp_check numeric variables}
 # Create empty list
 imp_list_num <- list()
-
 # Loop over each variable, checking against relevant set of values from list
 # Add imp_message to list
 for (i in 1:length(variables_num)) {
   imp_list_num[i] <- imp_check_1(data = dat,
                                  variables = names(values_num_list)[i],
                                  values = values_num_list[[i]]) 
-
 }
-
 # Name list with var names to correspond to imp_messages
 names(imp_list_num) <- variables_num
-
 # View list of imp_messages with corresponding var names
 print(imp_list_num)
 ```
@@ -357,171 +352,6 @@ dat %>%
 ```
 
 
-# Recoding Incorrect Variables
-
-Variable is not coded incorrectly on qualtircs but 4AT scoring requires non
-linear scale for alertness and acute change so variables must be recoded to
-produce sumscores
-
-## Recoding Alertness Variable
-
-Alertness is coded 0,1,2: should be 0,0,4
-```{r Inspect incorrect variable}
-dat %>%
-  select(
-    fourat_outp.asleep_attempt_patient_address,
-    fourat_outp.asleep_attempt_patient_address_numeric) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
-Recode alertness as 0,0,4
-```{r Recode incorrect variable}
-dat <- dat %>% 
-  mutate(across(fourat_outp.asleep_attempt_patient_address_numeric,
-                ~case_when(
-                  . == 0 ~ 0,
-                  . == 1 ~ 0,
-                  . == 2 ~ 4,
-                  TRUE ~ .)))
-```
-
-Re-check variable coding
-```{r Recheck variable coding}
-dat %>%
-  select(
-    fourat_outp.asleep_attempt_patient_address,
-    fourat_outp.asleep_attempt_patient_address_numeric) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
-## Recoding Acute Change Variable
-
-Acute change is coded 0,1: should be 0,4
-```{r Inspect incorrect variable}
-dat %>%
-  select(
-    fourat_outp.mental_function_arising_fluctuating,
-    fourat_outp.mental_function_arising_fluctuating_numeric) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
-Recode acute change as 0,4
-```{r Recode incorrect variable}
-dat <- dat %>% 
-  mutate(across(fourat_outp.mental_function_arising_fluctuating_numeric,
-                ~case_when(
-                  . == 1 ~ 4,
-                  TRUE ~ .)))
-```
-
-Re-check variable coding
-```{r Recheck variable coding}
-dat %>%
-  select(
-    fourat_outp.mental_function_arising_fluctuating,
-    fourat_outp.mental_function_arising_fluctuating_numeric) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
-
-# Produce sumscores
-Reference the scoring guidance that you have used for your questionnaire here "link"
-
-If changing na_limit, CHECK your guidance, na_limit > 0 will replace NAs with 0, ensure that this is correct for your scoring guidance before proceeding
-
-Create vector of item coding
-The coding_keys vector must contain 1s for all variables to be added and -1 for all variables to be subtracted.
-Putting 0 in the vector will omit the variable at that position.
-length(coding_keys) MUST be the same as the number of variables to be summed
-
-sum_vars vector should contain ONLY and ALL variable names needed for scoring, do not add "ID" or "sample" etc.
-
-If using reverse keying:
-MAKE SURE that Reverse = TRUE is included as an argument, reverse keying will not work without this
-reverse_vars should contain all variable names to be reverse keyed
-If running multiple sumscores requiring reverse keying, a single reverse_vars vector containing all of the variable names to be reverse keyed is sufficient: `%in%` will pick the relevant variables for each sumscore
-
-The warnings "Scores vector contains missing values." and "Input contains non-answer values. These will be converted to NA_real_ for this calculation." are normal. They are there to inform you that some sumscores have not been calculated due to non-answer values (e.g. -777) being present. Any other errors or warnings need to be investigated.
-
-Create required variables for sumscore arguments
-```{r Sumscores inputs}
-keys <- c(
-  1,
-  1,
-  1,
-  1
-  )
-
-sum_vars <- c(
-  "fourat_outp.asleep_attempt_patient_address_numeric",
-  "fourat_outp.birth_place_current_year_numeric",
-  "fourat_outp.assist_initial_understanding_attentionask_numeric",
-  "fourat_outp.mental_function_arising_fluctuating_numeric"
-  )
-```
-
-
-Generate sumscores from questionnaire data and use mutate onto dat as new column
-sumscores assumes that all items in the questionnaire have the SAME minimum and maximum scores for ALL items, ensure that this is correct before proceeding
-
-When adding the column name for your sumscore use "questionnaire.score_name"
-
-Generate sumscores and add as new column
-```{r Generate sumscores}
-dat <- dat %>% 
-  mutate(
-    fourat.sum_score = 
-         sumscores(input = dat,
-                   sum_vars = sum_vars,
-                   coding_keys = keys,
-                   na_allowed = 0,
-                   min_item = 0,
-                   max_item = 4,
-                   min_score = 0,
-                   max_score = 12
-                   )[["scores"]]
-         )
-
-```
-
-# Create phenotypes
-Add explanation of phenotype here:
-Score of 0 = Does not suggest delirium or cognitive impairment
-Score of 1-3 = Suggests cognitive impairment
-Score of 4+ = Suggests delirium
-
-Create numeric binary phenotype variable
-```{r Numeric binary phenotype}
-dat <- dat %>%
-  mutate(
-    fourat.delirium_numeric =
-      case_when(
-        fourat.sum_score >= 4 ~ 2,
-        fourat.sum_score < 4 & fourat.sum_score >= 1 ~ 1,
-        fourat.sum_score == 0 ~ 0
-      )
-  )
-dat %>%
-  select(fourat.delirium_numeric) %>%
-  tbl_summary()
-```
-
-Create categorical binary phenotype variable
-```{r Categorical binary phenotype variable}
-dat <- dat %>%
-  mutate(
-    fourat.delirium =
-      recode_factor(
-        fourat.delirium_numeric,
-        "0" = "Does not suggest delirium or cognitive impairment",
-        "1" = "Suggests cognitive impairment",
-        "2" = "Suggests delirium"
-      )
-  )
-dat %>%
-  select(fourat.delirium) %>%
-  tbl_summary()
-```
 
 # Save cleaned data
 
@@ -534,6 +364,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/fourat_outp_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/facial_covidcns_clean.rds")
     )
 ```

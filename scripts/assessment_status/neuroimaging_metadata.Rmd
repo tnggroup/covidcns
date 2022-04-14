@@ -34,11 +34,12 @@ remove(list = ls())
 ```
 
 Add the package_check function - used to install and load dependencies
-Add the imp_check function - used to check variables for implausible values
+Add the imp_clean function - used to check variables for implausible values
+Add the recode_check function - used to check for implausible values when recoding
 ```{r Read in functions}
 source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check_1.R")
-source(file = "../functions/imp_check.R")
+source(file = "../functions/imp_clean.R")
+source(file = "../functions/recode_check.R")
 ```
 
 Use package_check to install and load dependencies
@@ -72,7 +73,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_csv(
-  file = paste0(ilovedata, "/data_raw/covidcns/Covid_CNS_neuro_data_03.03.2022.csv"),
+  file = paste0(ilovedata, "/data_raw/assessment_status/Covid_CNS_neuro_data_03.03.2022.csv"),
   col_types = list(
     kit_id = col_character(),
     primary_site = col_character(),
@@ -231,9 +232,9 @@ values_cat_list <- list(
 )
 ```
 
-Create vector of categorical domains variables 
-```{r Vector categorical variables}
-variables_cat <- c(
+Set names of list to variable names
+```{r Set list names}
+names(values_cat_list) <- c(
   "primary_site_code",
   "primary_site_name",
   "recruitment_site_code",
@@ -241,37 +242,17 @@ variables_cat <- c(
 )
 ```
 
-Set names of list to variable names
-```{r Set list names}
-names(values_cat_list) <- variables_cat
-```
-
-Use imp_check iteratively to find if any implausible values
-```{r Imp_check categorical variables}
-# Create empty list
-imp_list_cat <- list()
-
-# Loop over each variable, checking against relevant set of values from list
-# Add imp_message to list
-for (i in 1:length(variables_cat)) {
-  imp_list_cat[i] <- imp_check_1(data = dat,
-                                 variables = names(values_cat_list)[i],
-                                 values = values_cat_list[[i]]) 
-
-}
-
-# Name list with var names to correspond to imp_messages
-names(imp_list_cat) <- variables_cat
-
-# View list of imp_messages with corresponding var names
-print(imp_list_cat)
+Use imp_clean to find if any implausible values
+```{r Imp_clean categorical variables}
+imp_clean(values_list = values_cat_list,
+          dat = dat)
 ```
 
 Produce summary table of variables
 ```{r Summary table categorical variables}
 dat %>%
   tbl_summary(
-    include = all_of(variables_cat),
+    include = all_of(names(values_cat_list)),
     missing_text = "Missing")
 ```
 
@@ -296,7 +277,7 @@ dat <- dat %>%
 
 Re-check variable coding
 ```{r Recheck variable coding}
-imp_check(variables = "recruitment_site_name",
+recode_check(variables = "recruitment_site_name",
           values = vals_cat_4,
           data = dat)
 ```
@@ -339,6 +320,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovedata, "/data/covidcns/COVID_CNS_neuroimaging_metadata_clean.rds")
+    file = paste0(ilovedata, "/data/assessment_status/COVID_CNS_neuroimaging_metadata_clean.rds")
     )
 ```
