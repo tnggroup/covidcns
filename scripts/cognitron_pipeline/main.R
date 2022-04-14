@@ -11,13 +11,16 @@ library(plyr)
 library(ggplot2)
 library(glue)
 summarise <- dplyr::summarise
+source(file = "../credentials/paths.R")
+
+
 
 #  STEP 1: Cleaning of COVID CSN Data ---------------------------------------------------------------------
 
 # Import data
-covid_matching <- readRDS("data/covidcns_matching.rds")
-data_cognitron_raw <- read.table(file = 'data/covidcns.cognitron.co.uk_1.tsv', sep = '\t', header = FALSE)
-headers <- read_excel("data/Cognitron_headers.xlsx")
+covid_matching <- readRDS(paste0(ilovecovidcns, "/data/joined/covidcns_matching.rds"))
+data_cognitron_raw <- read.table(file = paste0(ilovecovidcns, "/data_raw/cognitron/covidcns.cognitron.co.uk_1_2022-04-06.tsv"), sep = '\t', header = FALSE)
+headers <- read_excel(paste0(ilovecovidcns, "/data_raw/cognitron/Cognitron_headers.xlsx"))
 
 # Remove not useful columns
 data_cognitron_raw <- data_cognitron_raw[, -c(1, 10)] # delete columns 5 through 7
@@ -469,8 +472,7 @@ scores <- cbind(fa_global_comp$scores,
 # YOU CANNOT RUN THIS TYPE OF MODEL BECAUSE YOU DON'T HAVE NORMATIVE DATA
 # I already provided the model to you so you just have to load it
 
-path_to_models = "" # add your path here
-load(paste0(path_to_models, "fa_models_method1.rds"))
+load(paste0(ilovecovidcns, "/data_raw/cognitron/CNS_COVID_FINAL/data/fa_models_method1.rds"))
 
 
 # ### 4.1 LMs of factor scores including covid group as a main effect -------
@@ -508,8 +510,8 @@ covid_group_coef_stats <- lapply(fa_models, function(mdl){
 # To use X_covid_class in the second approach - need to drop the column with
 # covid information
 test_set = X_new
-path_to_models = ""  # add your path here
-load(paste0(path_to_models, "fa_models_method2.rds"))
+
+load(paste0(ilovecovidcns, "/data_raw/cognitron/CNS_COVID_FINAL/data/fa_models_method2.rds"))
 
 # PREDICTIONS using the model
 pca_output_with_pred <- vector(mode = "list", length = length(pca_output))
@@ -563,8 +565,7 @@ print_serial_ttest_results(dev_from_exp_t_test)
 # YOU CANNOT RUN THIS TYPE OF MODEL BECAUSE YOU DON'T HAVE NORMATIVE DATA
 # I already provided the model to you so you just have to load it
 
-path_to_models = ""  # add your path here
-load(paste0(path_to_models, "score_models_method1.rds"))
+load(paste0(ilovecovidcns, "/data_raw/cognitron/CNS_COVID_FINAL/data/score_models_method1.rds"))
 
 #
 # fanmat_col_std <- apply(fanmat_pat, 2, sd, na.rm = TRUE)
@@ -596,8 +597,8 @@ st_covid_group_coef_stats <- lapply(st_models, function(mdl){
 ### the difference between expected scores and actual scores is different
 ### form 0
 
-path_to_models = ""  # add your path here
-load(paste0(path_to_models, "score_models_method2.rds"))
+
+load(paste0(ilovecovidcns, "/data_raw/cognitron/CNS_COVID_FINAL/data/score_models_method2.rds"))
 
 fanmat_col_std <- apply(fanmat_pat, 2, sd, na.rm = TRUE)
 fanmat_scaled <- fanmat_pat / fanmat_col_std[col(fanmat_pat)]
@@ -686,8 +687,9 @@ p_pred_vs_obs_all <- ggplot(pred_vs_obs_demo,
     x = "Observed score in GBIT",
     y = "Predicted score in GBIT "
   )
-ggsave(p_pred_vs_obs_all, filename = "plots/pred_vs_obs_facets.png",
+ggsave(p_pred_vs_obs_all, filename = paste0(ilovecovidcns, "/data/cognitron/plots/pred_vs_obs_facets.png"),
        width = 12, height = 12, dpi = 1000)
+
 
 ## Colored by age  binned in decade
 p_pred_vs_obs_decade <- p_pred_vs_obs_all +
@@ -695,7 +697,7 @@ p_pred_vs_obs_decade <- p_pred_vs_obs_all +
   labs(fill = "Age group (Decade)") +
   theme(legend.position = "bottom")
 ggsave(p_pred_vs_obs_decade,
-       filename = "plots/pred_vs_obs_facets_decade.png",
+       filename = paste0(ilovecovidcns, "/data/cognitron/plots/pred_vs_obs_facets_decade.png"),
        width = 12, height = 12, dpi = 1000)
 
 ## Colored by sex
@@ -703,7 +705,7 @@ p_pred_vs_obs_sex <- p_pred_vs_obs_all +
   geom_point(aes(fill = sex), shape = 21, size = 2, stroke = 1) +
   theme(legend.position = "bottom")
 ggsave(p_pred_vs_obs_sex,
-       filename = "plots/pred_vs_obs_facets_sex.png",
+       filename = paste0(ilovecovidcns, "/data/cognitron/plots/pred_vs_obs_facets_sex.png"),
        width = 12, height = 12, dpi = 1000)
 
 ## Colored by education
@@ -711,7 +713,7 @@ p_pred_vs_obs_edu <- p_pred_vs_obs_all +
   geom_point(aes(fill = ordered(education)), shape = 21, size = 2, stroke = .5) +
   theme(legend.position = "bottom")
 ggsave(p_pred_vs_obs_edu,
-       filename = "plots/pred_vs_obs_facets_education.png",
+       filename = paste0(ilovecovidcns, "/data/cognitron/plots/pred_vs_obs_facets_education.png"),
        width = 12, height = 12, dpi = 1000)
 
 ## 6.2 Heatmap ----------------------------
@@ -746,7 +748,7 @@ annot_colors <- list(
 )
 dev.off()
 {
-  png(filename = "plots/difference_from_predicted_heatmap.png",
+  png(filename = paste0(ilovecovidcns, "/data/cognitron/plots/difference_from_predicted_heatmap.png"),
       width = 14, height = 10, units = "in", res = 300)
   out <- pheatmap::pheatmap(
     st_diff,
@@ -801,7 +803,7 @@ p_pred_vs_obs_demo_avg <- pred_vs_obs_demo %>%
   theme(legend.position = "top")
 
 ggsave(p_pred_vs_obs_demo_avg,
-       filename = "plots/observed_vs_predicted_barplot_sem.png",
+       filename = paste0(ilovecovidcns, "/data/cognitron/plots/observed_vs_predicted_barplot_sem.png"),
        width = 12, height = 12, dpi = 1000
 )
 
@@ -829,7 +831,7 @@ p_pred_vs_obs_demo_box <- pred_vs_obs_demo %>%
   theme(legend.position = "bottom")
 
 ggsave(p_pred_vs_obs_demo_box,
-       filename = "plots/observed_vs_predicted_violin_boxplot.png",
+       filename = paste0(ilovecovidcns, "/data/cognitron/plots/observed_vs_predicted_violin_boxplot.png"),
        width = 12, height = 12, dpi = 1000
 )
 
@@ -873,7 +875,7 @@ p_pred_vs_obs_together <- pred_vs_obs_demo %>%
   theme(legend.position = "top")
 
 ggsave(p_pred_vs_obs_together,
-       filename = "plots/observed_vs_predicted_barplot_together.png",
+       filename = paste0(ilovecovidcns, "/data/cognitron/plots/observed_vs_predicted_barplot_together.png"),
        width = 12, height = 7, dpi = 1000)
 
 ## 6.6 DfE plot all tests together --------------
@@ -901,7 +903,7 @@ p_diff_from_exp <- ggplot(dfe_tbl, aes(x = task, y = mean_dfe)) +
   theme(axis.text.x = element_text(angle = 70, hjust = 1, vjust = 1))
 
 ggsave(p_diff_from_exp,
-       filename = "plots/mean_difference_from_expected.png",
+       filename = paste0(ilovecovidcns, "/data/cognitron/plots/mean_difference_from_expected.png"),
        width = 10, height = 10, dpi = 1000)
 
 
@@ -932,7 +934,7 @@ p_diff_from_exp_facet_age <- ggplot(per_age_task_summary,
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
 
 ggsave(
-  "plots/p_diff_from_exp_facet_age.png",
+  filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_age.png"),
   p_diff_from_exp_facet_age,
   width = 15, height = 10
 )
@@ -948,7 +950,7 @@ p_diff_from_exp_facet_task_fix <- ggplot(per_age_task_summary,
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
 
 ggsave(
-  "plots/p_diff_from_exp_facet_task_fix.png",
+  filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_task_fix.png"),
   p_diff_from_exp_facet_task_fix,
   width = 22, height = 5
 )
@@ -965,7 +967,7 @@ p_diff_from_exp_facet_task_free <- ggplot(per_age_task_summary,
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
 
 ggsave(
-  "plots/p_diff_from_exp_facet_task_free.png",
+  filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_task_free.png"),
   p_diff_from_exp_facet_task_free,
   width = 22, height = 5
 )
@@ -981,7 +983,7 @@ p_diff_from_exp_facet_task_freey_scatter <-
   labs(x = "", y = "Difference from Expected (SD units)")
 
 ggsave(
-  "plots/p_diff_from_exp_facet_task_freey_scatter.png",
+  filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_task_freey_scatter.png"),
   p_diff_from_exp_facet_task_freey_scatter,
   width = 22, height = 6
 )
@@ -1002,7 +1004,7 @@ p_diff_from_exp_facet_group_freey_scatter <-
   labs(x = "", y = "Difference from Expected (SD units)")
 
 ggsave(
-  "plots/p_diff_from_exp_facet_group_freey_scatter.png",
+  filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_group_freey_scatter.png"),
   p_diff_from_exp_facet_group_freey_scatter,
   width = 16, height = 9
 )
