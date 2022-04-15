@@ -30,11 +30,11 @@ Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 ```{r Read in functions}
-source(file = "./functions/add_numeric.R")
-source(file = "./functions/remove_duplicates.R")
-source(file = "./functions/sumscores.R")
-source(file = "./functions/package_check.R")
-source(file = "./functions/imp_check.R")
+source(file = "../functions/add_numeric.R")
+source(file = "../functions/remove_duplicates.R")
+source(file = "../functions/sumscores.R")
+source(file = "../functions/package_check.R")
+source(file = "../functions/imp_check.R")
 ```
 
 Use package_check to install and load dependencies
@@ -60,7 +60,7 @@ date
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "credentials/paths.R")
+source(file = "../credentials/paths.R")
 ```
 
 ### ncrf1_admission_covidcns_clean
@@ -122,5 +122,5 @@ extr_data
 # Save joined data set
 ```{r cordelia Save joint data set}
 write.xlsx(x = extr_data,
-           file = "/Users/zainahmad/Desktop/cordelia_covid_test_dates.xlsx")
+           file = paste0(ilovecovidcns, "/data_requests/cordelia_covid_test_dates.xlsx"))
 ```

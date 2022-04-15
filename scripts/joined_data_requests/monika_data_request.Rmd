@@ -24,17 +24,9 @@ Clear global environment prior to initiation
 remove(list = ls())
 ```
 
-Add the add_numeric function - used to convert character variables into numeric variables
-Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
-Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
-Add the imp_check function - used to check variables for implausible values
 ```{r Read in functions}
-source(file = "./functions/add_numeric.R")
-source(file = "./functions/remove_duplicates.R")
-source(file = "./functions/sumscores.R")
-source(file = "./functions/package_check.R")
-source(file = "./functions/imp_check.R")
+source(file = "../functions/package_check.R")
 ```
 
 Use package_check to install and load dependencies
@@ -42,7 +34,8 @@ Load tidyverse last
 ```{r Install load dependencies}
 packages <- c(
   "summarytools",
-  "sjlabelled", 
+  "sjlabelled",
+  "xlsx",
   "tidyverse"
   )
 
@@ -52,14 +45,14 @@ package_check(packages)
 Retrieve the recent date
 We are using the recent date to save files with paste0() as an extension to not overwrite old versions
 ```{r Recent date}
-date = Sys.Date()
+date <- Sys.Date()
 date
 ```
 
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "credentials/paths.R")
+source(file = "../credentials/paths.R")
 ```
 
 ### ethnicity_covidcns_clean
@@ -113,10 +106,7 @@ ncrf1_admission_covidcns_clean %>%
 Select columns for joining
 ```{r ncrf1_admission_covidcns_clean Select columns for joining}
 ncrf1_admission_covidcns_clean_selected <- 
-  ncrf1_admission_covidcns_clean %>%
-  select(
-    ncrf1_admission.date_of_positive_covid19_test.txt
-  )
+  ncrf1_admission_covidcns_clean
 
 ncrf1_admission_covidcns_clean_selected %>%
   slice(1:5)
@@ -157,5 +147,5 @@ data_joined %>%
 # Save joined data set
 ```{r monika Save joint data set}
 write.xlsx(x = data_joined,
-           file = "/Users/zainahmad/Desktop/monika_ethnicity_covidpositive.xlsx")
+           file = paste0(ilovecovidcns, "/data_requests/monika_ethnicity_ncrfadmission.xlsx"))
 ```
