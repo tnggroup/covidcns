@@ -11,7 +11,7 @@ library(plyr)
 library(ggplot2)
 library(glue)
 summarise <- dplyr::summarise
-source(file = "../credentials/paths.R")
+source(file = "./scripts/credentials/paths.R")
 
 
 
@@ -174,7 +174,7 @@ scores_df_final = na.omit(scores_df_final)
 # # STEP 2: Data cleaning of normative data  ---------------------------------------
 #
 # # 2.1 Combine tables  -------------------------------------------
-source("utils.R")
+source("./scripts/cognitron_pipeline/utils.R")
 # message("Loading the data")
 # if (file.exists("data/GBIT_min_initial.rds")) {
 #   load("data/GBIT_min_initial.rds")
@@ -646,365 +646,365 @@ print_serial_ttest_results(st_dev_from_exp_t_test)
 
 
 
-# STEP 6: Plots of subjects which deviate from expectation ----------
-
-theme_set(theme_bw())
-
-## 6.1 Pred vs obs plot with facets -------
-fanmat_covid_long <- data.frame(fanmat_scaled[(n_fan + 1):nrow(fanmat_scaled),]) %>%
-  mutate(subj_id = rownames(.) %>% stringr::str_replace_all("\\.", "")) %>%
-  select(subj_id, everything()) %>%
-  tidyr::pivot_longer(cols = 2:ncol(.),
-                      names_to = "task",
-                      values_to = "score")
-st_y_preds_long <- setNames(data.frame(st_y_preds), nm = colnames(fanmat_pat)) %>%
-  mutate(subj_id = rownames(.)) %>%
-  select(subj_id, everything()) %>%
-  tidyr::pivot_longer(cols = 2:ncol(.),
-                      names_to = "task",
-                      values_to = "score")
-pred_vs_obs <- inner_join(fanmat_covid_long, st_y_preds_long,
-                          by = c("subj_id", "task"),
-                          suffix = c("_obs", "_pred"))
-
-demo_data <- X_new[(n_fan + 1):nrow(X_new), ] %>% mutate(subj_id = rownames(.))
-
-pred_vs_obs_demo <- left_join(pred_vs_obs, demo_data, by = "subj_id")
-
-p_pred_vs_obs_all <- ggplot(pred_vs_obs_demo,
-                            aes(x = score_obs, y = score_pred)) +
-  geom_point() +
-  geom_abline(intercept = 0, slope = 1, linetype = 2) +
-  #coord_equal() +
-  facet_wrap( ~ task, ncol = 4, scales = "free") +
-  labs(
-    title = glue(
-      "Patients with COVID performed worse than control in cognitive tasks"
-    ),
-    subtitle = glue(
-      "Predictions based on linear models that map demographics to \\",
-      "task performance using control subjects"),
-    x = "Observed score in GBIT",
-    y = "Predicted score in GBIT "
-  )
-ggsave(p_pred_vs_obs_all, filename = paste0(ilovecovidcns, "/data/cognitron/plots/pred_vs_obs_facets.png"),
-       width = 12, height = 12, dpi = 1000)
-
-
-## Colored by age  binned in decade
-p_pred_vs_obs_decade <- p_pred_vs_obs_all +
-  geom_point(aes(fill = ordered(decade)), shape = 21, size = 2, stroke = 1) +
-  labs(fill = "Age group (Decade)") +
-  theme(legend.position = "bottom")
-ggsave(p_pred_vs_obs_decade,
-       filename = paste0(ilovecovidcns, "/data/cognitron/plots/pred_vs_obs_facets_decade.png"),
-       width = 12, height = 12, dpi = 1000)
-
-## Colored by sex
-p_pred_vs_obs_sex <- p_pred_vs_obs_all +
-  geom_point(aes(fill = sex), shape = 21, size = 2, stroke = 1) +
-  theme(legend.position = "bottom")
-ggsave(p_pred_vs_obs_sex,
-       filename = paste0(ilovecovidcns, "/data/cognitron/plots/pred_vs_obs_facets_sex.png"),
-       width = 12, height = 12, dpi = 1000)
-
-## Colored by education
-p_pred_vs_obs_edu <- p_pred_vs_obs_all +
-  geom_point(aes(fill = ordered(education)), shape = 21, size = 2, stroke = .5) +
-  theme(legend.position = "bottom")
-ggsave(p_pred_vs_obs_edu,
-       filename = paste0(ilovecovidcns, "/data/cognitron/plots/pred_vs_obs_facets_education.png"),
-       width = 12, height = 12, dpi = 1000)
-
-## 6.2 Heatmap ----------------------------
-
-st_diff <- t(st_deviation_from_expected)
-colnames(st_diff) <- stringr::str_replace_all(colnames(st_diff),  "\\.", "")
-st_diff_ann <- demo_data[match(colnames(st_diff), rownames(demo_data)),
-                         c("decade", "sex", "education")]
-rownames(st_diff_ann) <- colnames(st_diff)
-
-# Interpolate brewer's discrete palette into more colors
-paletteLength <- 100
-st_diff_pal <- colorRampPalette(
-  scales::brewer_pal("div", palette = "RdBu", direction = -1)(3)
-)(paletteLength)
-
-# Hack to make the middle point of the diverging palette be at zero
-st_diff_breaks <- c(
-  seq(min(st_diff), 0, length.out=ceiling(paletteLength/2) + 1),
-  seq(max(st_diff)/paletteLength, max(st_diff), length.out=floor(paletteLength/2))
-)
-
-# Use sequential color palette for decade and education
-uniq_decade <- sort(levels(st_diff_ann$decade))
-uniq_edu <- sort(unique(st_diff_ann$education))
-
-annot_colors <- list(
-  "decade" = setNames(scales::viridis_pal(option = "D")(length(uniq_decade)),
-                      nm = uniq_decade),
-  "education" = setNames(scales::viridis_pal(option = "B")(length(uniq_edu)),
-                         nm = uniq_edu)
-)
-dev.off()
-{
-  png(filename = paste0(ilovecovidcns, "/data/cognitron/plots/difference_from_predicted_heatmap.png"),
-      width = 14, height = 10, units = "in", res = 300)
-  out <- pheatmap::pheatmap(
-    st_diff,
-    main = "Difference between predicted and observed scores for GBIT tasks",
-    cluster_rows = TRUE,
-    cluster_cols = TRUE,
-    annotation_col = st_diff_ann,
-    color = st_diff_pal,
-    breaks = st_diff_breaks,
-    annotation_colors = annot_colors
-  )
-  dev.off()
-}
-
-plot(out$tree_col)
-plot(out$tree_row)
-
-## 6.3 Barplot --------------
-
-p_pred_vs_obs_demo_avg <- pred_vs_obs_demo %>%
-  group_by(task) %>%
-  dplyr::summarise(
-    obs_avg = mean(score_obs, na.rm = TRUE),
-    obs_sem = sd(score_obs, na.rm = TRUE) / sqrt(n()),
-    pred_avg = mean(score_pred, na.rm = TRUE),
-    pred_sem = sd(score_pred, na.rm = TRUE) / sqrt(n()),
-    .groups = "drop"
-  ) %>%
-  tidyr::pivot_longer(cols = dplyr::contains("avg"),
-                      names_to = "pred_or_obs_avg",
-                      values_to = "avg") %>%
-  tidyr::pivot_longer(cols = dplyr::contains("sem"),
-                      names_to = "pred_or_obs_sem",
-                      values_to = "sem") %>%
-  filter(
-    (grepl("obs", pred_or_obs_avg) & grepl("obs", pred_or_obs_sem)) |
-      (grepl("pred", pred_or_obs_avg) & grepl("pred", pred_or_obs_sem))
-  ) %>%
-  mutate(pred_or_obs = ifelse(grepl("obs", pred_or_obs_avg),
-                              "Observed", "Predicted")) %>%
-  select(-c(pred_or_obs_avg, pred_or_obs_sem)) %>%
-  ggplot(aes(x = pred_or_obs, y = avg)) +
-  geom_col(aes(fill = pred_or_obs), alpha = .75) +
-  geom_errorbar(aes(ymin = avg - sem,
-                    ymax = avg + sem,
-                    group = pred_or_obs), width = .3) +
-  scale_fill_manual(values = c("#91CF60", "#91BFDB")) +
-  facet_wrap( ~ task, scales = "free") +
-  labs(
-    x = "", y = "Mean Score (±SEM)", fill = ""
-  ) +
-  theme(legend.position = "top")
-
-ggsave(p_pred_vs_obs_demo_avg,
-       filename = paste0(ilovecovidcns, "/data/cognitron/plots/observed_vs_predicted_barplot_sem.png"),
-       width = 12, height = 12, dpi = 1000
-)
-
-## 6.4 Pred vs obs violing + box + jitter -------------------------
-
-p_pred_vs_obs_demo_box <- pred_vs_obs_demo %>%
-  tidyr::pivot_longer(cols = dplyr::contains("score_"),
-                      names_to = "pred_or_obs",
-                      values_to = "score") %>%
-  mutate(pred_or_obs = ifelse(grepl("obs", pred_or_obs),
-                              "Observed", "Predicted")) %>%
-  ggplot(aes(x = pred_or_obs, y = score)) +
-  geom_violin(aes(fill = pred_or_obs), alpha = .75) +
-  geom_boxplot(width = .1, alpha = .9) +
-  geom_jitter(width = .25, alpha = .5) +
-  facet_wrap( ~ task, scales = "free") +
-  scale_fill_manual(values = c("#91CF60", "#91BFDB")) +
-  labs(
-    x = "", fill = "",
-    title = "Distribution of observed vs predicted scores on cognitive tasks",
-    subtitle = glue(
-      "Predictions based on linear models that map demographics to \ ",
-      "task performance using control subjects")
-  ) +
-  theme(legend.position = "bottom")
-
-ggsave(p_pred_vs_obs_demo_box,
-       filename = paste0(ilovecovidcns, "/data/cognitron/plots/observed_vs_predicted_violin_boxplot.png"),
-       width = 12, height = 12, dpi = 1000
-)
-
-## 6.5 Barplot all tests together --------------
-
-p_pred_vs_obs_together <- pred_vs_obs_demo %>%
-  group_by(task) %>%
-  summarise(
-    obs_avg = mean(score_obs, na.rm = TRUE),
-    obs_sem = sd(score_obs, na.rm = TRUE) / sqrt(n()),
-    pred_avg = mean(score_pred, na.rm = TRUE),
-    pred_sem = sd(score_pred, na.rm = TRUE) / sqrt(n()),
-    .groups = "drop"
-  ) %>%
-  tidyr::pivot_longer(cols = dplyr::contains("avg"),
-                      names_to = "pred_or_obs_avg",
-                      values_to = "avg") %>%
-  tidyr::pivot_longer(cols = dplyr::contains("sem"),
-                      names_to = "pred_or_obs_sem",
-                      values_to = "sem") %>%
-  filter(
-    (grepl("obs", pred_or_obs_avg) & grepl("obs", pred_or_obs_sem)) |
-      (grepl("pred", pred_or_obs_avg) & grepl("pred", pred_or_obs_sem))
-  ) %>%
-  mutate(pred_or_obs = ifelse(grepl("obs", pred_or_obs_avg),
-                              "Observed", "Predicted")) %>%
-  select(-c(pred_or_obs_avg, pred_or_obs_sem)) %>%
-  ggplot(aes(x=task, y=avg, fill=pred_or_obs))+
-  geom_col(position = position_dodge(width=1), width = 0.8) +
-  geom_errorbar(aes(ymin = avg - sem,
-                    ymax = avg + sem,
-                    group = pred_or_obs), position = position_dodge(1),
-                width = .3) +
-  scale_fill_manual(values = c("#91CF60", "#91BFDB")) +
-  theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1))+
-  #geom_bar(stat = "identity", position = "dodge", width = 0.5) +
-  #facet_wrap( ~ task, scales = "free") +
-  labs(
-    x = "", y = "Mean Score (±SEM)", fill = ""
-  ) +
-  theme(legend.position = "top")
-
-ggsave(p_pred_vs_obs_together,
-       filename = paste0(ilovecovidcns, "/data/cognitron/plots/observed_vs_predicted_barplot_together.png"),
-       width = 12, height = 7, dpi = 1000)
-
-## 6.6 DfE plot all tests together --------------
-
-st_deviation_from_expected
-dfe_means <- colMeans(st_deviation_from_expected)
-dfe_sem <- apply(st_deviation_from_expected, 2, function(col)
-  sd(col, na.rm = TRUE) / sqrt(length(col))
-)
-
-dfe_tbl <- tibble(
-  task = names(dfe_means),
-  mean_dfe = dfe_means,
-  sem_dfe = dfe_sem
-) %>%
-  arrange(mean_dfe) %>%
-  mutate(task = factor(task, levels = unique(.$task)))
-
-p_diff_from_exp <- ggplot(dfe_tbl, aes(x = task, y = mean_dfe)) +
-  geom_col(fill = "#0a9396") +
-  geom_errorbar(aes(ymin = mean_dfe - sem_dfe,
-                    ymax = mean_dfe + sem_dfe),
-                width = .25) +
-  labs(x = "", y = "Difference from Expected (SD units)") +
-  theme(axis.text.x = element_text(angle = 70, hjust = 1, vjust = 1))
-
-ggsave(p_diff_from_exp,
-       filename = paste0(ilovecovidcns, "/data/cognitron/plots/mean_difference_from_expected.png"),
-       width = 10, height = 10, dpi = 1000)
-
-
-## 6.7 DfE plot grouped by age  --------------
-age_dfe_long <-  cbind(demo_data["decade"], st_deviation_from_expected) %>%
-  pivot_longer(contains("rs_"), names_to = "task", values_to = "score")
-# mean_sd <- list(mean = mean, sd = sd)
-per_age_task_summary  <- age_dfe_long %>%
-  group_by(decade, task) %>%
-  summarise(
-    mean_dfe = mean(score),
-    sem_dfe = sd(score) / sqrt(n()),
-    .groups = "drop"
-  ) %>%
-  arrange(mean_dfe) %>%
-  mutate(task = factor(task, levels = unique(.$task)))
-
-### Barplots ----------
-
-p_diff_from_exp_facet_age <- ggplot(per_age_task_summary,
-                                    aes(x = task, y = mean_dfe)) +
-  geom_col(fill = "#0a9396") +
-  geom_errorbar(aes(ymin = mean_dfe - sem_dfe,
-                    ymax = mean_dfe + sem_dfe),
-                width = .25) +
-  facet_wrap(~decade, nrow = 2) +
-  labs(x = "", y = "Difference from Expected (SD units)") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
-
-ggsave(
-  filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_age.png"),
-  p_diff_from_exp_facet_age,
-  width = 15, height = 10
-)
-
-p_diff_from_exp_facet_task_fix <- ggplot(per_age_task_summary,
-                                         aes(x = decade, y = mean_dfe)) +
-  geom_col(fill = "#0a9396") +
-  geom_errorbar(aes(ymin = mean_dfe - sem_dfe,
-                    ymax = mean_dfe + sem_dfe),
-                width = .25) +
-  facet_wrap(~task, nrow = 2) +
-  labs(x = "", y = "Difference from Expected (SD units)") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
-
-ggsave(
-  filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_task_fix.png"),
-  p_diff_from_exp_facet_task_fix,
-  width = 22, height = 5
-)
-
-
-p_diff_from_exp_facet_task_free <- ggplot(per_age_task_summary,
-                                          aes(x = decade, y = mean_dfe)) +
-  geom_col(fill = "#0a9396") +
-  geom_errorbar(aes(ymin = mean_dfe - sem_dfe,
-                    ymax = mean_dfe + sem_dfe),
-                width = .25) +
-  facet_wrap(~task, nrow = 2, scales = "free_y") +
-  labs(x = "", y = "Difference from Expected (SD units)") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
-
-ggsave(
-  filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_task_free.png"),
-  p_diff_from_exp_facet_task_free,
-  width = 22, height = 5
-)
-
-### Scatter plot -------
-
-p_diff_from_exp_facet_task_freey_scatter <-
-  ggplot(age_dfe_long,
-         aes(x=as.numeric(as.character(decade)), y=score)) +
-  geom_point(alpha = .75) +
-  geom_smooth(method = "lm", formula = y ~ x) +
-  facet_wrap(~task, nrow = 2, scales = "free_y") +
-  labs(x = "", y = "Difference from Expected (SD units)")
-
-ggsave(
-  filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_task_freey_scatter.png"),
-  p_diff_from_exp_facet_task_freey_scatter,
-  width = 22, height = 6
-)
-
-### Scatter plot RT and ACCURACY -------
-
-age_dfe_long$group = ifelse(
-  str_detect(age_dfe_long$task, "RT"), # grepl
-  "RT",
-  "Accuracy"
-)
-p_diff_from_exp_facet_group_freey_scatter <-
-  ggplot(age_dfe_long,
-         aes(x=as.numeric(as.character(decade)), y=score)) +
-  geom_point(alpha = .75) +
-  geom_smooth(method = "lm", formula = y ~ x) +
-  facet_wrap(~group, nrow = 1, scales = "free_y") +
-  labs(x = "", y = "Difference from Expected (SD units)")
-
-ggsave(
-  filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_group_freey_scatter.png"),
-  p_diff_from_exp_facet_group_freey_scatter,
-  width = 16, height = 9
-)
+# # STEP 6: Plots of subjects which deviate from expectation ----------
+# 
+# theme_set(theme_bw())
+# 
+# ## 6.1 Pred vs obs plot with facets -------
+# fanmat_covid_long <- data.frame(fanmat_scaled[(n_fan + 1):nrow(fanmat_scaled),]) %>%
+#   mutate(subj_id = rownames(.) %>% stringr::str_replace_all("\\.", "")) %>%
+#   select(subj_id, everything()) %>%
+#   tidyr::pivot_longer(cols = 2:ncol(.),
+#                       names_to = "task",
+#                       values_to = "score")
+# st_y_preds_long <- setNames(data.frame(st_y_preds), nm = colnames(fanmat_pat)) %>%
+#   mutate(subj_id = rownames(.)) %>%
+#   select(subj_id, everything()) %>%
+#   tidyr::pivot_longer(cols = 2:ncol(.),
+#                       names_to = "task",
+#                       values_to = "score")
+# pred_vs_obs <- inner_join(fanmat_covid_long, st_y_preds_long,
+#                           by = c("subj_id", "task"),
+#                           suffix = c("_obs", "_pred"))
+# 
+# demo_data <- X_new[(n_fan + 1):nrow(X_new), ] %>% mutate(subj_id = rownames(.))
+# 
+# pred_vs_obs_demo <- left_join(pred_vs_obs, demo_data, by = "subj_id")
+# 
+# p_pred_vs_obs_all <- ggplot(pred_vs_obs_demo,
+#                             aes(x = score_obs, y = score_pred)) +
+#   geom_point() +
+#   geom_abline(intercept = 0, slope = 1, linetype = 2) +
+#   #coord_equal() +
+#   facet_wrap( ~ task, ncol = 4, scales = "free") +
+#   labs(
+#     title = glue(
+#       "Patients with COVID performed worse than control in cognitive tasks"
+#     ),
+#     subtitle = glue(
+#       "Predictions based on linear models that map demographics to \\",
+#       "task performance using control subjects"),
+#     x = "Observed score in GBIT",
+#     y = "Predicted score in GBIT "
+#   )
+# ggsave(p_pred_vs_obs_all, filename = paste0(ilovecovidcns, "/data/cognitron/plots/pred_vs_obs_facets.png"),
+#        width = 12, height = 12, dpi = 1000)
+# 
+# 
+# ## Colored by age  binned in decade
+# p_pred_vs_obs_decade <- p_pred_vs_obs_all +
+#   geom_point(aes(fill = ordered(decade)), shape = 21, size = 2, stroke = 1) +
+#   labs(fill = "Age group (Decade)") +
+#   theme(legend.position = "bottom")
+# ggsave(p_pred_vs_obs_decade,
+#        filename = paste0(ilovecovidcns, "/data/cognitron/plots/pred_vs_obs_facets_decade.png"),
+#        width = 12, height = 12, dpi = 1000)
+# 
+# ## Colored by sex
+# p_pred_vs_obs_sex <- p_pred_vs_obs_all +
+#   geom_point(aes(fill = sex), shape = 21, size = 2, stroke = 1) +
+#   theme(legend.position = "bottom")
+# ggsave(p_pred_vs_obs_sex,
+#        filename = paste0(ilovecovidcns, "/data/cognitron/plots/pred_vs_obs_facets_sex.png"),
+#        width = 12, height = 12, dpi = 1000)
+# 
+# ## Colored by education
+# p_pred_vs_obs_edu <- p_pred_vs_obs_all +
+#   geom_point(aes(fill = ordered(education)), shape = 21, size = 2, stroke = .5) +
+#   theme(legend.position = "bottom")
+# ggsave(p_pred_vs_obs_edu,
+#        filename = paste0(ilovecovidcns, "/data/cognitron/plots/pred_vs_obs_facets_education.png"),
+#        width = 12, height = 12, dpi = 1000)
+# 
+# ## 6.2 Heatmap ----------------------------
+# 
+# st_diff <- t(st_deviation_from_expected)
+# colnames(st_diff) <- stringr::str_replace_all(colnames(st_diff),  "\\.", "")
+# st_diff_ann <- demo_data[match(colnames(st_diff), rownames(demo_data)),
+#                          c("decade", "sex", "education")]
+# rownames(st_diff_ann) <- colnames(st_diff)
+# 
+# # Interpolate brewer's discrete palette into more colors
+# paletteLength <- 100
+# st_diff_pal <- colorRampPalette(
+#   scales::brewer_pal("div", palette = "RdBu", direction = -1)(3)
+# )(paletteLength)
+# 
+# # Hack to make the middle point of the diverging palette be at zero
+# st_diff_breaks <- c(
+#   seq(min(st_diff), 0, length.out=ceiling(paletteLength/2) + 1),
+#   seq(max(st_diff)/paletteLength, max(st_diff), length.out=floor(paletteLength/2))
+# )
+# 
+# # Use sequential color palette for decade and education
+# uniq_decade <- sort(levels(st_diff_ann$decade))
+# uniq_edu <- sort(unique(st_diff_ann$education))
+# 
+# annot_colors <- list(
+#   "decade" = setNames(scales::viridis_pal(option = "D")(length(uniq_decade)),
+#                       nm = uniq_decade),
+#   "education" = setNames(scales::viridis_pal(option = "B")(length(uniq_edu)),
+#                          nm = uniq_edu)
+# )
+# dev.off()
+# {
+#   png(filename = paste0(ilovecovidcns, "/data/cognitron/plots/difference_from_predicted_heatmap.png"),
+#       width = 14, height = 10, units = "in", res = 300)
+#   out <- pheatmap::pheatmap(
+#     st_diff,
+#     main = "Difference between predicted and observed scores for GBIT tasks",
+#     cluster_rows = TRUE,
+#     cluster_cols = TRUE,
+#     annotation_col = st_diff_ann,
+#     color = st_diff_pal,
+#     breaks = st_diff_breaks,
+#     annotation_colors = annot_colors
+#   )
+#   dev.off()
+# }
+# 
+# plot(out$tree_col)
+# plot(out$tree_row)
+# 
+# ## 6.3 Barplot --------------
+# 
+# p_pred_vs_obs_demo_avg <- pred_vs_obs_demo %>%
+#   group_by(task) %>%
+#   dplyr::summarise(
+#     obs_avg = mean(score_obs, na.rm = TRUE),
+#     obs_sem = sd(score_obs, na.rm = TRUE) / sqrt(n()),
+#     pred_avg = mean(score_pred, na.rm = TRUE),
+#     pred_sem = sd(score_pred, na.rm = TRUE) / sqrt(n()),
+#     .groups = "drop"
+#   ) %>%
+#   tidyr::pivot_longer(cols = dplyr::contains("avg"),
+#                       names_to = "pred_or_obs_avg",
+#                       values_to = "avg") %>%
+#   tidyr::pivot_longer(cols = dplyr::contains("sem"),
+#                       names_to = "pred_or_obs_sem",
+#                       values_to = "sem") %>%
+#   filter(
+#     (grepl("obs", pred_or_obs_avg) & grepl("obs", pred_or_obs_sem)) |
+#       (grepl("pred", pred_or_obs_avg) & grepl("pred", pred_or_obs_sem))
+#   ) %>%
+#   mutate(pred_or_obs = ifelse(grepl("obs", pred_or_obs_avg),
+#                               "Observed", "Predicted")) %>%
+#   select(-c(pred_or_obs_avg, pred_or_obs_sem)) %>%
+#   ggplot(aes(x = pred_or_obs, y = avg)) +
+#   geom_col(aes(fill = pred_or_obs), alpha = .75) +
+#   geom_errorbar(aes(ymin = avg - sem,
+#                     ymax = avg + sem,
+#                     group = pred_or_obs), width = .3) +
+#   scale_fill_manual(values = c("#91CF60", "#91BFDB")) +
+#   facet_wrap( ~ task, scales = "free") +
+#   labs(
+#     x = "", y = "Mean Score (±SEM)", fill = ""
+#   ) +
+#   theme(legend.position = "top")
+# 
+# ggsave(p_pred_vs_obs_demo_avg,
+#        filename = paste0(ilovecovidcns, "/data/cognitron/plots/observed_vs_predicted_barplot_sem.png"),
+#        width = 12, height = 12, dpi = 1000
+# )
+# 
+# ## 6.4 Pred vs obs violing + box + jitter -------------------------
+# 
+# p_pred_vs_obs_demo_box <- pred_vs_obs_demo %>%
+#   tidyr::pivot_longer(cols = dplyr::contains("score_"),
+#                       names_to = "pred_or_obs",
+#                       values_to = "score") %>%
+#   mutate(pred_or_obs = ifelse(grepl("obs", pred_or_obs),
+#                               "Observed", "Predicted")) %>%
+#   ggplot(aes(x = pred_or_obs, y = score)) +
+#   geom_violin(aes(fill = pred_or_obs), alpha = .75) +
+#   geom_boxplot(width = .1, alpha = .9) +
+#   geom_jitter(width = .25, alpha = .5) +
+#   facet_wrap( ~ task, scales = "free") +
+#   scale_fill_manual(values = c("#91CF60", "#91BFDB")) +
+#   labs(
+#     x = "", fill = "",
+#     title = "Distribution of observed vs predicted scores on cognitive tasks",
+#     subtitle = glue(
+#       "Predictions based on linear models that map demographics to \ ",
+#       "task performance using control subjects")
+#   ) +
+#   theme(legend.position = "bottom")
+# 
+# ggsave(p_pred_vs_obs_demo_box,
+#        filename = paste0(ilovecovidcns, "/data/cognitron/plots/observed_vs_predicted_violin_boxplot.png"),
+#        width = 12, height = 12, dpi = 1000
+# )
+# 
+# ## 6.5 Barplot all tests together --------------
+# 
+# p_pred_vs_obs_together <- pred_vs_obs_demo %>%
+#   group_by(task) %>%
+#   summarise(
+#     obs_avg = mean(score_obs, na.rm = TRUE),
+#     obs_sem = sd(score_obs, na.rm = TRUE) / sqrt(n()),
+#     pred_avg = mean(score_pred, na.rm = TRUE),
+#     pred_sem = sd(score_pred, na.rm = TRUE) / sqrt(n()),
+#     .groups = "drop"
+#   ) %>%
+#   tidyr::pivot_longer(cols = dplyr::contains("avg"),
+#                       names_to = "pred_or_obs_avg",
+#                       values_to = "avg") %>%
+#   tidyr::pivot_longer(cols = dplyr::contains("sem"),
+#                       names_to = "pred_or_obs_sem",
+#                       values_to = "sem") %>%
+#   filter(
+#     (grepl("obs", pred_or_obs_avg) & grepl("obs", pred_or_obs_sem)) |
+#       (grepl("pred", pred_or_obs_avg) & grepl("pred", pred_or_obs_sem))
+#   ) %>%
+#   mutate(pred_or_obs = ifelse(grepl("obs", pred_or_obs_avg),
+#                               "Observed", "Predicted")) %>%
+#   select(-c(pred_or_obs_avg, pred_or_obs_sem)) %>%
+#   ggplot(aes(x=task, y=avg, fill=pred_or_obs))+
+#   geom_col(position = position_dodge(width=1), width = 0.8) +
+#   geom_errorbar(aes(ymin = avg - sem,
+#                     ymax = avg + sem,
+#                     group = pred_or_obs), position = position_dodge(1),
+#                 width = .3) +
+#   scale_fill_manual(values = c("#91CF60", "#91BFDB")) +
+#   theme(axis.text.x = element_text(angle=45, vjust=1, hjust=1))+
+#   #geom_bar(stat = "identity", position = "dodge", width = 0.5) +
+#   #facet_wrap( ~ task, scales = "free") +
+#   labs(
+#     x = "", y = "Mean Score (±SEM)", fill = ""
+#   ) +
+#   theme(legend.position = "top")
+# 
+# ggsave(p_pred_vs_obs_together,
+#        filename = paste0(ilovecovidcns, "/data/cognitron/plots/observed_vs_predicted_barplot_together.png"),
+#        width = 12, height = 7, dpi = 1000)
+# 
+# ## 6.6 DfE plot all tests together --------------
+# 
+# st_deviation_from_expected
+# dfe_means <- colMeans(st_deviation_from_expected)
+# dfe_sem <- apply(st_deviation_from_expected, 2, function(col)
+#   sd(col, na.rm = TRUE) / sqrt(length(col))
+# )
+# 
+# dfe_tbl <- tibble(
+#   task = names(dfe_means),
+#   mean_dfe = dfe_means,
+#   sem_dfe = dfe_sem
+# ) %>%
+#   arrange(mean_dfe) %>%
+#   mutate(task = factor(task, levels = unique(.$task)))
+# 
+# p_diff_from_exp <- ggplot(dfe_tbl, aes(x = task, y = mean_dfe)) +
+#   geom_col(fill = "#0a9396") +
+#   geom_errorbar(aes(ymin = mean_dfe - sem_dfe,
+#                     ymax = mean_dfe + sem_dfe),
+#                 width = .25) +
+#   labs(x = "", y = "Difference from Expected (SD units)") +
+#   theme(axis.text.x = element_text(angle = 70, hjust = 1, vjust = 1))
+# 
+# ggsave(p_diff_from_exp,
+#        filename = paste0(ilovecovidcns, "/data/cognitron/plots/mean_difference_from_expected.png"),
+#        width = 10, height = 10, dpi = 1000)
+# 
+# 
+# ## 6.7 DfE plot grouped by age  --------------
+# age_dfe_long <-  cbind(demo_data["decade"], st_deviation_from_expected) %>%
+#   pivot_longer(contains("rs_"), names_to = "task", values_to = "score")
+# # mean_sd <- list(mean = mean, sd = sd)
+# per_age_task_summary  <- age_dfe_long %>%
+#   group_by(decade, task) %>%
+#   summarise(
+#     mean_dfe = mean(score),
+#     sem_dfe = sd(score) / sqrt(n()),
+#     .groups = "drop"
+#   ) %>%
+#   arrange(mean_dfe) %>%
+#   mutate(task = factor(task, levels = unique(.$task)))
+# 
+# ### Barplots ----------
+# 
+# p_diff_from_exp_facet_age <- ggplot(per_age_task_summary,
+#                                     aes(x = task, y = mean_dfe)) +
+#   geom_col(fill = "#0a9396") +
+#   geom_errorbar(aes(ymin = mean_dfe - sem_dfe,
+#                     ymax = mean_dfe + sem_dfe),
+#                 width = .25) +
+#   facet_wrap(~decade, nrow = 2) +
+#   labs(x = "", y = "Difference from Expected (SD units)") +
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
+# 
+# ggsave(
+#   filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_age.png"),
+#   p_diff_from_exp_facet_age,
+#   width = 15, height = 10
+# )
+# 
+# p_diff_from_exp_facet_task_fix <- ggplot(per_age_task_summary,
+#                                          aes(x = decade, y = mean_dfe)) +
+#   geom_col(fill = "#0a9396") +
+#   geom_errorbar(aes(ymin = mean_dfe - sem_dfe,
+#                     ymax = mean_dfe + sem_dfe),
+#                 width = .25) +
+#   facet_wrap(~task, nrow = 2) +
+#   labs(x = "", y = "Difference from Expected (SD units)") +
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
+# 
+# ggsave(
+#   filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_task_fix.png"),
+#   p_diff_from_exp_facet_task_fix,
+#   width = 22, height = 5
+# )
+# 
+# 
+# p_diff_from_exp_facet_task_free <- ggplot(per_age_task_summary,
+#                                           aes(x = decade, y = mean_dfe)) +
+#   geom_col(fill = "#0a9396") +
+#   geom_errorbar(aes(ymin = mean_dfe - sem_dfe,
+#                     ymax = mean_dfe + sem_dfe),
+#                 width = .25) +
+#   facet_wrap(~task, nrow = 2, scales = "free_y") +
+#   labs(x = "", y = "Difference from Expected (SD units)") +
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
+# 
+# ggsave(
+#   filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_task_free.png"),
+#   p_diff_from_exp_facet_task_free,
+#   width = 22, height = 5
+# )
+# 
+# ### Scatter plot -------
+# 
+# p_diff_from_exp_facet_task_freey_scatter <-
+#   ggplot(age_dfe_long,
+#          aes(x=as.numeric(as.character(decade)), y=score)) +
+#   geom_point(alpha = .75) +
+#   geom_smooth(method = "lm", formula = y ~ x) +
+#   facet_wrap(~task, nrow = 2, scales = "free_y") +
+#   labs(x = "", y = "Difference from Expected (SD units)")
+# 
+# ggsave(
+#   filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_task_freey_scatter.png"),
+#   p_diff_from_exp_facet_task_freey_scatter,
+#   width = 22, height = 6
+# )
+# 
+# ### Scatter plot RT and ACCURACY -------
+# 
+# age_dfe_long$group = ifelse(
+#   str_detect(age_dfe_long$task, "RT"), # grepl
+#   "RT",
+#   "Accuracy"
+# )
+# p_diff_from_exp_facet_group_freey_scatter <-
+#   ggplot(age_dfe_long,
+#          aes(x=as.numeric(as.character(decade)), y=score)) +
+#   geom_point(alpha = .75) +
+#   geom_smooth(method = "lm", formula = y ~ x) +
+#   facet_wrap(~group, nrow = 1, scales = "free_y") +
+#   labs(x = "", y = "Difference from Expected (SD units)")
+# 
+# ggsave(
+#   filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_group_freey_scatter.png"),
+#   p_diff_from_exp_facet_group_freey_scatter,
+#   width = 16, height = 9
+# )
