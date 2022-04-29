@@ -171,6 +171,9 @@ scores_df_final$sex[(scores_df_final$sex != "Male" &
 # Remove rows with nan (run the analysis on complete dataset)
 scores_df_final = na.omit(scores_df_final)
 
+# Save scores_df_final to cognitron
+saveRDS(scores_df_final, paste0(ilovecovidcns, "/data/cognitron/scores/cognitron_scores.rds"))
+
 # # STEP 2: Data cleaning of normative data  ---------------------------------------
 #
 # # 2.1 Combine tables  -------------------------------------------

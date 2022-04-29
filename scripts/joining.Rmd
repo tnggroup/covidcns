@@ -1595,12 +1595,10 @@ ncrf3_diag_covidcns_clean_selected %>%
 
 ### cognitron
 Read in & variable names
-```{r cognitron Read in data & variable names, eval=FALSE, include=FALSE}
+```{r cognitron Read in data & variable names}
 cognitron <-
-  read_tsv(
-    file = 
-      paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/cognitron/covidcns.cognitron.co.uk_1.tsv"),
-    col_names = TRUE
+  readRDS(
+    paste0(ilovedata, "/data/cognitron/scores/cognitron_scores.rds")
   )
 
 cognitron %>%
@@ -1608,13 +1606,13 @@ cognitron %>%
 ```
 
 Dimensions
-```{r cognitron Dimensions, eval=FALSE, include=FALSE}
+```{r cognitron Dimensions}
 cognitron %>%
   colnames()
 ```
 
 Select columns for joining
-```{r cognitron Select columns for joining, eval=FALSE, include=FALSE}
+```{r cognitron Select columns for joining}
 cognitron_selected <- cognitron %>%
   select(
     -all_of(exclude_variables)
