@@ -1668,6 +1668,17 @@ data_joined <-
     )
 ```
 
+Check for duplicated participants
+```{r}
+data_joined %>%
+  mutate(
+    ID_duplicated = duplicated(ID)
+  ) %>%
+  filter(
+    ID_duplicated == TRUE
+  )
+```
+
 Check dimensions of joined tibble
 ```{r Check dimensions of joined tibble}
 data_joined %>%
@@ -1675,7 +1686,7 @@ data_joined %>%
 ```
 
 Check for duplicated columns
-+++CH: Does duplicated work here?
+
 ```{r Check for duplicated columns}
 data_joined %>%
   colnames() %>%
