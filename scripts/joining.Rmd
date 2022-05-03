@@ -678,9 +678,8 @@ Select columns for joining
 nonmotor_covidcns_clean_selected <-
   nonmotor_covidcns_clean %>%
   select(
-    "ID",
-    "sample",
-    "startDate"
+    -"sample",
+    -"startDate"
   )
 
 nonmotor_covidcns_clean_selected %>%
@@ -726,7 +725,7 @@ past_medical_history_mental_health_covidcns_clean_selected %>%
 
 ### past_medical_history_physical_health_covidcns_clean
 Read in & variable names
-```{r past_medical_history_physical_health_covidcns_clean Read in data & variable names}
+```{r past_medical_history_physical_health_covidcns_clean Read in data & variable names, eval=FALSE, include=FALSE}
 past_medical_history_physical_health_covidcns_clean <-
   read_rds(
     file = 
@@ -738,13 +737,13 @@ past_medical_history_physical_health_covidcns_clean %>%
 ```
 
 Dimensions
-```{r past_medical_history_physical_health_covidcns_clean Dimensions}
+```{r past_medical_history_physical_health_covidcns_clean Dimensions, eval=FALSE, include=FALSE}
 past_medical_history_physical_health_covidcns_clean %>%
   colnames()
 ```
 
 Select columns for joining
-```{r past_medical_history_physical_health_covidcns_clean Select columns for joining}
+```{r past_medical_history_physical_health_covidcns_clean Select columns for joining, eval=FALSE, include=FALSE}
 past_medical_history_physical_health_covidcns_clean_selected <- past_medical_history_physical_health_covidcns_clean %>%
   select(
     -all_of(exclude_variables)
@@ -1621,10 +1620,9 @@ tibble_list <-
     dem_language_covidcns_clean_selected,
     nis_outp_covidcns_clean_selected,
     nonmotor_covidcns_clean_selected,
-    past_medical_history_mental_health_covidcns_clean_selected,
-    past_medical_history_physical_health_covidcns_clean_selected,
+    past_medical_history_mental_health_covidcns_clean_selected,# for greta file
+    #past_medical_history_physical_health_covidcns_clean_selected,
     pcl5_covidcns_clean_selected,
-    PHH_interimtemp_covidcns_clean_selected,
     phq9_covidcns_clean_selected,
     dem_sex_gender_sexuality_covidcns_clean_selected,
     smelltaste_covidcns_clean_selected,
@@ -1681,13 +1679,20 @@ Check for duplicated columns
 ```{r Check for duplicated columns}
 data_joined %>%
   colnames() %>%
-  duplicated()
+  duplicated() %>%
+  summary()
 ```
+
 
 ```{r}
-colnames(data_joined[duplicated(as.list(data_joined))])
+duplicated_cols <- data_frame(
+    Variable = colnames(data_joined),
+    Duplicate = data_joined %>% colnames() %>% duplicated()
+    )
+    
+duplicated_cols %>%
+  filter(Duplicate == TRUE)
 ```
-
 
 
 
