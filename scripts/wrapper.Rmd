@@ -1,0 +1,62 @@
+---
+title: "COVID-CNS wrapper"
+author: "Christopher Huebel"
+date: "09/05/2022"
+output: html_document
+---
+
+All arguments should be in their own row, including the first argument
+Closing bracket should have its own row
+Functions with a single argument can have this on the same line
+One argument can be hashed out per line for debugging errors
+
+Chunk names should be all lower case except:
+Study name (COVIDCNS) all caps
+Capitalised first word
+
+Ensure that you have deleted/untracked .DS_Store before your initial commit
+Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+Add the package_check function - used to install and load dependencies
+Add the imp_clean function - used to check variables for implausible values
+```{r Read in functions}
+source(file = "functions/package_check.R")
+source(file = "functions/imp_clean.R")
+```
+
+Use package_check to install and load dependencies
+Load tidyverse last
+```{r Install load dependencies}
+packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
+package_check(packages)
+```
+
+Read in file with path to ilovedata channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Read in file with path to ilovedata channel on teams}
+source(file = "../credentials/paths.R")
+```
+
+
+# Running of individual cleaning files which creates sum scores and t-scores
+
+## casecontrol_status
+```{r casecontrol_status Cleaning the individual questionnaires}
+source(knitr::purl("assessment_status/casecontrol_status.Rmd"))
+```
+
