@@ -1708,6 +1708,12 @@ duplicated_cols %>%
 ```
 
 
+```{r}
+data_joined %>%
+  freq()
+```
+
+
 
 ```{r}
 data_joined %>% 
