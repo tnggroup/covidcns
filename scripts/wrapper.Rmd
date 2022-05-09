@@ -229,3 +229,82 @@ source(knitr::purl("cognitron_pipeline/NIS_outpatient.Rmd"))
 source(knitr::purl("cognitron_pipeline/MoCA_inpatient.Rmd"))
 ```
 
+# moca
+
+## cognitron_outp_info
+```{r cognitron_outp_info Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/cognitron_outp_info.Rmd"))
+```
+
+## MoCA_outpatient
+```{r MoCA_outpatient Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/MoCA_outpatient.Rmd"))
+```
+
+# neuro_case_report
+
+## clinical_frailty
+```{r clinical_frailty Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/clinical_frailty.Rmd"))
+```
+
+## ncrf_supportive
+```{r ncrf_supportive Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/ncrf_supportive.Rmd"))
+```
+
+## ncrf1_admission
+```{r ncrf1_admission Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/ncrf1_admission.Rmd"))
+```
+
+## ncrf1_cic
+```{r ncrf1_cic Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/ncrf1_cic.Rmd"))
+```
+
+## ncrf1_comorbid
+```{r ncrf1_comorbid Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/ncrf1_comorbid.Rmd"))
+```
+
+## ncrf1_labresults
+```{r ncrf1_labresults Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/ncrf1_labresults.Rmd"))
+```
+
+## ncrf1_pre_med
+```{r ncrf1_pre_med Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/ncrf1_pre_med.Rmd"))
+```
+
+## ncrf1_vital
+```{r ncrf1_vital Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/ncrf1_vital.Rmd"))
+```
+
+## ncrf2_labresults
+```{r ncrf2_labresults Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/ncrf2_labresults.Rmd"))
+```
+
+## ncrf2_med
+```{r ncrf2_med Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/ncrf2_med.Rmd"))
+```
+
+## ncrf2_vital
+```{r ncrf2_vital Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/ncrf2_vital.Rmd"))
+```
+
+## ncrf3_compli
+```{r ncrf3_compli Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/ncrf3_compli.Rmd"))
+```
+
+## ncrf3_diag
+```{r ncrf3_diag Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/ncrf3_diag.Rmd"))
+```
+
