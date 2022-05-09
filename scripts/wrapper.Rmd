@@ -49,14 +49,183 @@ package_check(packages)
 Read in file with path to ilovedata channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovedata channel on teams}
-source(file = "../credentials/paths.R")
+source(file = "credentials/paths.R")
 ```
 
 
 # Running of individual cleaning files which creates sum scores and t-scores
 
+# assessment_status
+
 ## casecontrol_status
 ```{r casecontrol_status Cleaning the individual questionnaires}
 source(knitr::purl("assessment_status/casecontrol_status.Rmd"))
+```
+
+## neuroimaging_metadata
+```{r neuroimaging_metadata Cleaning the individual questionnaires}
+source(knitr::purl("assessment_status/neuroimaging_metadata.Rmd"))
+```
+
+# baseline
+
+## Age
+```{r Age Cleaning the individual questionnaires}
+source(knitr::purl("baseline/Age.Rmd"))
+```
+
+## ALS
+```{r ALS Cleaning the individual questionnaires}
+source(knitr::purl("baseline/ALS.Rmd"))
+```
+
+## CAGE
+```{r CAGE Cleaning the individual questionnaires}
+source(knitr::purl("baseline/CAGE.Rmd"))
+```
+
+## catatonia
+```{r catatonia Cleaning the individual questionnaires}
+source(knitr::purl("baseline/catatonia.Rmd"))
+```
+
+## CFS
+```{r CFS Cleaning the individual questionnaires}
+source(knitr::purl("baseline/CFS.Rmd"))
+```
+
+## Covid19
+```{r Covid19 Cleaning the individual questionnaires}
+source(knitr::purl("baseline/Covid19.Rmd"))
+```
+
+## dem_covidpositive
+```{r dem_covidpositive Cleaning the individual questionnaires}
+source(knitr::purl("baseline/dem_covidpositive.Rmd"))
+```
+
+## dem_ethnicity
+```{r dem_ethnicity Cleaning the individual questionnaires}
+source(knitr::purl("baseline/dem_ethnicity.Rmd"))
+```
+
+## dem_highest_qualification
+```{r dem_highest_qualification Cleaning the individual questionnaires}
+source(knitr::purl("baseline/dem_highest_qualification.Rmd"))
+```
+
+## dem_language
+```{r dem_language Cleaning the individual questionnaires}
+source(knitr::purl("baseline/dem_language.Rmd"))
+```
+
+## dem_memory
+```{r dem_memory Cleaning the individual questionnaires}
+source(knitr::purl("baseline/dem_memory.Rmd"))
+```
+
+## dem_quality_life
+```{r dem_quality_life Cleaning the individual questionnaires}
+source(knitr::purl("baseline/dem_quality_life.Rmd"))
+```
+
+## dem_sex_gender_sexuality
+```{r dem_sex_gender_sexuality Cleaning the individual questionnaires}
+source(knitr::purl("baseline/dem_sex_gender_sexuality.Rmd"))
+```
+
+## dem_visionhearing
+```{r dem_visionhearing Cleaning the individual questionnaires}
+source(knitr::purl("baseline/dem_visionhearing.Rmd"))
+```
+
+## facial
+```{r facial Cleaning the individual questionnaires}
+source(knitr::purl("baseline/facial.Rmd"))
+```
+
+## GAD7
+```{r GAD7 Cleaning the individual questionnaires}
+source(knitr::purl("baseline/GAD7.Rmd"))
+```
+
+## impact
+```{r impact Cleaning the individual questionnaires}
+source(knitr::purl("baseline/impact.Rmd"))
+```
+
+## mhd_numericonly
+```{r mhd_numericonly Cleaning the individual questionnaires}
+source(knitr::purl("baseline/mhd_numericonly.Rmd"))
+```
+
+## nonmotor
+```{r nonmotor Cleaning the individual questionnaires}
+source(knitr::purl("baseline/nonmotor.Rmd"))
+```
+
+## PCL5
+```{r PCL5 Cleaning the individual questionnaires}
+source(knitr::purl("baseline/PCL5.Rmd"))
+```
+
+## PHH_forgreta.Rmd
+```{r PHH_forgreta.Rmd Cleaning the individual questionnaires}
+source(knitr::purl("baseline/PHH_forgreta.Rmd.Rmd"))
+```
+
+## PHQ9
+```{r PHQ9 Cleaning the individual questionnaires}
+source(knitr::purl("baseline/PHQ9.Rmd"))
+```
+
+## smelltaste
+```{r smelltaste Cleaning the individual questionnaires}
+source(knitr::purl("baseline/smelltaste.Rmd"))
+```
+
+## trauma
+```{r trauma Cleaning the individual questionnaires}
+source(knitr::purl("baseline/trauma.Rmd"))
+```
+
+## UPDRS
+```{r UPDRS Cleaning the individual questionnaires}
+source(knitr::purl("baseline/UPDRS.Rmd"))
+```
+
+## vaccine
+```{r vaccine Cleaning the individual questionnaires}
+source(knitr::purl("baseline/vaccine.Rmd"))
+```
+
+# cognitron_pipeline
+
+## main
+```{r main Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/main.R"))
+```
+
+# core_neuro
+## fourAT_outpatient
+```{r fourAT_outpatient Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/fourAT_outpatient.Rmd"))
+```
+
+## gcs_outp
+```{r gcs_outp Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/gcs_outp.Rmd"))
+```
+
+## NIS_outpatient
+```{r NIS_outpatient Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/NIS_outpatient.Rmd"))
+```
+
+# mh_case_report
+
+## MoCA_inpatient
+```{r MoCA_inpatient Cleaning the individual questionnaires}
+source(knitr::purl("cognitron_pipeline/MoCA_inpatient.Rmd"))
 ```
 
