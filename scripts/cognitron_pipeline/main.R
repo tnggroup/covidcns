@@ -168,11 +168,11 @@ scores_df_final$sex <- as.character(scores_df_final$sex)
 scores_df_final$sex[(scores_df_final$sex != "Male" &
                      scores_df_final$sex != "Female")] <- "Other"
 
-# Remove rows with nan (run the analysis on complete dataset)
-scores_df_final = na.omit(scores_df_final)
-
 # Save scores_df_final to cognitron
 saveRDS(scores_df_final, paste0(ilovecovidcns, "/data/cognitron/scores/cognitron_scores.rds"))
+
+# Remove rows with nan (run the analysis on complete dataset)
+scores_df_final = na.omit(scores_df_final)
 
 # # STEP 2: Data cleaning of normative data  ---------------------------------------
 #
@@ -722,8 +722,7 @@ ggsave(p_pred_vs_obs_edu,
 ## 6.2 Heatmap ----------------------------
 
 st_diff <- t(st_deviation_from_expected)
-colnames(st_diff)
-colnames(st_diff) <- rownames(st_deviation_from_expected)
+colnames(st_diff) <- stringr::str_replace_all(colnames(st_diff),  "\\.", "")
 st_diff_ann <- demo_data[match(colnames(st_diff), rownames(demo_data)),
                          c("decade", "sex", "education")]
 rownames(st_diff_ann) <- colnames(st_diff)
@@ -750,26 +749,22 @@ annot_colors <- list(
   "education" = setNames(scales::viridis_pal(option = "B")(length(uniq_edu)),
                          nm = uniq_edu)
 )
-
-png(filename = paste0(ilovecovidcns, "/data/cognitron/plots/difference_from_predicted_heatmap.png"),
-    width = 14,
-    height = 10,
-    units = "in",
-    res = 300)
-
-out <- pheatmap::pheatmap(
-  st_diff,
-  main = "Difference between predicted and observed scores for GBIT tasks",
-  cluster_rows = TRUE,
-  cluster_cols = TRUE,
-  #annotation_col = colnames(st_diff_ann),
-  color = st_diff_pal,
-  breaks = st_diff_breaks,
-  annotation_colors = annot_colors
-  )
-
 dev.off()
-
+{
+  png(filename = paste0(ilovecovidcns, "/data/cognitron/plots/difference_from_predicted_heatmap.png"),
+      width = 14, height = 10, units = "in", res = 300)
+  out <- pheatmap::pheatmap(
+    st_diff,
+    main = "Difference between predicted and observed scores for GBIT tasks",
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    #annotation_col = st_diff_ann,
+    color = st_diff_pal,
+    breaks = st_diff_breaks,
+    annotation_colors = annot_colors
+  )
+  dev.off()
+}
 
 plot(out$tree_col)
 plot(out$tree_row)
