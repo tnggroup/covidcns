@@ -36,8 +36,8 @@ remove(list = ls())
 Add the package_check function - used to install and load dependencies
 Add the imp_clean function - used to check variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_clean.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_clean.R")
 ```
 
 Use package_check to install and load dependencies
@@ -47,10 +47,10 @@ packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
 package_check(packages)
 ```
 
-Read in file with path to ilovedata channel on Teams
+Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
-```{r Read in file with path to ilovedata channel on teams}
-source(file = "../credentials/paths.R")
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: COVIDCNS Case Control Data
@@ -71,7 +71,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_csv(
-  file = paste0(ilovedata, "/data_raw/assessment_status/COVID_CNS_case_control_status_04.03.2022.csv"),
+  file = paste0(ilovecovidcns, "/data_raw/assessment_status/COVID_CNS_case_control_status_04.03.2022.csv"),
   col_types = list(
     identifier = col_character(),
     type = col_character(),
@@ -226,7 +226,7 @@ dat <- dat %>%
 ```
 
 Recheck date variables
-```{r COVIDCNS inspect dates}
+```{r COVIDCNS check dates}
 dat %>%
   select(all_of(variables_date)) %>%
   tbl_summary(missing_text = "Missing")
@@ -278,6 +278,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovedata, "/data/assessment_status/COVID_CNS_casecontrol_clean.rds")
+    file = paste0(ilovecovidcns, "/data/assessment_status/COVID_CNS_casecontrol_clean.rds")
     )
 ```

@@ -39,11 +39,11 @@ Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check_1.R")
+source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check_1.R")
 ```
 
 Use package_check to install and load dependencies
@@ -56,7 +56,7 @@ package_check(packages)
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: COVIDCNS 4-AT Outpatient
@@ -241,7 +241,7 @@ variables_cat <- c(
 ```
 
 Set names of list to variable names
-```{r Set list names}
+```{r Set list names cat}
 names(values_cat_list) <- variables_cat
 ```
 
@@ -366,7 +366,7 @@ produce sumscores
 ## Recoding Alertness Variable
 
 Alertness is coded 0,1,2: should be 0,0,4
-```{r Inspect incorrect variable}
+```{r Inspect incorrect variable alertness}
 dat %>%
   select(
     fourat_outp.asleep_attempt_patient_address,
@@ -375,7 +375,7 @@ dat %>%
 ```
 
 Recode alertness as 0,0,4
-```{r Recode incorrect variable}
+```{r Recode incorrect variable alertness}
 dat <- dat %>% 
   mutate(across(fourat_outp.asleep_attempt_patient_address_numeric,
                 ~case_when(
@@ -386,7 +386,7 @@ dat <- dat %>%
 ```
 
 Re-check variable coding
-```{r Recheck variable coding}
+```{r Recheck variable coding alertness}
 dat %>%
   select(
     fourat_outp.asleep_attempt_patient_address,
@@ -397,7 +397,7 @@ dat %>%
 ## Recoding Acute Change Variable
 
 Acute change is coded 0,1: should be 0,4
-```{r Inspect incorrect variable}
+```{r Inspect incorrect variable acute change}
 dat %>%
   select(
     fourat_outp.mental_function_arising_fluctuating,
@@ -406,7 +406,7 @@ dat %>%
 ```
 
 Recode acute change as 0,4
-```{r Recode incorrect variable}
+```{r Recode incorrect variable acute change}
 dat <- dat %>% 
   mutate(across(fourat_outp.mental_function_arising_fluctuating_numeric,
                 ~case_when(
@@ -415,7 +415,7 @@ dat <- dat %>%
 ```
 
 Re-check variable coding
-```{r Recheck variable coding}
+```{r Recheck variable coding acute change}
 dat %>%
   select(
     fourat_outp.mental_function_arising_fluctuating,

@@ -25,11 +25,11 @@ remove(list = ls())
 ```
 
 ```{r Read in functions}
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check.R")
-source(file = "../functions/add_numeric.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check.R")
+source(file = "scripts/functions/add_numeric.R")
 ```
 
 ```{r Install load dependencies}
@@ -47,8 +47,8 @@ date
 ```
 
 
-```{r Read in file with path to ilovedata channel on teams}
-source(file = "../../credentials/paths.R")
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "scripts/scripts/credentials/paths.R")
 ```
 
 
@@ -56,7 +56,7 @@ source(file = "../../credentials/paths.R")
 ```{r Covid cns load data MHD} 
 #Need to change filepath when mhd is updated to MHD
 mhd_dat <- read_rds(
-  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/mhd_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/covid_cns/baseline/mhd_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -758,5 +758,5 @@ export_variables <-
 dat %>% 
   select(all_of(export_variables)) %>% 
   saveRDS(file = 
-            paste0(ilovedata, "/data/latest_freeze/covidcns/past_medical_history_mental_health_covidcns_clean.rds"))
+            paste0(ilovecovidcns, "/data/latest_freeze/covidcns/past_medical_history_mental_health_covidcns_clean.rds"))
 ```

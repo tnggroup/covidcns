@@ -40,13 +40,13 @@ Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric_1.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check.R")
-source(file = "../functions/imp_check_1.R")
-source(file = "../functions/cont_clean.R")
+source(file = "scripts/functions/add_numeric_1.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check.R")
+source(file = "scripts/functions/imp_check_1.R")
+source(file = "scripts/functions/cont_clean.R")
 ```
 
 Use package_check to install and load dependencies
@@ -59,7 +59,7 @@ package_check(packages)
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: Neuro Case Report Form Admission Vital
@@ -307,7 +307,7 @@ values_cat_list <- list(
 ```
 
 Remove values vectors from environment
-```{r Remove value vectors}
+```{r Remove value vectors cat}
 rm(
   vals_cat_1,
   vals_cat_2,
@@ -337,7 +337,7 @@ variables_cat <- c(
 ```
 
 Set names of list to variable names
-```{r Set list names}
+```{r Set list names cat}
 names(values_cat_list) <- variables_cat
 ```
 
@@ -565,7 +565,7 @@ dat <- dat %>%
 ```
 
 Recheck date variables
-```{r COVIDCNS inspect dates}
+```{r COVIDCNS reinspect dates}
 dat %>%
   select(all_of(variables_date)) %>%
   tbl_summary(missing_text = "Missing")

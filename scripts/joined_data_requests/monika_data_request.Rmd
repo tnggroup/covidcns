@@ -26,7 +26,7 @@ remove(list = ls())
 
 Add the package_check function - used to install and load dependencies
 ```{r Read in functions}
-source(file = "../functions/package_check.R")
+source(file = "scripts/functions/package_check.R")
 ```
 
 Use package_check to install and load dependencies
@@ -52,7 +52,7 @@ date
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
 ### ethnicity_covidcns_clean

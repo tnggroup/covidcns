@@ -39,11 +39,11 @@ Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check_1.R")
+source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check_1.R")
 ```
 
 Use package_check to install and load dependencies
@@ -56,7 +56,7 @@ package_check(packages)
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: COVIDCNS ALS
@@ -370,7 +370,7 @@ dat %>%
 # Recoding Incorrect Variables
 
 Both categorical and numeric forms are incorrectly coded
-```{r Inspect incorrect variable}
+```{r Inspect incorrect climbing stairs variable}
 dat %>%
   select(
     als.do_you_have_any_difficulty_climbing_stairs,
@@ -401,7 +401,7 @@ dat <- dat %>%
 
 
 Re-check variable coding
-```{r Recheck variable coding}
+```{r Recheck climbing stairs coding}
 dat %>%
   select(
     als.do_you_have_any_difficulty_climbing_stairs,
@@ -410,7 +410,7 @@ dat %>%
 ```
 
 
-```{r Recode incorrect variable}
+```{r Recode climbing stairs numeric variable}
 dat <- dat %>% 
   mutate(across(als.do_you_have_any_difficulty_climbing_stairs_numeric,
                 ~case_when(
@@ -421,7 +421,7 @@ dat <- dat %>%
 ```
 
 Re-check variable coding
-```{r Recheck variable coding}
+```{r Recheck stairs variable coding}
 dat %>%
   select(
     als.do_you_have_any_difficulty_climbing_stairs,
@@ -435,7 +435,7 @@ levels(dat$als.do_you_have_any_difficulty_climbing_stairs)[dat$als.do_you_have_a
 ```
 
 Re-check variable coding
-```{r Recheck variable coding}
+```{r Recheck new level coding}
 dat %>%
   select(
     als.do_you_have_any_difficulty_climbing_stairs,
@@ -449,7 +449,7 @@ dat$als.do_you_have_any_difficulty_climbing_stairs[dat$als.do_you_have_any_diffi
 ```
 
 Re-check variable coding
-```{r Recheck variable coding}
+```{r Recheck stairs new coding}
 dat %>%
   select(
     als.do_you_have_any_difficulty_climbing_stairs,

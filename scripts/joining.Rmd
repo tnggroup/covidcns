@@ -34,11 +34,11 @@ Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 ```{r Read in functions}
-source(file = "functions/add_numeric.R")
-source(file = "functions/remove_duplicates.R")
-source(file = "functions/sumscores.R")
-source(file = "functions/package_check.R")
-source(file = "functions/imp_check.R")
+source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check.R")
 ```
 
 Use package_check to install and load dependencies
@@ -60,10 +60,10 @@ date = Sys.Date()
 date
 ```
 
-Read in file with path to ilovedata channel on Teams
+Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
-```{r Read in file with path to ilovedata channel on teams}
-source(file = "credentials/paths.R")
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "scripts/credentials/paths.R")
 ```
 
 Exclude these variables
@@ -87,7 +87,7 @@ Read in & variable names
 COVID_CNS_casecontrol_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/assessment_status/COVID_CNS_casecontrol_clean.rds")
+      paste0(ilovecovidcns, "/data/assessment_status/COVID_CNS_casecontrol_clean.rds")
   )
 
 COVID_CNS_casecontrol_clean %>%
@@ -116,7 +116,7 @@ Read in & variable names
 COVID_CNS_neuroimaging_metadata_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/assessment_status/COVID_CNS_neuroimaging_metadata_clean.rds")
+      paste0(ilovecovidcns, "/data/assessment_status/COVID_CNS_neuroimaging_metadata_clean.rds")
   )
 
 COVID_CNS_neuroimaging_metadata_clean %>%
@@ -147,7 +147,7 @@ Read in & variable names
 age_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/age_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/age_covidcns_clean.rds")
     )
 
 age_covidcns_clean %>%
@@ -182,7 +182,7 @@ Read in & variable names
 als_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/als_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/als_covidcns_clean.rds")
   )
 
 als_covidcns_clean %>%
@@ -215,7 +215,7 @@ Read in & variable names
 cage_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/cage_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/cage_covidcns_clean.rds")
   )
 
 cage_covidcns_clean %>%
@@ -247,7 +247,7 @@ Read in & variable names
 catatonia_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/catatonia_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/catatonia_covidcns_clean.rds")
   )
 
 catatonia_covidcns_clean %>%
@@ -279,7 +279,7 @@ Read in & variable names
 cfs_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/cfs_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/cfs_covidcns_clean.rds")
   )
 
 cfs_covidcns_clean %>%
@@ -312,7 +312,7 @@ Read in & variable names
 dem_covidpositive_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/dem_covidpositive_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_covidpositive_covidcns_clean.rds")
   )
 
 dem_covidpositive_covidcns_clean %>%
@@ -344,7 +344,7 @@ Read in & variable names
 dem_memory_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/dem_memory_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_memory_covidcns_clean.rds")
   )
 
 dem_memory_covidcns_clean %>%
@@ -376,7 +376,7 @@ Read in & variable names
 dem_quality_life_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/dem_quality_life_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_quality_life_covidcns_clean.rds")
   )
 
 dem_quality_life_covidcns_clean %>%
@@ -408,7 +408,7 @@ Read in & variable names
 dem_visionhearing_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/dem_visionhearing_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_visionhearing_covidcns_clean.rds")
   )
 
 dem_visionhearing_covidcns_clean %>%
@@ -440,7 +440,7 @@ Read in & variable names
 impact_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/impact_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/impact_covidcns_clean.rds")
   )
 
 impact_covidcns_clean %>%
@@ -472,7 +472,7 @@ Read in & variable names
 dem_ethnicity_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/dem_ethnicity_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_ethnicity_covidcns_clean.rds")
   )
 
 dem_ethnicity_covidcns_clean %>%
@@ -504,7 +504,7 @@ Read in & variable names
 facial_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/facial_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/facial_covidcns_clean.rds")
   )
 
 facial_covidcns_clean %>%
@@ -536,7 +536,7 @@ Read in & variable names
 gad7_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/gad7_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/gad7_covidcns_clean.rds")
   )
 
 gad7_covidcns_clean %>%
@@ -567,7 +567,7 @@ Read in & variable names
 dem_highest_qualification_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/dem_highest_qualification_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_highest_qualification_covidcns_clean.rds")
   )
 
 dem_highest_qualification_covidcns_clean %>%
@@ -598,7 +598,7 @@ Read in & variable names
 dem_language_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/dem_language_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_language_covidcns_clean.rds")
   )
 
 dem_language_covidcns_clean %>%
@@ -628,7 +628,7 @@ Read in & variable names
 nis_outp_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/core_neuro/nis_outp_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/nis_outp_covidcns_clean.rds")
   )
 
 nis_outp_covidcns_clean %>%
@@ -660,7 +660,7 @@ Read in & variable names
 nonmotor_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/nonmotor_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/nonmotor_covidcns_clean.rds")
   )
 
 nonmotor_covidcns_clean %>%
@@ -697,7 +697,7 @@ Had this name before: past_medical_history_mental_health_covidcns_clean.rds
 past_medical_history_mental_health_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/PHH_forgreta_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/PHH_forgreta_covidcns_clean.rds")
   )
 
 
@@ -729,7 +729,7 @@ Read in & variable names
 past_medical_history_physical_health_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/past_medical_history_physical_health_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/past_medical_history_physical_health_covidcns_clean.rds")
   )
 
 past_medical_history_physical_health_covidcns_clean %>%
@@ -760,7 +760,7 @@ Read in & variable names
 pcl5_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/pcl5_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/pcl5_covidcns_clean.rds")
   )
 
 pcl5_covidcns_clean %>%
@@ -793,7 +793,7 @@ Read in & variable names
 phq9_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/phq9_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/phq9_covidcns_clean.rds")
   )
 
 phq9_covidcns_clean %>%
@@ -825,7 +825,7 @@ Read in & variable names
 dem_sex_gender_sexuality_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/dem_sex_gender_sexuality_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_sex_gender_sexuality_covidcns_clean.rds")
   )
 
 dem_sex_gender_sexuality_covidcns_clean %>%
@@ -860,7 +860,7 @@ Read in & variable names
 smelltaste_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/smelltaste_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/smelltaste_covidcns_clean.rds")
   )
 
 smelltaste_covidcns_clean %>%
@@ -891,7 +891,7 @@ Read in & variable names
 trauma_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/trauma_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/trauma_covidcns_clean.rds")
   )
 
 trauma_covidcns_clean %>%
@@ -922,7 +922,7 @@ Read in & variable names
 updrs_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/updrs_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/updrs_covidcns_clean.rds")
   )
 
 updrs_covidcns_clean %>%
@@ -954,7 +954,7 @@ Read in & variable names
 vaccine_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/baseline/vaccine_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/vaccine_covidcns_clean.rds")
   )
 
 vaccine_covidcns_clean %>%
@@ -987,7 +987,7 @@ Read in & variable names
 fourat_outp_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/core_neuro/fourat_outp_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/fourat_outp_covidcns_clean.rds")
   )
 
 fourat_outp_covidcns_clean %>%
@@ -1021,7 +1021,7 @@ Read in & variable names
 moca_inp_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/mh_case_report/moca_inp_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/mh_case_report/moca_inp_covidcns_clean.rds")
   )
 
 moca_inp_covidcns_clean %>%
@@ -1055,7 +1055,7 @@ Read in & variable names
 cognitron_outp_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/moca/cognitron_outp_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/moca/cognitron_outp_covidcns_clean.rds")
   )
 
 cognitron_outp_covidcns_clean %>%
@@ -1087,7 +1087,7 @@ Read in & variable names
 moca_outp_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/moca/moca_outp_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/moca/moca_outp_covidcns_clean.rds")
   )
 
 moca_outp_covidcns_clean %>%
@@ -1121,7 +1121,7 @@ Read in & variable names
 ncrf_clinical_frailty_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf_clinical_frailty_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf_clinical_frailty_clean.rds")
   )
 
 ncrf_clinical_frailty_clean %>%
@@ -1153,7 +1153,7 @@ Read in & variable names
 ncrf2_med_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf2_med_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf2_med_covidcns_clean.rds")
   )
 
 ncrf2_med_covidcns_clean %>%
@@ -1185,7 +1185,7 @@ Read in & variable names
 ncrf1_admission_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf1_admission_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_admission_covidcns_clean.rds")
   )
 
 ncrf1_admission_covidcns_clean %>%
@@ -1217,7 +1217,7 @@ Read in & variable names
 ncrf1_care_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf1_care_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_care_covidcns_clean.rds")
   )
 
 ncrf1_care_covidcns_clean %>%
@@ -1249,7 +1249,7 @@ Read in & variable names
 ncrf1_cic_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf1_cic_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_cic_covidcns_clean.rds")
   )
 
 ncrf1_cic_covidcns_clean %>%
@@ -1281,7 +1281,7 @@ Read in & variable names
 ncrf1_comorbid_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf1_comorbid_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_comorbid_covidcns_clean.rds")
   )
 
 ncrf1_comorbid_covidcns_clean %>%
@@ -1312,7 +1312,7 @@ Read in & variable names
 ncrf1_lab_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf1_lab_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_lab_covidcns_clean.rds")
   )
 
 ncrf1_lab_covidcns_clean %>%
@@ -1344,7 +1344,7 @@ Read in & variable names
 ncrf1_pre_med_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf1_pre_med_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_pre_med_covidcns_clean.rds")
   )
 
 ncrf1_pre_med_covidcns_clean %>%
@@ -1376,7 +1376,7 @@ Read in & variable names
 ncrf1_vital_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf1_vital_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_vital_covidcns_clean.rds")
   )
 
 ncrf1_vital_covidcns_clean %>%
@@ -1411,7 +1411,7 @@ Read in & variable names
 ncrf2_care_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf2_care_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf2_care_covidcns_clean.rds")
   )
 
 ncrf2_care_covidcns_clean %>%
@@ -1443,7 +1443,7 @@ Read in & variable names
 ncrf2_lab_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf2_lab_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf2_lab_covidcns_clean.rds")
   )
 
 ncrf2_lab_covidcns_clean %>%
@@ -1475,7 +1475,7 @@ Read in & variable names
 ncrf2_vital_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf2_vital_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf2_vital_covidcns_clean.rds")
   )
 
 ncrf2_vital_covidcns_clean %>%
@@ -1507,7 +1507,7 @@ Read in & variable names
 ncrf3_compli_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf3_compli_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf3_compli_covidcns_clean.rds")
   )
 
 ncrf3_compli_covidcns_clean %>%
@@ -1539,7 +1539,7 @@ Read in & variable names
 ncrf3_diag_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovedata, "/data/latest_freeze/neuro_case_report/ncrf3_diag_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf3_diag_covidcns_clean.rds")
   )
 
 ncrf3_diag_covidcns_clean %>%
@@ -1572,7 +1572,7 @@ Read in & variable names
 ```{r cognitron Read in data & variable names}
 cognitron <-
   readRDS(
-    paste0(ilovedata, "/data/cognitron/scores/cognitron_scores.rds")
+    paste0(ilovecovidcns, "/data/cognitron/scores/cognitron_scores.rds")
   )
 
 cognitron %>%
@@ -1663,10 +1663,9 @@ Joining of demographics and questionnaires
 ```{r Joining of demographics and questionnaires}
 data_joined <- 
   plyr::join_all(
-    tibble_list,
-    by = c(
-      "ID"
-      )
+    dfs =  tibble_list,
+    by = c("ID"),
+    type = "full"
     )
 ```
 
@@ -1708,9 +1707,9 @@ duplicated_cols %>%
 ```
 
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 data_joined %>%
-  freq()
+  tbl_summary()
 ```
 
 
@@ -1771,7 +1770,7 @@ data_export_matching %>%
 ```{r matching Save joint data set}
 saveRDS(
   object = data_export_matching, 
-  file = paste0(ilovedata, "/data/joined/covidcns_matching.rds")
+  file = paste0(ilovecovidcns, "/data/joined/covidcns_matching.rds")
 )
 ```
 
@@ -1788,7 +1787,7 @@ data_export_greta <- data_joined #%>%
 ```{r greta Save joint data set}
 saveRDS(
   object = data_export_greta, 
-  file = paste0(ilovedata, "/data/joined/covidcns_greta.rds")
+  file = paste0(ilovecovidcns, "/data/joined/covidcns_greta.rds")
 )
 ```
 
@@ -1806,7 +1805,7 @@ data_export_yun <- data_joined %>%
 ```{r yun Save joint data set}
 saveRDS(
   object = data_export_yun, 
-  file = paste0(ilovedata, "/data/joined/covidcns_yun.rds")
+  file = paste0(ilovecovidcns, "/data/joined/covidcns_yun.rds")
 )
 ```
 

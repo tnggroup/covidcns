@@ -864,11 +864,11 @@ Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric_1.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check_1.R")
+source(file = "scripts/functions/add_numeric_1.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check_1.R")
 ```
 
 Use package_check to install and load dependencies
@@ -878,10 +878,10 @@ packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
 package_check(packages)
 ```
 
-Read in file with path to ilovedata channel on Teams
+Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
-```{r Read in file with path to ilovedata channel on teams}
-source(file = "../credentials/paths.R")
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: Full Name of Questionnaire/Demographic
@@ -902,7 +902,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/phh_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/covid_cns/baseline/phh_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -1852,6 +1852,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/location/questionnaire_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/covidcns/location/questionnaire_covidcns_clean.rds")
     )
 ```

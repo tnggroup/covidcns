@@ -40,12 +40,12 @@ Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric_1.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check_1.R")
-source(file = "../functions/cont_clean.R")
+source(file = "scripts/functions/add_numeric_1.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check_1.R")
+source(file = "scripts/functions/cont_clean.R")
 ```
 
 Use package_check to install and load dependencies
@@ -58,7 +58,7 @@ package_check(packages)
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: COVIDCNS Physical Health History (Interim/Temporary)
@@ -417,7 +417,7 @@ variables_cat <- c(
 ```
 
 Set names of list to variable names
-```{r Set list names}
+```{r Set list names cat}
 names(values_cat_list) <- variables_cat
 ```
 
@@ -764,7 +764,7 @@ dat <- dat %>%
 ```
 
 Re-check coding
-```{r COVIDCNS recheck coding}
+```{r COVIDCNS recheck coding 1}
 dat %>%
   select(phh.nbsp) %>%
   tbl_summary(missing_text = "Missing")
@@ -858,7 +858,7 @@ dat <- dat %>%
 ```
 
 Re-check coding
-```{r COVIDCNS recheck coding}
+```{r COVIDCNS recheck coding 2}
 dat %>%
   select(phh.nbsp.1) %>%
   tbl_summary(missing_text = "Missing")
@@ -900,7 +900,7 @@ dat <- dat %>%
 ```
 
 Re-check coding
-```{r COVIDCNS recheck coding}
+```{r COVIDCNS recheck coding 3}
 dat %>%
   select(phh.) %>%
   tbl_summary(missing_text = "Missing")
@@ -944,7 +944,7 @@ dat <- dat %>%
 ```
 
 Re-check coding
-```{r COVIDCNS recheck coding}
+```{r COVIDCNS recheck coding 4}
 dat %>%
   select(phh..1) %>%
   tbl_summary(missing_text = "Missing")
@@ -979,7 +979,7 @@ dat <- dat %>%
 ```
 
 Re-check coding
-```{r COVIDCNS recheck coding}
+```{r COVIDCNS recheck coding 5}
 dat %>%
   select(phh..2) %>%
   tbl_summary(missing_text = "Missing")
@@ -999,7 +999,7 @@ dat <- dat %>%
 ```
 
 Re-check coding
-```{r COVIDCNS recheck coding}
+```{r COVIDCNS recheck coding 6}
 dat %>%
   select(phh.nbsp.2) %>%
   tbl_summary(missing_text = "Missing")
@@ -1018,7 +1018,7 @@ dat <- dat %>%
 ```
 
 Re-check coding
-```{r COVIDCNS recheck coding}
+```{r COVIDCNS recheck coding 7}
 dat %>%
   select(phh.nbsp.3) %>%
   tbl_summary(missing_text = "Missing")
@@ -1037,7 +1037,7 @@ dat <- dat %>%
 ```
 
 Re-check coding
-```{r COVIDCNS recheck coding}
+```{r COVIDCNS recheck coding 8}
 dat %>%
   select(phh..3) %>%
   tbl_summary(missing_text = "Missing")
@@ -1056,7 +1056,7 @@ dat <- dat %>%
 ```
 
 Re-check coding
-```{r COVIDCNS recheck coding}
+```{r COVIDCNS recheck coding 9}
 dat %>%
   select(phh..4) %>%
   tbl_summary(missing_text = "Missing")
@@ -1075,7 +1075,7 @@ dat <- dat %>%
 ```
 
 Re-check coding
-```{r COVIDCNS recheck coding}
+```{r COVIDCNS recheck coding 10}
 dat %>%
   select(phh..5) %>%
   tbl_summary(missing_text = "Missing")
@@ -1084,7 +1084,7 @@ dat %>%
 
 
 Re-check coding
-```{r COVIDCNS recheck coding}
+```{r COVIDCNS recheck coding final}
 dat %>%
   select(all_of(variables_text)) %>%
   tbl_summary(missing_text = "Missing")

@@ -39,11 +39,11 @@ Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check.R")
+source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check.R")
 ```
 
 Use package_check to install and load dependencies
@@ -56,7 +56,7 @@ package_check(packages)
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: COVIDCNS Date of COVID Positive
@@ -179,7 +179,7 @@ ulst <- sapply(dat, unique)
 ```
 
 Inspect variables prior to cleaning: mix of categorical and continuous
-```{r COVIDCNS inspect variables}
+```{r COVIDCNS inspect variables initial}
 dat %>%
   tbl_summary(include = c(dem.diagnosed_required_question_covid19,
                           dem.long_ago_diagnosed_required,
@@ -268,7 +268,7 @@ imp_check(data = dat,
 # Cleaning Continuous Variables
 
 ## Long ago diagnosed years
-```{r check range of values}
+```{r check range of values years}
 dat %>%
   select("dem.long_ago_diagnosed_required") %>%
   tbl_summary()
@@ -279,12 +279,12 @@ Variable name: dem.long_ago_diagnosed_required (years)
 - Lower: 0, as could be less than a year
 - Upper: 2 as of present (Feb 2021), cannot be diagnosed before 2019
 *** *Check
-```{r define limits}
+```{r define limits years}
 dem.long_ago_diagnosed_required_upper_limit = 2
 dem.long_ago_diagnosed_required_lower_limit = 0
 ```
 
-```{r outlier count}
+```{r outlier count years}
 dat %>%
   filter(
     dem.long_ago_diagnosed_required > dem.long_ago_diagnosed_required_upper_limit | # bigger than the upper limit
@@ -294,7 +294,7 @@ dat %>%
   nrow()
 ```
 
-```{r Recode outliers to -666}
+```{r Recode outliers to -666 years}
 dat <- dat %>%
     mutate(
       dem.long_ago_diagnosed_required = 
@@ -309,14 +309,14 @@ dat <- dat %>%
     )
 ```
 
-```{r inspect after recoding to -666}
+```{r inspect after recoding to -666 years}
 dat %>%
   select("dem.long_ago_diagnosed_required") %>%
   tbl_summary()
 ```
 
 ## Long ago diagnosed (months)
-```{r check range of values}
+```{r check range of values months}
 dat %>%
   select("dem.long_ago_diagnosed_required.1") %>%
   tbl_summary()
@@ -327,12 +327,12 @@ Variable name: dem.long_ago_diagnosed_required.1 (months)
 - Lower: 0, as could be less than a month
 - Upper: 12 (12 months in a year)
 *** *Check
-```{r define limits}
+```{r define limits months}
 dem.long_ago_diagnosed_required.1_upper_limit = 12
 dem.long_ago_diagnosed_required.1_lower_limit = 0
 ```
 
-```{r outlier count}
+```{r outlier count months}
 dat %>%
   filter(
     dem.long_ago_diagnosed_required.1 > dem.long_ago_diagnosed_required.1_upper_limit | # bigger than the upper limit
@@ -342,7 +342,7 @@ dat %>%
   nrow()
 ```
 
-```{r Recode outliers to -666}
+```{r Recode outliers to -666 months}
 dat <- dat %>%
     mutate(
       dem.long_ago_diagnosed_required.1 = 
@@ -357,7 +357,7 @@ dat <- dat %>%
     )
 ```
 
-```{r inspect after recoding to -666}
+```{r inspect after recoding to -666 months}
 dat %>%
   select("dem.long_ago_diagnosed_required.1") %>%
   tbl_summary()
