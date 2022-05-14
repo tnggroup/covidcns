@@ -19,7 +19,7 @@ source(file = "./scripts/credentials/paths.R")
 
 # Import data
 covid_matching <- readRDS(paste0(ilovecovidcns, "/data/joined/covidcns_matching.rds"))
-data_cognitron_raw <- read.table(file = paste0(ilovecovidcns, "/data_raw/cognitron/covidcns.cognitron.co.uk_1_2022-04-06.tsv"), sep = '\t', header = FALSE)
+data_cognitron_raw <- read.table(file = paste0(ilovecovidcns, "/data_raw/cognitron/Cognitron_data_raw_09.05.2022"), sep = '\t', header = FALSE)
 headers <- read_excel(paste0(ilovecovidcns, "/data_raw/cognitron/Cognitron_headers.xlsx"))
 
 # Remove not useful columns
@@ -719,55 +719,55 @@ ggsave(p_pred_vs_obs_edu,
       filename = paste0(ilovecovidcns, "/data/cognitron/plots/pred_vs_obs_facets_education.png"),
       width = 12, height = 12, dpi = 1000)
 
-## 6.2 Heatmap ----------------------------
-
-st_diff <- t(st_deviation_from_expected)
-colnames(st_diff) <- stringr::str_replace_all(colnames(st_diff),  "\\.", "")
-st_diff_ann <- demo_data[match(colnames(st_diff), rownames(demo_data)),
-                         c("decade", "sex", "education")]
-rownames(st_diff_ann) <- colnames(st_diff)
-
-# Interpolate brewer's discrete palette into more colors
-paletteLength <- 100
-st_diff_pal <- colorRampPalette(
-  scales::brewer_pal("div", palette = "RdBu", direction = -1)(3)
-)(paletteLength)
-
-# Hack to make the middle point of the diverging palette be at zero
-st_diff_breaks <- c(
-  seq(min(st_diff), 0, length.out=ceiling(paletteLength/2) + 1),
-  seq(max(st_diff)/paletteLength, max(st_diff), length.out=floor(paletteLength/2))
-)
-
-# Use sequential color palette for decade and education
-uniq_decade <- sort(levels(st_diff_ann$decade))
-uniq_edu <- sort(unique(st_diff_ann$education))
-
-annot_colors <- list(
-  "decade" = setNames(scales::viridis_pal(option = "D")(length(uniq_decade)),
-                      nm = uniq_decade),
-  "education" = setNames(scales::viridis_pal(option = "B")(length(uniq_edu)),
-                         nm = uniq_edu)
-)
-dev.off()
-{
-  png(filename = paste0(ilovecovidcns, "/data/cognitron/plots/difference_from_predicted_heatmap.png"),
-      width = 14, height = 10, units = "in", res = 300)
-  out <- pheatmap::pheatmap(
-    st_diff,
-    main = "Difference between predicted and observed scores for GBIT tasks",
-    cluster_rows = TRUE,
-    cluster_cols = TRUE,
-    #annotation_col = st_diff_ann,
-    color = st_diff_pal,
-    breaks = st_diff_breaks,
-    annotation_colors = annot_colors
-  )
-  dev.off()
-}
-
-plot(out$tree_col)
-plot(out$tree_row)
+# ## 6.2 Heatmap ----------------------------
+# 
+# st_diff <- t(st_deviation_from_expected)
+# colnames(st_diff) <- stringr::str_replace_all(colnames(st_diff),  "\\.", "")
+# st_diff_ann <- demo_data[match(colnames(st_diff), rownames(demo_data)),
+#                          c("decade", "sex", "education")]
+# rownames(st_diff_ann) <- colnames(st_diff)
+# 
+# # Interpolate brewer's discrete palette into more colors
+# paletteLength <- 100
+# st_diff_pal <- colorRampPalette(
+#   scales::brewer_pal("div", palette = "RdBu", direction = -1)(3)
+# )(paletteLength)
+# 
+# # Hack to make the middle point of the diverging palette be at zero
+# st_diff_breaks <- c(
+#   seq(min(st_diff), 0, length.out=ceiling(paletteLength/2) + 1),
+#   seq(max(st_diff)/paletteLength, max(st_diff), length.out=floor(paletteLength/2))
+# )
+# 
+# # Use sequential color palette for decade and education
+# uniq_decade <- sort(levels(st_diff_ann$decade))
+# uniq_edu <- sort(unique(st_diff_ann$education))
+# 
+# annot_colors <- list(
+#   "decade" = setNames(scales::viridis_pal(option = "D")(length(uniq_decade)),
+#                       nm = uniq_decade),
+#   "education" = setNames(scales::viridis_pal(option = "B")(length(uniq_edu)),
+#                          nm = uniq_edu)
+# )
+# dev.off()
+# {
+#   png(filename = paste0(ilovecovidcns, "/data/cognitron/plots/difference_from_predicted_heatmap.png"),
+#       width = 14, height = 10, units = "in", res = 300)
+#   out <- pheatmap::pheatmap(
+#     st_diff,
+#     main = "Difference between predicted and observed scores for GBIT tasks",
+#     cluster_rows = TRUE,
+#     cluster_cols = TRUE,
+#     #annotation_col = st_diff_ann,
+#     color = st_diff_pal,
+#     breaks = st_diff_breaks,
+#     annotation_colors = annot_colors
+#   )
+#   dev.off()
+# }
+# 
+# plot(out$tree_col)
+# plot(out$tree_row)
 
 ## 6.3 Barplot --------------
 
