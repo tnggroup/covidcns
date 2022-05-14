@@ -1,4 +1,4 @@
-# AUTHOR: Valentina Giunchiglia
+# AUTHOR: Valentina Giunchiglia and Adam Hampshire
 
 filter_below_thresh <- function(df, columns, threshold){
   for (col in columns){
@@ -43,7 +43,7 @@ trim_model <- function(cm) {
   return(cm)
 }
 
-factor_analysis <- function(datamat,
+factor_analysis <- function(datamat, scale, center,
                             rank_inv_trans = FALSE,
                             windsor_sigma = 8,
                             dcomp = NULL) {
@@ -52,11 +52,11 @@ factor_analysis <- function(datamat,
   if (!is.matrix(datamat))
     if(!is.data.frame(datamat))
       stop(paste("`datamat` should be matrix/dataframe, not", class(datamat)))
-    else
-      datamat <- as.matrix(datamat)
+  else
+    datamat <- as.matrix(datamat)
 
   ## 1. Remove outliers > 8 stdev
-  z_scores <- scale(datamat, center = TRUE, scale = TRUE)
+  z_scores <- scale(datamat, center = center, scale = scale)
   is_outlier <- abs(z_scores) > 100000
   datamat[is_outlier] <- NA
 
@@ -86,7 +86,7 @@ factor_analysis <- function(datamat,
   ## 7. Factor analysis
   ## MATLAB uses Bartlett's weighted least-squares estimate as default
   ## method to predict factor scores, but R's default is not to compute them
-  fa <- factanal(datamat, factors = n_comps, scores = "Bartlett")
+  fa <- factanal(datamat, factors = n_comps, scores = "regression")
   loadings_mat <- loadings(fa)
   stats <- list("loglike" = NULL, "dfe" = fa$dof)
   tmp_scores <- fa$scores
