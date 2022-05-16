@@ -575,8 +575,11 @@ dev_from_exp_t_test <- apply(deviation_from_expected, 2, t.test)
 print_serial_ttest_results(dev_from_exp_t_test)
 
 # Add user id
-deviation_from_expected_with_users = cbind(deviation_from_expected, scores_df_final$user_id)
-#write.csv(deviation_from_expected_with_users, "DfE_composite_scores.csv")
+deviation_from_expected_with_users <- as.tibble(deviation_from_expected)
+deviation_from_expected_with_users <- deviation_from_expected_with_users %>%
+  mutate(user_id = scores_df_final$user_id)
+
+# Save DfE composite scores
 write.csv(deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores.csv"))
 saveRDS(deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores.rds"))
 
@@ -624,7 +627,11 @@ st_dev_from_exp_t_test <- apply(st_deviation_from_expected, 2, t.test)
 print_serial_ttest_results(st_dev_from_exp_t_test)
 
 # Add user id
-st_deviation_from_expected_with_users = cbind(st_deviation_from_expected, scores_df_final$user_id)
+st_deviation_from_expected_with_users <- as.tibble(st_deviation_from_expected)
+st_deviation_from_expected_with_users <- st_deviation_from_expected_with_users %>%
+  mutate(user_id = scores_df_final$user_id)
+
+# Save DfE task scores
 write.csv(st_deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores.csv"))
 saveRDS(st_deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores.rds"))
 

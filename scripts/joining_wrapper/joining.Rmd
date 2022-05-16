@@ -1572,34 +1572,97 @@ ncrf3_diag_covidcns_clean_selected %>%
 
 # Cognitron
 
-### cognitron
+### cognitron_scores_and_demographics
 Read in & variable names
-```{r cognitron Read in data & variable names}
-cognitron <-
+```{r cognitron_scores_and_demographics Read in data & variable names}
+cognitron_scores_and_demographics <-
   readRDS(
     paste0(ilovecovidcns, "/data/cognitron/scores/cognitron_scores_and_demographics.rds")
   )
 
-cognitron %>%
+cognitron_scores_and_demographics %>%
   dim()
 ```
 
 Dimensions
-```{r cognitron Dimensions}
-cognitron %>%
+```{r cognitron_scores_and_demographics Dimensions}
+cognitron_scores_and_demographics %>%
   colnames()
 ```
 
 Select columns for joining
-```{r cognitron Select columns for joining}
-cognitron_selected <- cognitron %>%
+```{r cognitron_scores_and_demographics Select columns for joining}
+cognitron_scores_and_demographics_selected <- cognitron_scores_and_demographics %>%
   dplyr::rename(
     "ID" = "user_id"
   )
 
-cognitron_selected %>%
+cognitron_scores_and_demographics_selected %>%
   slice(1:5)
 ```
+
+
+### cognitron DfE_composite_scores
+Read in & variable names
+```{r DfE_composite_scores Read in data & variable names}
+DfE_composite_scores <-
+  readRDS(
+    paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores.rds")
+  )
+
+DfE_composite_scores %>%
+  dim()
+```
+
+Dimensions
+```{r DfE_composite_scores Dimensions}
+DfE_composite_scores %>%
+  colnames()
+```
+
+Select columns for joining
+```{r DfE_composite_scores Select columns for joining}
+DfE_composite_scores_selected <- DfE_composite_scores %>%
+  dplyr::rename(
+    "ID" = "user_id"
+  )
+
+DfE_composite_scores_selected %>%
+  slice(1:5)
+```
+
+
+### cognitron DfE_task_scores
+Read in & variable names
+```{r DfE_task_scores Read in data & variable names}
+DfE_task_scores <-
+  readRDS(
+    paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores.rds")
+  )
+
+DfE_task_scores %>%
+  dim()
+```
+
+Dimensions
+```{r DfE_task_scores Dimensions}
+DfE_task_scores %>%
+  colnames()
+```
+
+Select columns for joining
+```{r DfE_task_scores Select columns for joining}
+DfE_task_scores_selected <- DfE_task_scores %>%
+  dplyr::rename(
+    "ID" = "user_id"
+  )
+
+DfE_task_scores_selected %>%
+  slice(1:5)
+```
+
+
+
 
 
 ## List of tibbles to join, not including website data
@@ -1659,7 +1722,9 @@ tibble_list <-
     ncrf3_compli_covidcns_clean_selected,
     ncrf3_diag_covidcns_clean_selected,
    # cognitron
-   cognitron_selected
+   cognitron_scores_and_demographics_selected,
+   DfE_composite_scores_selected,
+   DfE_task_scores_selected
     )
 ```
 
