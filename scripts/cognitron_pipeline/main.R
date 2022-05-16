@@ -1,4 +1,3 @@
-
 # AUTHOR: Valentina Giunchiglia & Adam Hampshire
 
 library(readxl)
@@ -16,11 +15,11 @@ source(file = "scripts/credentials/paths.R")
 source("scripts/cognitron_pipeline/utils.R")
 
 
-#  STEP 1: Cleaning of COVID CNS Data ---------------------------------------------------------------------
+#  STEP 1: Cleaning of COVID CSN Data ---------------------------------------------------------------------
 
 # Import data
 covid_matching <- readRDS(paste0(ilovecovidcns, "/data/joined/covidcns_matching.rds"))
-data_cognitron_raw <- read.table(file = paste0(ilovecovidcns, "/data_raw/cognitron/raw_cognitron/Cognitron_data_raw_09.05.2022"), sep = '\t', header = FALSE)
+data_cognitron_raw <- read.table(file = paste0(ilovecovidcns, "/data_raw/cognitron/raw_cognitron/covidcns.cognitron.co.uk_1_2022-04-06.tsv"), sep = '\t', header = FALSE)
 headers <- read_excel(paste0(ilovecovidcns, "/data_raw/cognitron/headers/Cognitron_headers.xlsx"))
 
 # Remove not useful columns
@@ -550,7 +549,6 @@ names(scores_composites_patients) = c("Composite_global", "Composite_rt", "Compo
 # save(pca_output, file = "submit/composite_models.rds")
 load(paste0(ilovecovidcns, "/data_raw/cognitron/models/composite_models.rds"))
 
-
 # Test the model obtained by training on the control dataset
 
 test_set = X_patients
@@ -730,15 +728,14 @@ annot_colors <- list(
                          nm = uniq_edu)
 )
 
-
 {
   png(filename = paste0(ilovecovidcns, "/data/cognitron/plots/difference_from_predicted_heatmap.png"),
       width = 14, height = 10, units = "in", res = 300)
   out <- pheatmap::pheatmap(
     (st_diff) * 1,
     main = "Difference between predicted and observed scores for GBIT tasks",
-    cluster_rows = TRUE,
-    cluster_cols = TRUE,
+    cluster_rows = FALSE,
+    cluster_cols = FALSE,
     color = st_diff_pal,
     breaks = st_diff_breaks,
     annotation_colors = annot_colors,
@@ -747,8 +744,8 @@ annot_colors <- list(
   dev.off()
 }
 
-plot(out$tree_col)
-plot(out$tree_row)
+#plot(out$tree_col)
+#plot(out$tree_row)
 
 # 7.3 Barplot --------------
 
@@ -868,7 +865,7 @@ DfE_plots = function(dev_exp, plot_fname) {
   dfe_means <- colMeans(dev_exp)
   dfe_sem <- apply(dev_exp, 2, function(col)
     sd(col, na.rm = TRUE) / sqrt(length(col)))
-
+  
   dfe_tbl <- tibble(
     task = names(dfe_means),
     mean_dfe = dfe_means,
@@ -876,7 +873,7 @@ DfE_plots = function(dev_exp, plot_fname) {
   ) %>%
     arrange(mean_dfe) %>%
     mutate(task = factor(task, levels = unique(.$task)))
-
+  
   p_diff_from_exp <- ggplot(dfe_tbl, aes(x = task, y = mean_dfe)) +
     geom_col(fill = "#0a9396") +
     geom_errorbar(aes(ymin = mean_dfe - sem_dfe,
