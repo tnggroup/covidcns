@@ -437,11 +437,15 @@ Create matrix of limits for continuous variables
 Matrix is series of vectors (lower, upper)
 Define limits for variable and list reasoning below
 Variable name:
-- Upper: 
-- Lower: 
+- Lower:
+- Upper:
+Variable name:
+- Lower:
+- Upper:
 ```{r Create matrix limits}
 limits_mat <- rbind(
-  c(,),
+  c(<lower>, <upper>),
+  c(<lower>, <upper>)
   )
 ```
 
@@ -521,7 +525,7 @@ dat <- dat %>%
 ```
 
 Recheck date variables
-```{r Inspect date vars}
+```{r Recheck parsed date vars}
 dat %>%
   select(all_of(variables_date)) %>%
   tbl_summary(missing_text = "Missing")
@@ -554,7 +558,7 @@ dat <- dat %>%
 ```
 
 Re-check dates
-```{r Recheck date vars}
+```{r Recheck cleaned date vars}
 dat %>%
   select(all_of(variables_date)) %>%
   tbl_summary(missing_text = "Missing")
@@ -639,8 +643,8 @@ dat <- dat %>%
 # Create binary phenotypes
 Add explanation of binary phenotype here:
 
-Create numeric binary phenotype variable
-```{r Numeric binary phenotype}
+Create numeric phenotype variable
+```{r Numeric phenotype}
 dat <- dat %>%
   mutate(
     questionnaire.phenotype_numeric =
@@ -654,8 +658,8 @@ dat %>%
   tbl_summary()
 ```
 
-Create categorical binary phenotype variable
-```{r Categorical binary phenotype variable}
+Create categorical phenotype variable
+```{r Categorical phenotype variable}
 dat <- dat %>%
   mutate(
     questionnaire.phenotype =
