@@ -1,22 +1,14 @@
 ---
-title: "COVIDCNS Neuroimaging Metadata Cleaning Script"
+title: "COVIDCNS Combined Website Data Cleaning Script"
 author: "Zain Ahmad"
 date: "24/03/2022"
 output: html_document
 ---
 
 
-All arguments should be in their own row, including the first argument
-Closing bracket should have its own row
-Functions with a single argument can have this on the same line
-One argument can be hashed out per line for debugging errors
-
-Chunk names should be all lower case except:
-Study name (COVIDCNS) all caps
-Capitalised first word
-
-Ensure that you have deleted/untracked .DS_Store before your initial commit
-Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+Cleaning script for combined:
+1. Case control status
+2. Neuroimaging metadata
 
 Configure global options for all chunks
 ```{r Setup, include=FALSE}
@@ -55,25 +47,12 @@ Ensure that your credentials directory is correctly located
 source(file = "scripts/credentials/paths.R")
 ```
 
-# Read in the data: COVIDCNS Neuroimaging Metadata
-Change this heading to the name of your questionnaire/demographic
-Load COVIDCNS data
-
-Do not change variable names from the NLP names that are produced by the extraction
-EXCEPT in exceptional circumstances
-Document ANY changes to variable names in the issues spreadsheet "https://docs.google.com/spreadsheets/d/1a2gL8c0eH2pZXNTbnPzkDYQGeeVXbLKU8BUpYM0moe8/edit?usp=sharing"
-
-- For variable names, use ONLY 'questionnaire.variable_name'
-- For dataset, only use snake_case naming
-- When using pipe operator '%>%', each function should begin on a new line
-- Do not add empty lines at the beginning or end of a chunk
-- Use only tidyverse functions wherever possible
-- When naming chunks, begin with the name of the dataset (COVIDCNS)
+# Read in the data: COVIDCNS Case Control Status and Neuroimaging Metadata
 
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_csv(
-  file = paste0(ilovecovidcns, "/data_raw/assessment_status/Covid_CNS_neuro_data_03.03.2022.csv"),
+  file = paste0(ilovecovidcns, "/data_raw/assessment_status/RV5_covid-cns_comb_06052022.csv"),
   col_types = list(
     kit_id = col_character(),
     primary_site = col_character(),
@@ -81,9 +60,13 @@ covidcns_dat <- read_csv(
     recurited_at_site = col_character(),
     recurited_at_site_name = col_character(),
     processing_problems = col_character(),
-    notes = col_character()
+    notes = col_character(),
+    site_reference_id = col_character(),
+    type = col_character(),
+    updated_at = col_character()
   )
   )
+
   
 # Check variable names in dataframe
 covidcns_dat %>%
@@ -108,7 +91,10 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          recruitment_site_code = recurited_at_site,
          recruitment_site_name = recurited_at_site_name,
          processing_problems,
-         notes
+         notes,
+         site_reference_id,
+         case_control_vaccine = type,
+         updated_at
          )
 
 # Inspect colnames
@@ -130,10 +116,8 @@ covidcns_excluded
 
 Check missingness by missmap
 ```{r COVIDCNS inspect missingness}
-covidcns_miss_map <- covidcns_dat_id %>% 
+covidcns_dat_id %>% 
   missmap()
-
-covidcns_miss_map
 ```
 
 Create dat as copy of covidcns_dat_id for brevity
@@ -220,6 +204,15 @@ vals_cat_4 <- c(
   "The National Hospital for Neurology and Neurosurgery",
   NA
 )
+
+vals_cat_5 <- c(
+  "Case: COVID-19 positive (i.e. neurological or psychiatric complication)",
+  "Vaccine: COVID-19 vaccine complication (i.e. neurological or psychiatric complication)",
+  "Control: COVID-19 positive (i.e. NO neurological or psychiatric complication)",
+  "Control: COVID-19 negative (e.g. pneumonia  sepsis)",
+  "Control",
+  NA
+)
 ```
 
 Create list of numeric values vectors
@@ -228,7 +221,8 @@ values_cat_list <- list(
   vals_cat_1,
   vals_cat_2,
   vals_cat_3,
-  vals_cat_4
+  vals_cat_4,
+  vals_cat_5
 )
 ```
 
@@ -238,7 +232,8 @@ names(values_cat_list) <- c(
   "primary_site_code",
   "primary_site_name",
   "recruitment_site_code",
-  "recruitment_site_name"
+  "recruitment_site_name",
+  "case_control_vaccine"
 )
 ```
 
@@ -320,6 +315,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovecovidcns, "/data/assessment_status/COVID_CNS_neuroimaging_metadata_clean.rds")
+    file = paste0(ilovecovidcns, "/data/assessment_status/COVID_CNS_combined_website_data_clean.rds")
     )
 ```
