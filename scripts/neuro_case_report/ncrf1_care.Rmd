@@ -1,6 +1,6 @@
 ---
-title: "ncrf supportive"
-author: "Chelsea Mika Malouf"
+title: "COVIDCNS NCRF1 Supportive Care Cleaning Script"
+author: "Chelsea Mika Malouf, Zain Ahmad"
 date: "18/02/2022"
 output: html_document
 ---
@@ -50,8 +50,7 @@ source(file = "scripts/credentials/paths.R")
 ## Read in covid cns data
 ```{r Covid cns load data} 
 ncrf_dat <- read_rds(
-  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/covid_cns/neuro_case_report/ncrf_supportive_covid_cns.rds")
-  )
+  file = paste0(ilovecovidcns, "/data_raw/2022-05-09/neuro_case_report/ncrf1_care_covid_cns.rds"))
   
 # Check variable names in dataframe
 ncrf_dat %>%
@@ -68,11 +67,11 @@ exclude_cols_numeric <- c(
   "sample",
   "startDate",
   "endDate",
-  "ncrf_supportive.icu_or_high_dependency_unit_admission.txt",
-  "ncrf_supportive.o2_flow.txt",
-  "ncrf_supportive.overall_duration_of_invasive_ventilation.txt",
-  "ncrf_supportive.modified_rankin_score.txt",
-  "ncrf_supportive.any_other_issue_of_significance_to_note.txt"
+  "ncrf1_care.icu_or_high_dependency_unit_admission.txt",
+  "ncrf1_care.o2_flow.txt",
+  "ncrf1_care.overall_duration_of_invasive_ventilation.txt",
+  "ncrf1_care.modified_rankin_score.txt",
+  "ncrf1_care.any_other_issue_of_significance_to_note.txt"
   )
 ```
 
@@ -87,20 +86,20 @@ ncrf_dat_id <- ncrf_dat %>% #new dataset with ID
          sample,
          startDate,
          endDate,
-         ncrf_supportive.icu_or_high_dependency_unit_admission,
-         ncrf_supportive.icu_or_high_dependency_unit_admission.txt,
-         ncrf_supportive.oxygen_therapy,
-         ncrf_supportive.o2_flow,
-         ncrf_supportive.o2_flow.txt,
-         ncrf_supportive.fio2_interface,
-         ncrf_supportive.overall_duration_of_invasive_ventilation.txt,
-         ncrf_supportive.noninvasive_ventilation,
-         ncrf_supportive.emco,
-         ncrf_supportive.prone_position,
-         ncrf_supportive.vasopressors,
-         ncrf_supportive.renal_support,
-         ncrf_supportive.modified_rankin_score.txt,
-         ncrf_supportive.any_other_issue_of_significance_to_note.txt
+         ncrf1_care.icu_or_high_dependency_unit_admission,
+         ncrf1_care.icu_or_high_dependency_unit_admission.txt,
+         ncrf1_care.oxygen_therapy,
+         ncrf1_care.o2_flow,
+         ncrf1_care.o2_flow.txt,
+         ncrf1_care.fio2_interface,
+         ncrf1_care.overall_duration_of_invasive_ventilation.txt,
+         ncrf1_care.noninvasive_ventilation,
+         ncrf1_care.ecmo,
+         ncrf1_care.prone_position,
+         ncrf1_care.vasopressors,
+         ncrf1_care.renal_support,
+         ncrf1_care.modified_rankin_score.txt,
+         ncrf1_care.any_other_issue_of_significance_to_note.txt
          ) %>%
   add_numeric(exclude = exclude_cols_numeric)
 
@@ -150,7 +149,7 @@ miss_map
 ```{r vector categorical variables ICU or high dependency unit admission}
 variables_categorical_icu_or_high_dependency_unit_admission <-
   c(
-    "ncrf_supportive.icu_or_high_dependency_unit_admission"
+    "ncrf1_care.icu_or_high_dependency_unit_admission"
     )
 variables_categorical_icu_or_high_dependency_unit_admission
 ```
@@ -179,8 +178,8 @@ imp_check(data = dat,
 ```{r recode ICU or high dependency unit admission}
 dat <- dat %>%  
   mutate(
-    ncrf_supportive.icu_or_high_dependency_unit_admission =
-           fct_recode(ncrf_supportive.icu_or_high_dependency_unit_admission,
+    ncrf1_care.icu_or_high_dependency_unit_admission =
+           fct_recode(ncrf1_care.icu_or_high_dependency_unit_admission,
     "Yes" = "Yes (provide date)"
   )
     )
@@ -197,12 +196,12 @@ imp_check(data = dat,
 ```{r vector categorical variables 0_1}
 variables_categorical_0_1 <-
   c(
-    "ncrf_supportive.oxygen_therapy",
-    "ncrf_supportive.noninvasive_ventilation",
-    "ncrf_supportive.emco",
-    "ncrf_supportive.prone_position",
-    "ncrf_supportive.vasopressors",
-    "ncrf_supportive.renal_support"
+    "ncrf1_care.oxygen_therapy",
+    "ncrf1_care.noninvasive_ventilation",
+    "ncrf1_care.ecmo",
+    "ncrf1_care.prone_position",
+    "ncrf1_care.vasopressors",
+    "ncrf1_care.renal_support"
     )
 variables_categorical_0_1
 ```
@@ -230,7 +229,7 @@ imp_check(data = dat,
 ```{r vector categorical variables O2 flow}
 variables_categorical_O2_flow <-
   c(
-    "ncrf_supportive.o2_flow"
+    "ncrf1_care.o2_flow"
     )
 variables_categorical_O2_flow
 ```
@@ -260,7 +259,7 @@ imp_check(data = dat,
 ```{r vector categorical variables FiO2 Interface}
 variables_categorical_FiO2_interface <-
   c(
-    "ncrf_supportive.fio2_interface"
+    "ncrf1_care.fio2_interface"
     )
 variables_categorical_FiO2_interface
 ```
@@ -292,13 +291,13 @@ imp_check(data = dat,
 ```{r vector numeric variables 0_1}
 variables_numeric_0_1 <-
   c(
-    "ncrf_supportive.icu_or_high_dependency_unit_admission_numeric",
-    "ncrf_supportive.oxygen_therapy_numeric",
-    "ncrf_supportive.noninvasive_ventilation_numeric",
-    "ncrf_supportive.emco_numeric",
-    "ncrf_supportive.prone_position_numeric",
-    "ncrf_supportive.vasopressors_numeric",
-    "ncrf_supportive.renal_support_numeric"
+    "ncrf1_care.icu_or_high_dependency_unit_admission_numeric",
+    "ncrf1_care.oxygen_therapy_numeric",
+    "ncrf1_care.noninvasive_ventilation_numeric",
+    "ncrf1_care.ecmo_numeric",
+    "ncrf1_care.prone_position_numeric",
+    "ncrf1_care.vasopressors_numeric",
+    "ncrf1_care.renal_support_numeric"
     )
 variables_numeric_0_1
 ```
@@ -326,7 +325,7 @@ imp_check(data = dat,
 ```{r vector numeric variables o2_flow}
 variables_numeric_o2_flow <-
   c(
-    "ncrf_supportive.o2_flow_numeric"
+    "ncrf1_care.o2_flow_numeric"
     )
 variables_numeric_o2_flow
 ```
@@ -355,7 +354,7 @@ imp_check(data = dat,
 ```{r vector numeric variables fio2_interface}
 variables_numeric_fio2_interface <-
   c(
-    "ncrf_supportive.fio2_interface_numeric"
+    "ncrf1_care.fio2_interface_numeric"
     )
 variables_numeric_fio2_interface
 ```
@@ -393,24 +392,24 @@ export_variables <- c(
          "sample",
          "startDate",
          "endDate",
-         "ncrf_supportive.icu_or_high_dependency_unit_admission",
-         "ncrf_supportive.icu_or_high_dependency_unit_admission_numeric",
-         "ncrf_supportive.oxygen_therapy",
-         "ncrf_supportive.oxygen_therapy_numeric",
-         "ncrf_supportive.o2_flow",
-         "ncrf_supportive.o2_flow_numeric",
-         "ncrf_supportive.fio2_interface",
-         "ncrf_supportive.fio2_interface_numeric",
-         "ncrf_supportive.noninvasive_ventilation",
-         "ncrf_supportive.noninvasive_ventilation_numeric",
-         "ncrf_supportive.emco",
-         "ncrf_supportive.emco_numeric",
-         "ncrf_supportive.prone_position",
-         "ncrf_supportive.prone_position_numeric",
-         "ncrf_supportive.vasopressors",
-         "ncrf_supportive.vasopressors_numeric",
-         "ncrf_supportive.renal_support",
-         "ncrf_supportive.renal_support_numeric"
+         "ncrf1_care.icu_or_high_dependency_unit_admission",
+         "ncrf1_care.icu_or_high_dependency_unit_admission_numeric",
+         "ncrf1_care.oxygen_therapy",
+         "ncrf1_care.oxygen_therapy_numeric",
+         "ncrf1_care.o2_flow",
+         "ncrf1_care.o2_flow_numeric",
+         "ncrf1_care.fio2_interface",
+         "ncrf1_care.fio2_interface_numeric",
+         "ncrf1_care.noninvasive_ventilation",
+         "ncrf1_care.noninvasive_ventilation_numeric",
+         "ncrf1_care.ecmo",
+         "ncrf1_care.ecmo_numeric",
+         "ncrf1_care.prone_position",
+         "ncrf1_care.prone_position_numeric",
+         "ncrf1_care.vasopressors",
+         "ncrf1_care.vasopressors_numeric",
+         "ncrf1_care.renal_support",
+         "ncrf1_care.renal_support_numeric"
          )
 ```
 
@@ -418,5 +417,5 @@ export_variables <- c(
 dat %>% 
   select(all_of(export_variables)) %>% 
   saveRDS(file = 
-            paste0(ilovecovidcns, "/data/latest_freeze/covidcns/ncrf_supportive_covidcns_clean.rds"))
+            paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_care_covidcns_clean.rds"))
 ```

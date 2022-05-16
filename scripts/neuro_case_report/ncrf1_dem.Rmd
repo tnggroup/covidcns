@@ -1,5 +1,5 @@
 ---
-title: "COVIDCNS NCRF Demographics Cleaning Script"
+title: "COVIDCNS NCRF1 Demographics Cleaning Script"
 author: "Zain Ahmad"
 date: "15/05/2022"
 output: html_document
@@ -481,17 +481,64 @@ dat %>%
 Create vector of text variables
 ```{r Vector text vars}
 variables_text <- c(
-  "questionnaire.variable_name"
+  "ncrf1_dem.country_of_birth.txt",
+  "ncrf1_dem.ethnicity.txt"
 )
 ```
 
 View text variables
-```{r Check text vars}
+```{r View text vars}
 dat %>%
   select(all_of(variables_text)) %>%
   tbl_summary()
 ```
 
+Recode country of birth
+```{r COVIDCNS recode country of birth variable}
+dat <- dat %>% 
+  mutate(across(ncrf1_dem.country_of_birth.txt,
+                ~case_when(
+                  str_detect(ncrf1_dem.country_of_birth.txt, "rit") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "nite") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "ngla") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "ale") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "relan") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "uk") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "UK")
+                    ~ "United Kingdom",
+                  
+                  str_detect(ncrf1_dem.country_of_birth.txt, "Not") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "not") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "nk") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "NK") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "arribea") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "urdista") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "ndicat")
+                    ~ "Not Known",
+                  
+                  str_detect(ncrf1_dem.country_of_birth.txt, "iberi")
+                  ~ "Liberia",
+                  
+                  str_detect(ncrf1_dem.country_of_birth.txt, "igeri")
+                  ~ "Nigeria",
+                  
+                  str_detect(ncrf1_dem.country_of_birth.txt, "akista")
+                  ~ "Pakistan",
+                  
+                  str_detect(ncrf1_dem.country_of_birth.txt, "-77")
+                  ~ "Seen but not answered",
+                  
+                  TRUE ~ .)))
+
+dat$ncrf1_dem.country_of_birth.txt <- set_label(dat$ncrf1_dem.country_of_birth.txt, "Country of birth:")
+```
+
+Recheck text variables
+```{r Recheck text vars}
+dat %>%
+  select(all_of(variables_text)) %>%
+  tbl_summary()
+```
 
 # Save cleaned data
 
@@ -504,6 +551,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovecovidcns, "/data/latest_freeze/covidcns/location/questionnaire_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_dem_covidcns_clean.rds")
     )
 ```

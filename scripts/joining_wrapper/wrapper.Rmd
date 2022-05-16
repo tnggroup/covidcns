@@ -57,14 +57,9 @@ source(file = "scripts/credentials/paths.R")
 
 # assessment_status
 
-## casecontrol_status
-```{r casecontrol_status Cleaning the individual questionnaires}
-source(knitr::purl("scripts/assessment_status/casecontrol_status.Rmd"))
-```
-
-## neuroimaging_metadata
-```{r neuroimaging_metadata Cleaning the individual questionnaires}
-source(knitr::purl("scripts/assessment_status/neuroimaging_metadata.Rmd"))
+## combined_website_data
+```{r combined_website_data Cleaning the individual questionnaires}
+source(knitr::purl("scripts/assessment_status/combined_website_data.Rmd"))
 ```
 
 # baseline
@@ -243,19 +238,14 @@ source(knitr::purl("scripts/moca/MoCA_outpatient.Rmd"))
 
 # neuro_case_report
 
-## clinical_frailty
-```{r clinical_frailty Cleaning the individual questionnaires, eval=FALSE, include=FALSE}
-source(knitr::purl("scripts/neuro_case_report/clinical_frailty.Rmd"))
-```
-
-## ncrf_supportive
-```{r ncrf_supportive Cleaning the individual questionnaires, eval=FALSE, include=FALSE}
-source(knitr::purl("scripts/neuro_case_report/ncrf_supportive.Rmd"))
-```
-
 ## ncrf1_admission
 ```{r ncrf1_admission Cleaning the individual questionnaires}
 source(knitr::purl("scripts/neuro_case_report/ncrf1_admission.Rmd"))
+```
+
+## ncrf1_care
+```{r ncrf1_care Cleaning the individual questionnaires}
+source(knitr::purl("scripts/neuro_case_report/ncrf1_care.Rmd"))
 ```
 
 ## ncrf1_cic
@@ -269,7 +259,7 @@ source(knitr::purl("scripts/neuro_case_report/ncrf1_comorbid.Rmd"))
 ```
 
 ## ncrf1_labresults
-```{r ncrf1_labresults Cleaning the individual questionnaires}
+```{r ncrf1_labresults Cleaning the individual questionnaires, eval=FALSE, include=FALSE}
 source(knitr::purl("scripts/neuro_case_report/ncrf1_labresults.Rmd"))
 ```
 
@@ -284,7 +274,7 @@ source(knitr::purl("scripts/neuro_case_report/ncrf1_vital.Rmd"))
 ```
 
 ## ncrf2_labresults
-```{r ncrf2_labresults Cleaning the individual questionnaires}
+```{r ncrf2_labresults Cleaning the individual questionnaires, eval=FALSE, include=FALSE}
 source(knitr::purl("scripts/neuro_case_report/ncrf2_labresults.Rmd"))
 ```
 
@@ -308,3 +298,7 @@ source(knitr::purl("scripts/neuro_case_report/ncrf3_compli.Rmd"))
 source(knitr::purl("scripts/neuro_case_report/ncrf3_diag.Rmd"))
 ```
 
+# Delete all .R files created
+```{bash Delete .R files}
+rm *.R
+```
