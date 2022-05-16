@@ -65,7 +65,7 @@ cognitron_final <- filter(cognitron_final, str_detect(user_id, "CNS"))
 # Clean demographics data (I need to keep age, education, language, sex, handed )
 cols_to_keep = c("ID", "dem.dob_age", "dem.what_gender_do_you_identify_with",
                  "dem.is_english_your_first_language", "dem.highest_education")
-covid_matching <- covid_matching %>% select(cols_to_keep)
+covid_matching <- covid_matching %>% select(all_of(cols_to_keep))
 new_colnames = c('user_id', 'age', 'sex',  'language', 'education')
 colnames(covid_matching) <- new_colnames
 
@@ -170,7 +170,7 @@ scores_df_final$sex[(scores_df_final$sex != "Male" &
                        scores_df_final$sex != "Female")] <- "Other"
 
 # Remove rows with nan (run the analysis on complete dataset)
-# You should be able to run the analaysis with incomplete data (best if max 1 or 2
+# You should be able to run the analysis with incomplete data (best if max 1 or 2
 # missing tasks) as long as you have all the demographics variables
 scores_df_final = na.omit(scores_df_final)
 
@@ -425,7 +425,7 @@ write.csv(scores_df_final, paste0(ilovecovidcns, "/data/cognitron/scores/cognitr
 
 
 #saveRDS(control_task_scaling, file = "submit/control_subjects_mean_sd.rds")
-control_task_scaling = readRDS(paste0(ilovecovidcns, "/data_raw/cognitron/CNS_COVID_FINAL/data/control_subjects_mean_sd.rds"))
+control_task_scaling = readRDS(paste0(ilovecovidcns, "/data_raw/cognitron/models/control_subjects_mean_sd.rds"))
 
 
 # # Standardise scores of healthy using the mean and sd of control
@@ -444,7 +444,7 @@ patient_data <- select(scores_df_final, -c('age1', 'age2', 'decade', 'sex','lang
 # Reorder the columns of the patients according to the order of the controls dataframe
 # cols_fanmat = colnames(fanmat)
 # saveRDS(cols_fanmat, "submit/cols_fanmat.rds")
-cols_fanmat = readRDS(paste0(ilovecovidcns, "/data_raw/cognitron/CNS_COVID_FINAL/data/control_subjects_mean_sd_composite.rds"))
+cols_fanmat = readRDS(paste0(ilovecovidcns, "/data_raw/cognitron/models/cols_fanmat.rds"))
 
 patient_data <- patient_data %>% select(all_of(cols_fanmat))
 patient_data <- map_dfc(patient_data, as.numeric)
@@ -495,7 +495,7 @@ composite_global_patients = rowMeans(patient_data_scaled_global)
 # )
 #
 # saveRDS(control_scaling_composite, file = "submit/control_subjects_mean_sd_composite.rds")
-control_scaling_composite = readRDS(paste0(ilovecovidcns, "/data_raw/cognitron/CNS_COVID_FINAL/data/control_subjects_mean_sd_composite.rds"))
+control_scaling_composite = readRDS(paste0(ilovecovidcns, "/data_raw/cognitron/models/control_subjects_mean_sd_composite.rds"))
 
 # Normalise the composites of healthy and patients with the mean and sd of control
 # composites
@@ -548,7 +548,7 @@ names(scores_composites_patients) = c("Composite_global", "Composite_rt", "Compo
 #
 #
 # save(pca_output, file = "submit/composite_models.rds")
-load(paste0(ilovecovidcns, "/data_raw/cognitron/CNS_COVID_FINAL/data/composite_models.rds"))
+load(paste0(ilovecovidcns, "/data_raw/cognitron/models/composite_models.rds"))
 
 # Test the model obtained by training on the control dataset
 
@@ -578,6 +578,7 @@ print_serial_ttest_results(dev_from_exp_t_test)
 deviation_from_expected_with_users = cbind(deviation_from_expected, scores_df_final$user_id)
 #write.csv(deviation_from_expected_with_users, "DfE_composite_scores.csv")
 write.csv(deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores.csv"))
+saveRDS(deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores.rds"))
 
 # STEP 6: MODELS TASK SCORES  ----------
 ### Train-test approach: where we predict task scores based on LMs
@@ -601,7 +602,7 @@ write.csv(deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cogni
 #
 # names(final_output) <- names(fanmat)
 # save(final_output, file = "submit/task_score_models.rds")
-load(paste0(ilovecovidcns, "/data_raw/cognitron/CNS_COVID_FINAL/data/task_score_models.rds"))
+load(paste0(ilovecovidcns, "/data_raw/cognitron/models/task_score_models.rds"))
 
 # PREDICTIONS using the model
 test_set  <- X_patients
@@ -625,6 +626,7 @@ print_serial_ttest_results(st_dev_from_exp_t_test)
 # Add user id
 st_deviation_from_expected_with_users = cbind(st_deviation_from_expected, scores_df_final$user_id)
 write.csv(st_deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores.csv"))
+saveRDS(st_deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores.rds"))
 
 # # STEP 7: Plots of subjects which deviate from expectation ----------
 
@@ -727,15 +729,14 @@ annot_colors <- list(
                          nm = uniq_edu)
 )
 
-dev.off()
 {
   png(filename = paste0(ilovecovidcns, "/data/cognitron/plots/difference_from_predicted_heatmap.png"),
       width = 14, height = 10, units = "in", res = 300)
   out <- pheatmap::pheatmap(
     (st_diff) * 1,
     main = "Difference between predicted and observed scores for GBIT tasks",
-    cluster_rows = TRUE,
-    cluster_cols = TRUE,
+    cluster_rows = FALSE,
+    cluster_cols = FALSE,
     color = st_diff_pal,
     breaks = st_diff_breaks,
     annotation_colors = annot_colors,
@@ -744,8 +745,8 @@ dev.off()
   dev.off()
 }
 
-plot(out$tree_col)
-plot(out$tree_row)
+#plot(out$tree_col)
+#plot(out$tree_row)
 
 # 7.3 Barplot --------------
 
@@ -887,8 +888,8 @@ DfE_plots = function(dev_exp, plot_fname) {
          width = 10, height = 10, dpi = 1000)
 }
 
-DfE_plots(deviation_from_expected, plot_fname = paste0(ilovecovidcns, "/data/cognitron/plots/difference_from_predicted_heatmap.png"))
-DfE_plots(st_deviation_from_expected, plot_fname = paste0(ilovecovidcns, "/data/cognitron/plots/difference_from_predicted_heatmap.png"))
+DfE_plots(deviation_from_expected, plot_fname = paste0(ilovecovidcns, "/data/cognitron/plots/composite_mean_difference_from_expected.png"))
+DfE_plots(st_deviation_from_expected, plot_fname = paste0(ilovecovidcns, "/data/cognitron/plots/task_mean_difference_from_expected.png"))
 
 # 7.7 DfE plot grouped by age  --------------
 
@@ -918,7 +919,7 @@ p_diff_from_exp_facet_age <- ggplot(per_age_task_summary,
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 1))
 
 ggsave(
-  filename = paste0(ilovecovidcns, "/data/cognitron/plots/difference_from_predicted_heatmap.png"),
+  filename = paste0(ilovecovidcns, "/data/cognitron/plots/p_diff_from_exp_facet_age.png"),
   p_diff_from_exp_facet_age,
   width = 15, height = 10
 )
