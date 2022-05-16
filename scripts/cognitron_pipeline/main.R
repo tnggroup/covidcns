@@ -12,16 +12,16 @@ library(ggplot2)
 library(glue)
 summarise <- dplyr::summarise
 options(max.print = 150)
-source(file = "./scripts/credentials/paths.R")
-source("utils.R")
+source(file = "scripts/credentials/paths.R")
+source("scripts/cognitron_pipeline/utils.R")
 
 
 #  STEP 1: Cleaning of COVID CSN Data ---------------------------------------------------------------------
 
 # Import data
 covid_matching <- readRDS(paste0(ilovecovidcns, "/data/joined/covidcns_matching.rds"))
-data_cognitron_raw <- read.table(file = paste0(ilovecovidcns, "/data_raw/cognitron/covidcns.cognitron.co.uk_1_2022-04-06.tsv"), sep = '\t', header = FALSE)
-headers <- read_excel(paste0(ilovecovidcns, "/data_raw/cognitron/Cognitron_headers.xlsx"))
+data_cognitron_raw <- read.table(file = paste0(ilovecovidcns, "/data_raw/cognitron/raw_cognitron/covidcns.cognitron.co.uk_1_2022-04-06.tsv"), sep = '\t', header = FALSE)
+headers <- read_excel(paste0(ilovecovidcns, "/data_raw/cognitron/headers/Cognitron_headers.xlsx"))
 
 # Remove not useful columns
 data_cognitron_raw <- data_cognitron_raw[, -c(1, 10)] # delete columns 5 through 7
