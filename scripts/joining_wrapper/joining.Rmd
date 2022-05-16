@@ -1718,20 +1718,27 @@ data_joined %>%
   colnames()
 ```
 
+Change Incorrect IDs from Qualtrics
 ```{r change incorrect ids}
+# Read in excel sheet of IDs to change as data frame
 swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/data_raw/ids/Swapped IDs.xlsx"),
                                  sheet = "Sheet1")
 
+# Set sensical column names
 colnames(swapped_ids) <- c("correct_ID", "incorrect_ID")
 
+# Initial empty vector of rows to change IDs for in data_joined
 swapping_rows <- c()
 
+# Create vector of rows corresponding to IDs that need changing
 for (i in swapped_ids$incorrect_ID) {
   swapping_rows <- append(x = swapping_rows, values = which(data_joined$ID == i))
 }
 
+# Add row numbers to swapped_ids data frame
 swapped_ids <- cbind(swapped_ids, swapping_rows)
 
+# Swap IDs in data_joined by row number
 for (i in 1:length(swapped_ids)) {
   data_joined[swapped_ids[i,3], 1] <- swapped_ids[i,1]
 }
@@ -1743,7 +1750,7 @@ Select columns for data extraction
 ```{r matching Select columns}
 data_export_matching <- data_joined %>%
   select(
-      "user_id" = "ID",
+      "ID",
       
       # Age
       "dem.dob_age",
