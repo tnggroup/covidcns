@@ -11,7 +11,7 @@ fit_model <- function(data){
   # Wrapper function to return a lightweight model object
   # and various convenient outputs
   # `data` is assumed to have a column names "y" which is the target variable
-  
+
   model <- lm(y ~ 1 + ., data = data)
   model_summary <- summary(model)
   anova_obj <- anova(model)
@@ -31,7 +31,7 @@ trim_model <- function(cm) {
   # much smaller in terms of disk size
   cm$y = c()
   cm$model = c()
-  
+
   cm$residuals = c()
   cm$fitted.values = c()
   cm$effects = c()
@@ -54,29 +54,29 @@ factor_analysis <- function(datamat, scale, center,
       stop(paste("`datamat` should be matrix/dataframe, not", class(datamat)))
   else
     datamat <- as.matrix(datamat)
-  
+
   ## 1. Remove outliers > 8 stdev
   z_scores <- scale(datamat, center = center, scale = scale)
   is_outlier <- abs(z_scores) > 100000
   datamat[is_outlier] <- NA
-  
+
   ## 2. Remove incomplete observations
   rows_to_rm <- rowSums(is.na(datamat)) > 0
   datamat <- datamat[!rows_to_rm, ]
   used_observations <- nrow(datamat)
-  
+
   ## 3. Winsorize outliers?
   if (windsor_sigma != 0)
     datamat <- windsorise(datamat, windsor_sigma)
-  
+
   ## 4. Rank inverse transform?
   if (rank_inv_trans)
     datamat <- rank_inv_transform(datamat)
-  
+
   ## 5. Scree
   corr_mat <- cor(datamat)
   scree <- eigen(corr_mat)$values
-  
+
   ## 6. Number of components
   n_comps <- sum(scree >= 1)
   if (!is.null(dcomp) && is.vector(dcomp) && is.numeric(dcomp)) {
@@ -93,18 +93,18 @@ factor_analysis <- function(datamat, scale, center,
   # Transform back to original index
   scores <- matrix(nrow = length(rows_to_rm), ncol = ncol(tmp_scores))
   scores[!rows_to_rm, ] <- tmp_scores
-  
+
   # NOTE 1:
   # MATLAB factoranal() returns a struct called "stats" that has 2-4 fields:
   # usually loglike, dfe, chisq, p. R's output returns all of them except
   # for loglike
-  
+
   # NOTE 2:
   # loadings(fa) returns an object of class `loadings`, which is a matrix
   # with special printing methods. Other than that it's just a matrix
   # but if it causes trouble in the future, un-comment the following line
   # loadings_mat <- matrix(as.numeric(loadings(fa)), nrow = nrow(loadings(fa)))
-  
+
   return(list(
     "n_comps" = n_comps,
     "used_obs" = used_observations,
@@ -147,7 +147,7 @@ rank_inv_transform <- function(data){
   # to a vector/ matrix.
   if (is.vector(data))
     data <- as.matrix(data)
-  
+
   inv_data <- matrix(nrow = nrow(data), ncol = ncol(data))
   for (j in 1:ncol(data)){
     col_ranks <- rank(data[, j], ties.method = "average")
