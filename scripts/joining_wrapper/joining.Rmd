@@ -81,60 +81,31 @@ exclude_variables <-
 
 ## Assessment status
 
-### COVID_CNS_casecontrol_clean
+### COVID_CNS_combined_website_data_clean
 Read in & variable names
-```{r COVID_CNS_casecontrol_clean Read in data & variable names}
-COVID_CNS_casecontrol_clean <-
+```{r COVID_CNS_combined_website_data_clean Read in data & variable names}
+COVID_CNS_combined_website_data_clean <-
   read_rds(
     file = 
-      paste0(ilovecovidcns, "/data/assessment_status/COVID_CNS_casecontrol_clean.rds")
+      paste0(ilovecovidcns, "/data/assessment_status/COVID_CNS_combined_website_data_clean.rds")
   )
 
-COVID_CNS_casecontrol_clean %>%
+COVID_CNS_combined_website_data_clean %>%
   dim()
 ```
 
 Dimensions
-```{r COVID_CNS_casecontrol_clean Dimensions}
-COVID_CNS_casecontrol_clean %>%
+```{r COVID_CNS_combined_website_data_clean Dimensions}
+COVID_CNS_combined_website_data_clean %>%
   colnames()
 ```
 
 Select columns for joining
-```{r COVID_CNS_casecontrol_clean Select columns for joining}
-COVID_CNS_casecontrol_clean_selected <-
-  COVID_CNS_casecontrol_clean
+```{r COVID_CNS_combined_website_data_clean Select columns for joining}
+COVID_CNS_combined_website_data_clean_selected <-
+  COVID_CNS_combined_website_data_clean
 
-COVID_CNS_casecontrol_clean_selected %>%
-  slice(1:5)
-```
-
-
-### COVID_CNS_neuroimaging_metadata_clean
-Read in & variable names
-```{r COVID_CNS_neuroimaging_metadata_clean Read in data & variable names}
-COVID_CNS_neuroimaging_metadata_clean <-
-  read_rds(
-    file = 
-      paste0(ilovecovidcns, "/data/assessment_status/COVID_CNS_neuroimaging_metadata_clean.rds")
-  )
-
-COVID_CNS_neuroimaging_metadata_clean %>%
-  dim()
-```
-
-Dimensions
-```{r COVID_CNS_neuroimaging_metadata_clean Dimensions}
-COVID_CNS_neuroimaging_metadata_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r COVID_CNS_neuroimaging_metadata_clean Select columns for joining}
-COVID_CNS_neuroimaging_metadata_clean_selected <-
-  COVID_CNS_neuroimaging_metadata_clean
-
-COVID_CNS_neuroimaging_metadata_clean_selected %>%
+COVID_CNS_combined_website_data_clean_selected %>%
   slice(1:5)
 ```
 
@@ -1306,6 +1277,40 @@ ncrf1_comorbid_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
+
+### ncrf1_dem_covidcns_clean
+Read in & variable names
+```{r ncrf1_dem_covidcns_clean Read in data & variable names}
+ncrf1_dem_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_dem_covidcns_clean.rds")
+  )
+
+ncrf1_dem_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ncrf1_dem_covidcns_clean Dimensions}
+ncrf1_dem_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ncrf1_dem_covidcns_clean Select columns for joining}
+ncrf1_dem_covidcns_clean_selected <-
+  ncrf1_dem_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+ncrf1_dem_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+
 ### ncrf1_lab_covidcns_clean
 Read in & variable names
 ```{r ncrf1_lab_covidcns_clean Read in data & variable names}
@@ -1572,7 +1577,7 @@ Read in & variable names
 ```{r cognitron Read in data & variable names}
 cognitron <-
   readRDS(
-    paste0(ilovecovidcns, "/data/cognitron/scores/cognitron_scores.rds")
+    paste0(ilovecovidcns, "/data/cognitron/scores/cognitron_scores_and_demographics.rds")
   )
 
 cognitron %>%
@@ -1597,12 +1602,10 @@ cognitron_selected %>%
 ```
 
 
-## List of tibbles to join
+## List of tibbles to join, not including website data
 ```{r List of tibbles to join}
 tibble_list <- 
   list(
-    COVID_CNS_casecontrol_clean_selected,
-    COVID_CNS_neuroimaging_metadata_clean_selected,
     age_covidcns_clean_selected,
     als_covidcns_clean_selected,
     cage_covidcns_clean_selected,
@@ -1644,6 +1647,7 @@ tibble_list <-
     ncrf1_care_covidcns_clean_selected,
     ncrf1_cic_covidcns_clean_selected,
     ncrf1_comorbid_covidcns_clean_selected,
+    ncrf1_dem_covidcns_clean_selected,
     ncrf1_lab_covidcns_clean_selected,
     ncrf1_pre_med_covidcns_clean_selected,
     ncrf1_vital_covidcns_clean_selected,
@@ -1659,7 +1663,7 @@ tibble_list <-
     )
 ```
 
-Joining of demographics and questionnaires
+Joining of demographics and questionnaires, not including website data
 ```{r Joining of demographics and questionnaires}
 data_joined <- 
   plyr::join_all(
@@ -1669,93 +1673,11 @@ data_joined <-
     )
 ```
 
-```{r}
-test_for_age <- data_joined %>%
-  select(
-      "ID",
-      
-      # Age
-      "dem.dob_age",
-      "dem.how_old_are_you_now.txt",
-      
-      # Gender
-      "dem.what_gender_do_you_identify_with",
-      "dem.what_gender_do_you_identify_with_numeric",
-      
-      # Language
-      "dem.is_english_your_first_language",
-      "dem.what_is_your_first_language.txt",
-      "dem.what_is_your_first_language_numeric",
-      "dem.is_english_your_first_language_numeric",
-      
-      # Education
-      "dem.highest_education",
-      "dem.highest_education_numeric",
-      
-      # impact
-      "impact.fulltime_employed",
-      "impact.unemployed",
-      "impact.stayathome_parent_or_carer",
-      "impact.contract_or_freelance_work",
-      "impact.receiving_state_income",
-      "impact.student_",
-      "impact.prefer_not_to_say",
-      "impact.parttime_employed",
-      "impact.zerohours_contract",
-      "impact.selfemployed",
-      "impact.small_buisness_owner",
-      "impact.retired",
-      "impact.student_.1"
-      ) %>%
-  filter(is.na(dem.dob_age))
-```
-
-```{r}
-sum(!is.na(test_for_age[,2:24]))
-```
-```{r}
-test_for_age[!is.na(test_for_age)]
-```
-
-
-```{r}
-missing_ages <- unlist(test_for_age$ID)
-missing_ages
-```
-
-```{r}
-saveRDS(object = missing_ages,
-        file = "scripts/missing_age_ids.rds")
-```
-
-```{r}
-sum(rowSums(is.na(data_joined[,4:1374]))>=1300)
-```
-
-```{r}
-na_counts <- colSums(is.na(data_joined))
-na_percs <- (na_counts/nrow(data_joined))*100
-na_check_tibble <- rbind(na_counts, na_percs)
-rownames(na_check_tibble) <- c("NA count", "NA percentage")
-na_check_tibble <- as_tibble(na_check_tibble)
-median(na_percs)
-```
-
-
-```{r}
-Amelia::missmap(data_joined)
-```
-
-
-```{r}
-View(data_joined %>% filter(ID %in% missing_ages))
-```
-
 
 
 
 Check for duplicated participants
-```{r}
+```{r eval=FALSE, include=FALSE}
 data_joined %>%
   mutate(
     ID_duplicated = duplicated(ID)
@@ -1781,7 +1703,7 @@ data_joined %>%
 ```
 
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 duplicated_cols <- data_frame(
     Variable = colnames(data_joined),
     Duplicate = data_joined %>% colnames() %>% duplicated()
@@ -1791,57 +1713,13 @@ duplicated_cols %>%
   filter(Duplicate == TRUE)
 ```
 
-
-```{r eval=FALSE, include=FALSE}
-data_joined %>%
-  tbl_summary()
-```
-
-
-
 ```{r eval=FALSE, include=FALSE}
 data_joined %>% 
   colnames()
 ```
 
 ```{r change incorrect ids}
-swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/Swapped IDs.xlsx"),
-                                 sheet = "Sheet1")
-
-colnames(swapped_ids) <- c("correct_ID", "incorrect_ID")
-
-test_df <- data_joined[,1:2]
-
-swapping_rows <- c()
-
-for (i in swapped_ids$incorrect_ID) {
-  swapping_rows <- append(x = swapping_rows, values = which(data_joined$ID == i))
-}
-
-swapped_ids <- cbind(swapped_ids, swapping_rows)
-
-test_df.1 <- test_df
-
-for (i in 1:length(swapped_ids)) {
-  test_df.1[swapped_ids[i,3], 1] <- swapped_ids[i,1]
-}
-
-```
-
-```{r}
-subset(test_df, ID %in% swapped_ids$incorrect_ID)
-```
-
-```{r}
-test_df.1[unlist(swapped_ids$swapping_rows),]
-```
-
-```{r}
-swapped_ids
-```
-
-```{r change incorrect ids}
-swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/Swapped IDs.xlsx"),
+swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/data_raw/ids/Swapped IDs.xlsx"),
                                  sheet = "Sheet1")
 
 colnames(swapped_ids) <- c("correct_ID", "incorrect_ID")
@@ -1865,7 +1743,7 @@ Select columns for data extraction
 ```{r matching Select columns}
 data_export_matching <- data_joined %>%
   select(
-      "ID",
+      "user_id" = "ID",
       
       # Age
       "dem.dob_age",
