@@ -1746,6 +1746,36 @@ for (i in 1:length(swapped_ids)) {
 ```
 
 
+Coalesce age and sex demographic variables from baseline and ncrf dem
+```{r Coalesce age sex dem}
+data_joined <- data_joined %>%
+  mutate(
+    dem.dob_age = coalesce(
+      dem.dob_age,
+      ncrf1_dem.age),
+    
+    dem.what_gender_do_you_identify_with = coalesce(
+      dem.what_gender_do_you_identify_with,
+      ncrf1_dem.sex_at_birth),
+    
+    dem.what_gender_do_you_identify_with_numeric = coalesce(
+      dem.what_gender_do_you_identify_with_numeric,
+      ncrf1_dem.sex_at_birth_numeric)
+  )
+```
+
+
+Joining of website data
+```{r Joining of website data}
+data_joined <- 
+  plyr::join_all(
+    dfs =  list(COVID_CNS_combined_website_data_clean_selected, data_joined),
+    by = c("ID"),
+    type = "full"
+    )
+```
+
+
 Select columns for data extraction
 ```{r matching Select columns}
 data_export_matching <- data_joined %>%
