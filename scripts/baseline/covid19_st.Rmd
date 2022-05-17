@@ -1,7 +1,7 @@
 ---
-title: "COVIDCNS Insert Title Here"
-author: "Insert Your Full Name Here"
-date: "DD/MM/YYYY"
+title: "COVIDCNS COVID19 Symptoms and Treatment Cleaning Script"
+author: "Zain Ahmad"
+date: "17/05/2022"
 output: html_document
 ---
 
@@ -33,7 +33,7 @@ Clear global environment prior to initiation
 remove(list = ls())
 ```
 
-Add the add_numeric function - used to convert character variables into numeric variables
+Add the add_numeric_1 function - used to convert character variables into numeric variables
 Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
 Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
@@ -63,8 +63,7 @@ Ensure that your credentials directory is correctly located
 source(file = "scripts/credentials/paths.R")
 ```
 
-# Read in the data: Full Name of Questionnaire/Demographic
-Change this heading to the name of your questionnaire/demographic
+# Read in the data: COVID19: Symptoms and Treatment
 Load COVIDCNS data
 
 Do not change variable names from the NLP names that are produced by the extraction
@@ -81,7 +80,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/covidcns/data_file.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/covid19_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -101,7 +100,9 @@ exclude_cols_numeric <- c(
   "sample",
   "startDate",
   "endDate",
-  # other columns as required
+  "covid19.exact_date_symptoms_start.txt",
+  "covid19.latest_test_date_enter.txt",
+  "covid19.please_describe_your_other_symptoms.txt"
   )
 ```
 
@@ -117,7 +118,45 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          sample,
          startDate,
          endDate,
-         # other columns as necessary
+         covid19.exact_date_symptoms_start.txt,
+         covid19.tested_covid19,
+         covid19.what_test_did_you_have,
+         covid19.test_positive_covid19,
+         covid19.occasion_test_positive_coivd19,
+         covid19.latest_test_date_enter.txt,
+         covid19.recover_home_stay_time,
+         covid19.get_treatment_at_hospital_,
+         covid19.get_treatment_in_intensive_care_unit,
+         covid19.persistent_cough,
+         covid19.persistent_cough.1,
+         covid19.fever,
+         covid19.fever.1,
+         covid19.loss_of_tasteloss_of_smell,
+         covid19.loss_of_tasteloss_of_smell.1,
+         covid19.intermittent_cough,
+         covid19.intermittent_cough.1,
+         covid19.hoarseness,
+         covid19.hoarseness.1,
+         covid19.sore_throat,
+         covid19.sore_throat.1,
+         covid19.nasal_dischargecongestion,
+         covid19.nasal_dischargecongestion.1,
+         covid19.wheeze,
+         covid19.wheeze.1,
+         covid19.shortness_of_breath,
+         covid19.shortness_of_breath.1,
+         covid19.headache,
+         covid19.headache.1,
+         covid19.muscle_aches,
+         covid19.muscle_aches.1,
+         covid19.nausea,
+         covid19.nausea.1,
+         covid19.diarrhoea,
+         covid19.diarrhoea.1,
+         covid19.other,
+         covid19.other.1,
+         covid19.please_describe_your_other_symptoms.txt,
+         covid19.individual_symptoms_contact_positive
          ) %>%
   add_numeric_1(exclude = exclude_cols_numeric)
 
