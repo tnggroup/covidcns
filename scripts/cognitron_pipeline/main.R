@@ -169,6 +169,10 @@ scores_df_final$sex <- as.character(scores_df_final$sex)
 scores_df_final$sex[(scores_df_final$sex != "Male" &
                        scores_df_final$sex != "Female")] <- "Other"
 
+# Object of problematic IDs
+# scores_df_copy <- scores_df_final
+# cognitron_problem_ids <- sort(scores_df_copy[rowSums(is.na(scores_df_copy[,1:6]))>0 & rowSums(is.na(scores_df_copy[,7:20]))<3,]$user_id)
+
 # Remove rows with nan (run the analysis on complete dataset)
 # You should be able to run the analysis with incomplete data (best if max 1 or 2
 # missing tasks) as long as you have all the demographics variables
