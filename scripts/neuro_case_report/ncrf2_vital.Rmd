@@ -734,7 +734,7 @@ dat %>%
 
 Check unique values in date variables
 If the fields contain text at this point, use the chunk below to clean manually
-```{r Cont vars unique}
+```{r Date vars unique}
 dat %>%
   select(all_of(variables_date)) %>%
   sapply(., unique) %>%
@@ -748,7 +748,7 @@ Manually clean date variables to ensure parsing as dttm
 Use the output from the chunk above and clean the variable manually here until there are no 'rogue' values
 Case_when is type-specific so number must be specified as char and the variable mutated to numeric as below
 REMOVE THIS CHUNK IF NOT NECESSARY
-```{r Temperature manual clean}
+```{r Date manual clean}
 dat <- dat %>%
   mutate(across(ncrf2_vital.date.txt,
                 ~case_when(. == "01/06/20" ~ "01/06/2020",
@@ -802,7 +802,7 @@ names(my_dates) <- c()
 
 for(i in 1:length(my_dates)){
    print(i)
-   stopifnot(!is.na(dmy(my_dates[i])))
+   stopifnot(!is.na(lubridate::dmy(my_dates[i])))
 }
 ```
 

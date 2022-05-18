@@ -92,73 +92,16 @@ covidcns_dat %>%
   dim()
 ```
 
-Specify columns to be excluded from add_numeric function
-Continuous variables should be excluded, as they are already numeric
-```{r COVIDCNS specify excluded columns}
-exclude_cols_numeric <- c(
-  "ID",
-  "sample",
-  "startDate",
-  "endDate",
-  "covid19.exact_date_symptoms_start.txt",
-  "covid19.latest_test_date_enter.txt",
-  "covid19.please_describe_your_other_symptoms.txt"
-  )
-```
-
 Select & rename relevant columns
 ```{r COVIDCNS select}
 covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
   drop_na(externalDataReference) %>% # Drop participants with no ID
   remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
   add_column(sample = "COVIDCNS",
-             .after = "externalDataReference") %>% # Create new sample column
-  select(
-         ID = externalDataReference, # ID
-         sample,
-         startDate,
-         endDate,
-         covid19.exact_date_symptoms_start.txt,
-         covid19.tested_covid19,
-         covid19.what_test_did_you_have,
-         covid19.test_positive_covid19,
-         covid19.occasion_test_positive_coivd19,
-         covid19.latest_test_date_enter.txt,
-         covid19.recover_home_stay_time,
-         covid19.get_treatment_at_hospital_,
-         covid19.get_treatment_in_intensive_care_unit,
-         covid19.persistent_cough,
-         covid19.persistent_cough.1,
-         covid19.fever,
-         covid19.fever.1,
-         covid19.loss_of_tasteloss_of_smell,
-         covid19.loss_of_tasteloss_of_smell.1,
-         covid19.intermittent_cough,
-         covid19.intermittent_cough.1,
-         covid19.hoarseness,
-         covid19.hoarseness.1,
-         covid19.sore_throat,
-         covid19.sore_throat.1,
-         covid19.nasal_dischargecongestion,
-         covid19.nasal_dischargecongestion.1,
-         covid19.wheeze,
-         covid19.wheeze.1,
-         covid19.shortness_of_breath,
-         covid19.shortness_of_breath.1,
-         covid19.headache,
-         covid19.headache.1,
-         covid19.muscle_aches,
-         covid19.muscle_aches.1,
-         covid19.nausea,
-         covid19.nausea.1,
-         covid19.diarrhoea,
-         covid19.diarrhoea.1,
-         covid19.other,
-         covid19.other.1,
-         covid19.please_describe_your_other_symptoms.txt,
-         covid19.individual_symptoms_contact_positive
-         ) %>%
-  add_numeric_1(exclude = exclude_cols_numeric)
+             .after = "externalDataReference") %>%
+  dplyr::rename(
+    "ID" = "externalDataReference"
+  )
 
 # Inspect colnames
 covidcns_dat_id %>%
@@ -193,6 +136,20 @@ dat <- covidcns_dat_id
 # Check
 dat %>% glimpse()
 ```
+
+Discard columns of all NA
+```{r Discard empty vars}
+dat <- dat %>%
+  discard(~all(is.na(.)))
+```
+
+Create list of all labels and attributes
+```{r List labels attrs}
+lablst <- sapply(dat, function(x) attr(x, "labels"))
+lablst
+```
+
+
 
 Recode Non-answer values to 3 digits
 -555 'Not applicable' response from participant
@@ -715,6 +672,20 @@ dat <- dat %>%
 dat %>%
   select(questionnaire.phenotype) %>%
   tbl_summary()
+```
+
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+```{r COVIDCNS specify excluded columns}
+exclude_cols_numeric <- c(
+  "ID",
+  "sample",
+  "startDate",
+  "endDate",
+  "covid19.exact_date_symptoms_start.txt",
+  "covid19.latest_test_date_enter.txt",
+  "covid19.please_describe_your_other_symptoms.txt"
+  )
 ```
 
 # Save cleaned data

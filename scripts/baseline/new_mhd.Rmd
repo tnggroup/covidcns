@@ -140,11 +140,7 @@ dat %>% glimpse()
 
 Create list of all labels and attributes
 ```{r List labels attrs}
-lablst <- sapply(dat,
-                 function(x) c(get_label(x),
-                               attr(x, "labels")
-                               )
-                 )
+lablst <- sapply(dat, function(x) attr(x, "labels"))
 lablst
 ```
 
