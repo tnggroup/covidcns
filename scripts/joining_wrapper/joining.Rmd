@@ -1817,7 +1817,7 @@ data_joined <- data_joined %>%
   mutate(
     dem.dob_age = coalesce(
       dem.dob_age,
-      ncrf1_dem.age),
+      ncrf1_dem.dob_age),
     
     dem.what_gender_do_you_identify_with = coalesce(
       dem.what_gender_do_you_identify_with,

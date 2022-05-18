@@ -41,7 +41,7 @@ Add the recode_check function - used to check for implausible values when recodi
 Add the imp_clean function - used to check variables for implausible values
 Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/add_numeric_1.R")
 source(file = "scripts/functions/remove_duplicates.R")
 source(file = "scripts/functions/sumscores.R")
 source(file = "scripts/functions/package_check.R")
@@ -103,7 +103,9 @@ exclude_cols_numeric <- c(
   "endDate",
   "ncrf1_dem.date_of_birth.txt",
   "ncrf1_dem.country_of_birth.txt",
-  "ncrf1_dem.ethnicity.txt"
+  "ncrf1_dem.ethnicity.txt",
+  "ncrf1_dem.please_describe_these_difficulties.txt",
+  "ncrf1_dem.carers_occupation.txt"
   )
 ```
 
@@ -127,9 +129,18 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          ncrf1_dem.patient_in_long_term_care_facility,
          ncrf1_dem.country_of_birth.txt,
          ncrf1_dem.ethnicity.txt,
-         ncrf1_dem.level_of_education
+         ncrf1_dem.level_of_education,
+         ncrf1_dem.child_attend_school_type,
+         ncrf1_dem.does_the_child_receive_educational_support,
+         ncrf1_dem.childs_education_performance_illness,
+         ncrf1_dem.difficulties_illness_child_impact,
+         ncrf1_dem.please_describe_these_difficulties.txt,
+         ncrf1_dem.will_the_carers_seek_additional_educational_support,
+         ncrf1_dem.carers_report_return_school,
+         ncrf1_dem.carers_occupation.txt,
+         ncrf1_dem.carers_highest_level_of_education_
          ) %>%
-  add_numeric(exclude = exclude_cols_numeric)
+  add_numeric_1(exclude = exclude_cols_numeric)
 
 # Inspect colnames
 covidcns_dat_id %>%
@@ -174,13 +185,14 @@ Recode Non-answer values to 3 digits
 When we code someone as being 'not applicable' by deduction, we use `NA_real_`
 ```{r Recode NA values}
 dat <- dat %>%
-  mutate(across(ends_with("numeric"),
-                ~case_when(
-                  . == -55 ~ -555,
-                  . == -77 ~ -777,
-                  . == -88 ~ -888,
-                  . == -99 ~ -999,
-                  TRUE ~ .)))
+  mutate(across(ends_with("numeric") & where(is.double),
+                ~case_when(. == -55 ~ -555,
+                           . == -77 ~ -777,
+                           . == -88 ~ -888,
+                           . == -99 ~ -999,
+                           TRUE ~ .)
+                )
+         )
 ```
 
 Create lists of all unique values and levels
@@ -221,6 +233,40 @@ vals_cat_3 <- c(
   "Postgraduate",
   NA
 )
+vals_cat_4 <- c(
+  "Don't know",
+  "Seen but not answered",
+  "Too young to attend school",
+  "Pre-school",
+  "Primary",
+  "Secondary",
+  "College",
+  "Does not attend school",
+  NA
+)
+vals_cat_5 <- c(
+  "Don't know",
+  "Seen but not answered",
+  "No",
+  "Yes",
+  NA
+)
+vals_cat_6 <- c(
+  "Don't know",
+  "Seen but not answered",
+  "Above average",
+  "Average",
+  "Below average",
+  NA
+)
+vals_cat_7 <- c(
+  "Don't know",
+  "Seen but not answered",
+  "Less than high school",
+  "High school",
+  "Vocational/some college",
+  NA
+)
 ```
 
 Create list of categorical values vectors
@@ -231,7 +277,14 @@ values_cat_list <- list(
   vals_cat_2,
   vals_cat_2,
   vals_cat_2,
-  vals_cat_3
+  vals_cat_3,
+  vals_cat_4,
+  vals_cat_5,
+  vals_cat_6,
+  vals_cat_5,
+  vals_cat_5,
+  vals_cat_5,
+  vals_cat_7
   )
 ```
 
@@ -252,7 +305,14 @@ names(values_cat_list) <- c(
   "ncrf1_dem.patient_currently_pregnant",
   "ncrf1_dem.patient_currently_incarcerated",
   "ncrf1_dem.patient_in_long_term_care_facility",
-  "ncrf1_dem.level_of_education"
+  "ncrf1_dem.level_of_education",
+  "ncrf1_dem.child_attend_school_type",
+  "ncrf1_dem.does_the_child_receive_educational_support",
+  "ncrf1_dem.childs_education_performance_illness",
+  "ncrf1_dem.difficulties_illness_child_impact",
+  "ncrf1_dem.will_the_carers_seek_additional_educational_support",
+  "ncrf1_dem.carers_report_return_school",
+  "ncrf1_dem.carers_highest_level_of_education_"
 )
 ```
 
@@ -389,20 +449,20 @@ dat %>%
   select(all_of(variables_date)) %>%
   tbl_summary(missing_text = "Missing")
 ```
+
 # Create age from DOB
 ```{r age from DOB}
 dat <- dat %>%
-  add_column(ncrf1_dem.age = NA,
+  add_column(ncrf1_dem.dob_age = NA,
              .after = "ncrf1_dem.date_of_birth.txt") %>%
-  mutate(ncrf1_dem.age = as.numeric(floor((startDate - ncrf1_dem.date_of_birth.txt)/365.25)))
+  mutate(ncrf1_dem.dob_age = as.numeric(floor((startDate - ncrf1_dem.date_of_birth.txt)/365.25)))
 
-dat$ncrf1_dem.age <- set_label(dat$ncrf1_dem.age, "Age")
+dat$ncrf1_dem.dob_age <- set_label(dat$ncrf1_dem.dob_age, "Age")
 
 dat %>%
-  select(ncrf1_dem.age) %>%
+  select(ncrf1_dem.dob_age) %>%
   str()
 ```
-
 
 
 # Cleaning Continuous Variables
@@ -410,7 +470,7 @@ dat %>%
 Create vector of continuous variables
 ```{r Create cont vars vector}
 variables_cont <- c(
-  "ncrf1_dem.age"
+  "ncrf1_dem.dob_age"
 )
 ```
 
@@ -461,7 +521,7 @@ Mutate variables with implausible values removed
 ```{r Mutate cont vars}
 dat <- dat %>%
   mutate(
-    ncrf1_dem.age = cont_list$ncrf1_dem.age$Replacement
+    ncrf1_dem.dob_age = cont_list$ncrf1_dem.dob_age$Replacement
   )
 ```
 
@@ -531,6 +591,14 @@ dat <- dat %>%
                   TRUE ~ .)))
 
 dat$ncrf1_dem.country_of_birth.txt <- set_label(dat$ncrf1_dem.country_of_birth.txt, "Country of birth:")
+```
+
+Check unique values
+```{r Text vars unique}
+dat %>%
+  select(ncrf1_dem.ethnicity.txt) %>%
+  sapply(., unique) %>%
+  sort()
 ```
 
 Recheck text variables

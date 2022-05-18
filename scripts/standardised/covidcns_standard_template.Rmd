@@ -164,13 +164,15 @@ Recode Non-answer values to 3 digits
 When we code someone as being 'not applicable' by deduction, we use `NA_real_`
 ```{r Recode NA values}
 dat <- dat %>%
-  mutate(across(ends_with("numeric"),
+  mutate(across(where(is.numeric),
                 ~case_when(
                   . == -55 ~ -555,
                   . == -77 ~ -777,
                   . == -88 ~ -888,
                   . == -99 ~ -999,
-                  TRUE ~ .)))
+                  TRUE ~ .)
+                )
+         )
 ```
 
 Create lists of all unique values and levels
