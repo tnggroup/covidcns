@@ -393,7 +393,7 @@ exclude_cols_numeric <- c(
 ```
 
 Select & rename relevant columns
-```{r COVIDCNS select}
+```{r COVIDCNS add numeric}
 dat <- dat %>% 
   add_numeric_1(exclude = exclude_cols_numeric)
 
