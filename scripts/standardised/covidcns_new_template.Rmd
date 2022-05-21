@@ -1,0 +1,800 @@
+---
+title: "COVIDCNS Insert Title Here"
+author: "Insert Your Full Name Here"
+date: "DD/MM/YYYY"
+output: html_document
+---
+
+
+All arguments should be in their own row, including the first argument
+Closing bracket should have its own row
+Functions with a single argument can have this on the same line
+One argument can be hashed out per line for debugging errors
+
+Chunk names should be all lower case except:
+Study name (COVIDCNS) all caps
+Capitalised first word
+Chunk names MUST be unique
+Points requiring user input are enclosed thus <>
+
+Ensure that you have deleted/untracked .DS_Store before your initial commit
+Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+Add the add_numeric function - used to convert character variables into numeric variables
+Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+Add the recode_check function - used to check for implausible values when recoding
+Add the imp_clean function - used to check variables for implausible values
+Add the cont_clean function - used to check continuous variables for implausible values
+```{r Read in functions}
+source(file = "scripts/functions/add_numeric_1.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/recode_check.R")
+source(file = "scripts/functions/cont_clean.R")
+```
+
+Use package_check to install and load dependencies
+Load tidyverse last
+```{r Install load dependencies}
+packages <- c("sjlabelled",
+              "Amelia",
+              "gtsummary",
+              "tidyverse")
+package_check(packages)
+```
+
+Read in file with path to ilovecovidcns channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Source filepath to ilovecovidcns OneDrive}
+source(file = "scripts/credentials/paths.R")
+```
+
+# Read in the data: <Full Name of Questionnaire/Demographic>
+
+Do not change variable names from the NLP names that are produced by the extraction
+EXCEPT in exceptional circumstances
+Document ANY changes to variable names in the Teams Data Issues Tracker
+
+- For variable names, use ONLY 'questionnaire.variable_name' syntax
+- For dataset, only use snake_case naming
+- When using pipe operator '%>%', each function should begin on a new line
+- Do not add empty lines at the beginning or end of a chunk
+- Use only tidyverse functions wherever possible
+
+COVIDCNS data
+```{r COVIDCNS load data}
+covidcns_dat <- read_rds(
+  file = paste0(ilovecovidcns, "</data_raw/latest_freeze/location/questionnaire_covid_cns.rds>")
+  )
+  
+# Check variable names in dataframe
+covidcns_dat %>%
+  colnames()
+
+# Inspect dimensions of dataframe 
+covidcns_dat %>%
+  dim()
+
+# Count NAs in ID column
+sum(is.na(covidcns_dat$externalDataReference))
+
+# Count duplicates in ID column
+sum(table(covidcns_dat$externalDataReference)-1)
+
+# Report duplicates in ID column
+table(covidcns_dat$externalDataReference)[table(covidcns_dat$externalDataReference)>1]
+```
+
+Create new df with renamed and de-duplicated/NA-removed ID column
+```{r COVIDCNS select}
+covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
+  dplyr::rename(
+    "ID" = "externalDataReference"
+  )
+
+# Inspect colnames
+covidcns_dat_id %>%
+  colnames()
+```
+
+Look at number of people excluded
+The number of people to be excluded should be negative
+```{r COVIDCNS number excluded}
+# Inspect dimensions of new data set
+covidcns_dat_id %>%
+  dim()
+
+# Inspect number of rows dropped
+covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
+covidcns_excluded
+```
+
+Check missingness by missmap
+```{r COVIDCNS missmap}
+covidcns_dat_id %>% 
+  missmap()
+```
+
+Create dat as copy of covidcns_dat_id for brevity
+This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
+```{r Create dat}
+dat <- covidcns_dat_id 
+```
+
+Extract and save labels
+```{r Extract save labels}
+# Save variable labels
+question_labels <- sjlabelled::get_label(dat)
+
+# Save value labels
+answer_labels <- sjlabelled::get_labels(dat, values = "as.name")
+
+# Change -77 to -777 in value labels names
+chng <- rapply(sapply(answer_labels, names), function(x) ifelse(x==-77,-777,x), how = "replace")
+
+# Add multiple lines here as necessary to change other nonanswer values in labels
+#chng <- rapply(chng, function(x) ifelse(x==-88,-888,x), how = "replace")
+
+# Substitute new value labels into answer_labels
+for (i in 5:length(chng)){
+  names(answer_labels[[i]]) <- chng[[i]]
+}
+```
+
+Create list of all labels and attributes
+This chunk supersedes all categorical/numeric cleaning
+It gives you an output of c(the question label, all value-label pairs)
+for each variable
+Check for errors in the output of this chunk, including:
+- Label spelling errors (for questions and answers)
+- Incorrect values
+- Mismatches between labels and values
+- Scale errors
+- Variable naming issues from the data extraction
+- Any other issues you can see
+All issues/changes need to be logged as a to-do on Teams
+At this point, you also need to pick out any continuous, date or text variables 
+to be cleaned in the later chunks
+```{r List labels attrs}
+lablst <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
+lablst
+```
+
+Recode Non-answer values to 3 digits
+-555 'Not applicable' response from participant
+-777 Seen but not answered
+-888 Don't know
+-999 Prefer not to answer/Prefer not to say
+`NA` Were not shown the question (genuinely missing value)
+When we code someone as being 'not applicable' by deduction, we use `NA_real_`
+```{r Recode NA values}
+dat <- dat %>%
+  mutate(across(where(is.numeric),
+                ~case_when(
+                  . == -55 ~ -555,
+                  . == -77 ~ -777,
+                  . == -88 ~ -888,
+                  . == -99 ~ -999,
+                  TRUE ~ .)
+                )
+         )
+
+# Re-add labels after mutate
+dat <- sjlabelled::set_label(dat, question_labels)
+dat <- sjlabelled::set_labels(dat, labels = answer_labels)
+```
+
+
+# Rectifying Incorrect Variable Naming
+
+View <incorrect variable>
+<Note problem here and report on Teams>
+```{r View <incorrect variable>}
+str(dat$<incorrect variable>)
+```
+
+Rename <incorrect variable> using dplyr rename
+```{r Rename <incorrect variable>}
+dat <- dat %>%
+  rename("<correct variable name>" = "<incorrect variable name>")
+```
+
+Reset <correct variable> variable label
+```{r Reset <correct variable> label}
+dat$<correct variable> <- set_label(dat$<correct variable>, c("<correct variable>" = "<existing label>"))
+```
+
+Check <correct variable> naming
+```{r Recheck <correct variable> naming}
+str(dat$<correct variable>)
+```
+
+
+# Rectifying Incorrect Variable Labelling
+
+Check <incorrect variable> labels
+<Note problem here and report on Teams>
+```{r Check <incorrect variable> labelling}
+str(dat$<incorrect variable>)
+```
+
+Rename value labels of <incorrect variable>
+```{r Rename <incorrect variable> value labels}
+# Named vector of correct labels
+new_levels_vec <- c("<correct label>" = <value>, "<correct label>" = <value>)
+
+# Assign new labels
+dat$<incorrect variable> <- set_labels(dat$<incorrect variable>, labels = new_levels_vec)
+
+# Remove labels vector
+rm(new_levels_vec)
+```
+
+Recheck <incorrect variable> labelling
+```{r Recheck <incorrect variable> labelling}
+str(dat$<incorrect variable>)
+```
+
+
+# Recoding Incorrect Variables
+
+View <incorrect variable>
+<Note problem here and report on Teams>
+```{r View <incorrect variable> values and labels}
+attr(dat$<incorrect variable>, "labels")
+```
+
+Recode incorrect variable
+Can be removed after data recoded in qualtrics and after data export
+If variables are found to be incorrect:
+Report the error in the issue log spreadsheet
+Recode the variable yourself using `case_when` as below
+Continue cleaning your script with the recoded variable until fixed from source
+DO NOT run this chunk multiple times: it will mess up the variable coding, requiring you to run the script again from the beginning
+```{r Recode <incorrect variable>}
+dat <- dat %>% 
+  mutate(across(<incorrect variable>,
+                ~case_when(
+                  . == <incorrect value> ~ <correct value>,
+                  TRUE ~ .)))
+```
+
+Rename value labels of <incorrect variable>
+```{r Relabel <incorrect variable>}
+# Named vector of correct labels
+new_levels_vec <- c("<correct label>" = <value>, "<correct label>" = <value>)
+
+# Assign new labels
+dat$<incorrect variable> <- set_labels(dat$<incorrect variable>, labels = new_levels_vec)
+
+# Remove labels vector
+rm(new_levels_vec)
+```
+
+Recheck variable coding
+```{r Recheck <incorrect variable> values and labels}
+attr(dat$<incorrect variable>, "labels")
+```
+
+
+# Cleaning Continuous Variables
+
+Create vector of continuous variables
+(I suggest adding variable names sorted by type e.g. all ages then all years
+etc. to make your life easier when creating limits_mat)
+```{r Create cont vars vector}
+variables_cont <- c(
+  "<questionnaire.variable_name>"
+)
+
+# Check length of vector (must match dim(limits_mat)[1])
+length(variables_cont)
+```
+
+Inspect continuous variables
+Use the question labels to ascertain context at this point and check for obvious outliers
+The percentiles can be modified to exclude nonanswer values as appropriate to your data
+```{r Initial inspect cont vars}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
+```
+
+Check for text in continuous variables
+This chunk outputs only the columns and rows that contain text
+```{r Cont vars check text}
+# Function to check for any text or spaces
+check_for_string <- function(x){
+  sum(str_detect(x, "[a-zA-Z\\s]+"), na.rm = TRUE) > 0}
+
+dat %>%
+  # select all continuous
+  select(all_of(variables_cont)) %>%
+  # select only vars containing text
+  select(where(check_for_string)) %>%
+  # filter only rows containing text
+  filter(
+    if_any(where(check_for_string),
+           ~str_detect(., "[a-zA-Z\\s]+")
+           )
+    )
+```
+
+Manually clean continuous variables if necessary
+IF the text data contains useful info that can be converted to numeric, clean manually
+REMOVE THIS CHUNK IF NOT NECESSARY
+```{r Cont vars manual clean}
+dat <- dat %>%
+  mutate(across(<questionnaire.variable_name>,
+                ~case_when(str_detect(<questionnaire.variable_name>, "<pattern>") ~ "<1>",
+                           TRUE ~ .)
+                )
+         )
+```
+
+Remove text from numeric variables automatically
+ONLY use this chunk if there is no information to be gained from the text
+```{r Cont vars remove text}
+dat <- dat %>%
+  mutate(across(all_of(variables_cont),
+                ~str_remove(., "[a-zA-Z\\s]+")
+                )
+         )
+```
+
+Remove empty variables from variables_cont
+These all contain only NAs and serve only to interfere with processing
+```{r Cont vars remove empty}
+rem_vars <- dat %>%
+  select(all_of(variables_cont)) %>%
+  select(where(~all(is.na(.))
+               )
+         ) %>%
+  colnames()
+
+variables_cont <- variables_cont[!variables_cont %in% rem_vars]
+length(variables_cont)
+```
+
+Mutate variables to numeric after cleaning out text
+This step is necessary to check for non-integer values
+If you have correctly cleaned them above, this chunk should not have any failures to parse
+```{r Cont vars to numeric}
+dat <- dat %>%
+  mutate(across(all_of(variables_cont),
+                ~as.numeric(.)
+                )
+         )
+```
+
+Transform nonanswer values to 3 digit
+```{r Cont vars nonanswer}
+dat <- dat %>%
+  mutate(across(where(is.numeric),
+                ~case_when(
+                  . == -55 ~ -555,
+                  . == -77 ~ -777,
+                  . == -88 ~ -888,
+                  . == -99 ~ -999,
+                  TRUE ~ .)
+                )
+         )
+
+# Re-add labels after mutate
+dat <- sjlabelled::set_label(dat, question_labels)
+dat <- sjlabelled::set_labels(dat, labels = answer_labels)
+```
+
+Create matrix of limits for continuous variables
+Matrix is series of vectors (lower, upper)
+Define limits for variable and list reasoning below
+Variable name: <add name>
+- Lower: <add limit> <add justification>
+- Upper: <add limit> <add justification>
+
+Variable name: <add name>
+- Lower: <add limit> <add justification>
+- Upper: <add limit> <add justification>
+```{r Create matrix limits}
+# Create a vector of limits for each type of variable using rep
+limits_1 <- rep(c(<lower>, <upper>), <number of vars>) 
+limits_2 <- rep(c(<lower>, <upper>), <number of vars>) # make sure the number of variables add up!!
+# add more as necessary
+
+# Combine the vectors together
+limits_vec <- c(limits_1,
+                limits_2
+                # more as necessary
+                )
+
+# Create matrix
+limits_mat <- matrix(limits_vec, # take values from your vector of limits
+                     nrow = 2, # upper and lower bound
+                     ncol = length(variables_cont) # number of variables total
+                     )
+
+# Matrices are filled by columns, not rows, so must transpose
+limits_mat <- t(limits_mat)
+
+# Check dimensions
+dim(limits_mat)
+```
+
+Set row and col names of limits_mat
+This allows your to easily refer back to limits_mat for a summary
+```{r Set lim_mat names}
+rownames(limits_mat) <- variables_cont
+colnames(limits_mat) <- c("Lower", "Upper")
+```
+
+Use cont_clean to check if any implausible values and provide replacement vectors
+Cont_clean will not proceed if variables are not numeric type, clean manually above if necessary
+This chunk reports any variables that contain implausible values
+```{r Cont_clean cont vars}
+# Execute cleaning function
+cont_list <- cont_clean(
+  variables = variables_cont,
+  limits_mat = limits_mat,
+  dat = dat
+)
+
+# Create empty list of variable names to check
+imp_checklist <- c()
+
+# Loop through function output
+for (i in 1:length(variables_cont)){
+  
+  # Report only variables containing implausibles
+  if(cont_list[[variables_cont[i]]]$Count > 0){
+    
+    # Add variable name to imp_checklist
+    imp_checklist <- append(x = imp_checklist, variables_cont[i])
+    
+    # Report readout of implausible values
+    print(paste0("Implausibles in ", variables_cont[i], ": ", cont_list[[variables_cont[i]]]$Count))
+  }
+}
+```
+
+Check unique values in variables containing implausible values
+The sort() function allows you to see them more clearly
+
+Check for any systematic errors at this stage
+e.g. For 'age', participants may have entered a calendar year (e.g. 2001), instead of an age (e.g. 45)
+It may be possible to gain data from errors like this, so DO NOT MUTATE TO IMPLAUSIBLE WITHOUT GOOD REASON
+If you are unsure, RAISE IN THURSDAY DATA CLEANING MEETING
+(You could import participant birth year and subtract to find age)
+```{r Cont vars implausible unique}
+dat %>%
+  select(all_of(imp_checklist)) %>%
+  sapply(., function(x) sort(unique(x)))
+```
+
+Mutate variables with implausible values removed
+Repeat the mutate statements for as many variables as necessary
+```{r Mutate cont vars}
+dat <- dat %>%
+  mutate(
+    <questionnaire.variable_name> = cont_list$<questionnaire.variable_name>$Replacement
+  )
+
+dat <- dat %>%
+  mutate(
+    <questionnaire.variable_name> = cont_list$<questionnaire.variable_name>$Replacement
+  )
+
+# Re-add labels after mutate
+dat <- sjlabelled::set_label(dat, question_labels)
+dat <- sjlabelled::set_labels(dat, labels = answer_labels)
+```
+
+Re-inspect variables after cleaning
+```{r Cont vars inspect after cleaning}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})")
+  )
+```
+
+
+# Cleaning Textual Variables
+
+Create vector of text variables
+```{r Vector text vars}
+variables_text <- c(
+  "<questionnaire.variable_name>"
+)
+```
+
+View text variables
+```{r Check text vars}
+dat %>%
+  select(all_of(variables_text)) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Recode <text variable>
+Repeat these chunks as necessary
+```{r Recode <text variable>}
+dat <- dat %>% 
+  mutate(across(<questionnaire.variable_name>,
+                ~case_when(
+                  str_detect(<questionnaire.variable_name>, "<misspelling>")  ~ "<Correct Spelling>",
+                  str_detect(<questionnaire.variable_name>, "<misspelling>")  ~ "<Correct Spelling>",
+                  TRUE ~ .)))
+```
+
+Re-check <text variable>
+Repeat these chunks as necessary
+```{r Recheck coding <text variable>}
+dat %>%
+  select(<questionnaire.variable_name>) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Re-check all text variables
+```{r Recheck text vars coding final}
+dat %>%
+  select(all_of(variables_text)) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+
+# Cleaning Dates
+
+Create vector of date variables
+```{r Vector date vars}
+variables_date <- c(
+  "<questionnaire.variable_name>"
+)
+```
+
+Check for text in date variables
+This chunk outputs only the columns and rows that contain text
+```{r Date vars check text}
+# Function to check for any text or spaces
+check_for_string <- function(x){
+  sum(str_detect(x, "[a-zA-Z\\s]+"), na.rm = TRUE) > 0}
+
+dat %>%
+  # select all continuous
+  select(all_of(variables_date)) %>%
+  # select only vars containing text
+  select(where(check_for_string)) %>%
+  # filter only rows containing text
+  filter(
+    if_any(where(check_for_string),
+           ~str_detect(., "[a-zA-Z\\s]+")
+           )
+    )
+```
+
+Manually clean date variables if necessary
+IF the text data contains useful info that can be converted to date, clean manually
+REMOVE THIS CHUNK IF NOT NECESSARY
+```{r Date vars manual clean}
+dat <- dat %>%
+  mutate(across(<questionnaire.variable_name>,
+                ~case_when(str_detect(<questionnaire.variable_name>, "<pattern>") ~ "<dd/mm/yyyy>",
+                           TRUE ~ .)
+                )
+         )
+```
+
+Remove text from numeric variables automatically
+ONLY use this chunk if there is no further information to be gained from the text by manual cleaning
+```{r Date vars remove text}
+dat <- dat %>%
+  mutate(across(all_of(variables_date),
+                ~str_remove(., "[a-zA-Z\\s]+")
+                )
+         )
+```
+
+Replace -77 values with NA: POSIX will reject -77 as a value when converting
+```{r Date vars recode -77 to NA}
+dat <- dat %>% 
+  mutate(across(all_of(variables_date),
+                ~na_if(., "-77")
+                )
+         )
+```
+
+Parse dates using lubridate
+If you have worked correctly above, there should be no failures to parse
+```{r Parse date vars}
+dat <- dat %>% 
+  mutate(across(all_of(variables_date),
+                ~lubridate::parse_date_time(x = .,
+                                            orders = c("d m y", "d/m/y", "d.m.y"),
+                                            tz = "Europe/London")
+                )
+         )
+```
+
+Recheck date variables
+```{r Recheck parsed date vars}
+dat %>%
+  select(all_of(variables_date)) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Define limits for variable and list reasoning below
+Variable name:
+- Upper: 
+- Lower: 
+```{r Date vars define limits}
+upper_limit <- as.POSIXct("yyyy-mm-dd")
+lower_limit <- as.POSIXct("yyyy-mm-dd")
+```
+
+Recode variable outliers to NA
+```{r Date vars recode outliers to NA}
+dat <- dat %>%
+    mutate(across(all_of(variables_date),
+                  ~ifelse(. > upper_limit | # bigger than the upper limit
+                          . < lower_limit, # smaller than the lower limit
+                          yes = NA_real_,
+                          no = .)
+                  )
+           ) %>%
+  mutate(across(all_of(variables_date),
+                ~as.POSIXct(.,
+                            origin = lubridate::origin)
+                )
+         )
+```
+
+Re-check dates
+```{r Recheck cleaned date vars}
+dat %>%
+  select(all_of(variables_date)) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+
+# Produce sumscores
+
+Reference the scoring guidance that you have used for your questionnaire here "link"
+
+If changing na_limit, CHECK your guidance, na_limit > 0 will replace NAs with 0, ensure that this is correct for your scoring guidance before proceeding
+
+Create vector of item coding
+The coding_keys vector must contain 1s for all variables to be added and -1 for all variables to be subtracted.
+Putting 0 in the vector will omit the variable at that position.
+length(coding_keys) MUST be the same as the number of variables to be summed
+
+sum_vars vector should contain ONLY and ALL variable names needed for scoring, do not add "ID" or "sample" etc.
+
+If using reverse keying:
+MAKE SURE that Reverse = TRUE is included as an argument, reverse keying will not work without this
+reverse_vars should contain all variable names to be reverse keyed
+If running multiple sumscores requiring reverse keying, a single reverse_vars vector containing all of the variable names to be reverse keyed is sufficient: `%in%` will pick the relevant variables for each sumscore
+
+The warnings "Scores vector contains missing values." and "Input contains non-answer values. These will be converted to NA_real_ for this calculation." are normal. They are there to inform you that some sumscores have not been calculated due to non-answer values (e.g. -777) being present. Any other errors or warnings need to be investigated.
+
+Create required variables for sumscore arguments
+```{r Sumscores inputs}
+keys <- c(
+  # should be a vector of 1s, 0s or -1s
+  )
+sum_vars <- c(
+  "<questionnaire.variable_name>"
+  # all variable names to add
+  )
+```
+
+Generate sumscores from questionnaire data and use mutate onto dat as new column
+sumscores assumes that all items in the questionnaire have the SAME minimum and maximum scores for ALL items, ensure that this is correct before proceeding
+
+When adding the column name for your sumscore use "questionnaire.score_name"
+
+Sumscores will produce a list of 2 elements, the first is "scores", the second is "na.count"
+
+Generate sumscores
+```{r Generate sumscores}
+sum_out <- sumscores(input = dat,
+                     sum_vars = sum_vars,
+                     coding_keys = keys,
+                     na_allowed = 0,
+                     min_item = ,
+                     max_item = ,
+                     min_score = ,
+                     max_score = 
+                     )
+```
+
+Add sumscores as new column
+```{r Add sumscores}
+dat <- dat %>% 
+  mutate(questionnaire.sum_score = sum_out$scores)
+```
+
+
+# Create phenotypes
+Add explanation of phenotype here:
+
+Create <phenotype variable>
+```{r Create <phen var>}
+dat <- dat %>%
+  mutate(
+    <questionnaire.phenotype> =
+      case_when(
+        <questionnaire.sum_score> >= <threshold> ~ 1,
+        <questionnaire.sum_score> < <threshold> ~ 0
+      )
+  )
+dat %>%
+  select(<questionnaire.phenotype>) %>%
+  tbl_summary()
+```
+
+Label <phenotype variable>
+```{r Label <phen var>}
+dat$<questionnaire.phenotype> <- sjlabelled::set_label(dat$<questionnaire.phenotype>, "<Phenotype Question>")
+
+<phen_var>_labels <- c("<No Phenotype>" = 0, "<Phenotype>" = 1)
+
+dat$<questionnaire.phenotype> <- sjlabelled::set_labels(dat$<questionnaire.phenotype>,
+                                                        labels = <phen_var>_labels)
+```
+
+
+# Add Numeric Variables
+
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+Text variables also need to be excluded
+```{r Specify excluded columns}
+exclude_cols_numeric <- c(
+  "ID",
+  "sample",
+  "startDate",
+  "endDate",
+  # other columns as required
+  )
+```
+
+Add numeric columns
+```{r Add numeric}
+dat <- dat %>% 
+  add_numeric_1(exclude = exclude_cols_numeric)
+
+# Inspect colnames
+dat %>%
+  colnames()
+```
+
+
+# Save cleaned data
+
+# COVIDCNS
+```{r Write cleaned COVIDCNS variables to a .rds file}
+dat %>%
+  saveRDS(
+    file = paste0(ilovecovidcns, "</data/latest_freeze/location/questionnaire_covidcns_clean.rds>")
+    )
+```
