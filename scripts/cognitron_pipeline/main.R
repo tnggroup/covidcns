@@ -69,7 +69,7 @@ covid_matching <- covid_matching %>% select(all_of(cols_to_keep))
 new_colnames = c('user_id', 'age', 'sex',  'language', 'education')
 colnames(covid_matching) <- new_colnames
 
-# Language: Set all values to either English or "Other" in ordeer to match with normative data models
+# Language: Set all values to either English or "Other" in order to match with normative data models
 covid_matching$language <- as.character(covid_matching$language)
 covid_matching$language[covid_matching$language != "Yes"] <- "other"
 covid_matching$language[covid_matching$language == "Yes"] <- "English"

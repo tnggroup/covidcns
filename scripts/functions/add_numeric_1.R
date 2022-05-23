@@ -19,7 +19,7 @@
 #' 
 #' @export
 #' 
-add_numeric_1 <- function(dat, exclude = NULL, leaders = c("ID", "sample", "startDate", "endDate")) {
+add_numeric_1 <- function(dat, exclude = NULL, leaders = c("ID", "startDate", "endDate")) {
 
   # error if exclude cols don't match dat
   if(!all(exclude %in% colnames(dat))){

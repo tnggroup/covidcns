@@ -754,12 +754,23 @@ dat %>%
 
 Label <phenotype variable>
 ```{r Label <phen var>}
+# Set question label
 dat$<questionnaire.phenotype> <- sjlabelled::set_label(dat$<questionnaire.phenotype>, "<Phenotype Question>")
 
+# Create vector of answer labels
 <phen_var>_labels <- c("<No Phenotype>" = 0, "<Phenotype>" = 1)
 
+# Set answer labels
 dat$<questionnaire.phenotype> <- sjlabelled::set_labels(dat$<questionnaire.phenotype>,
                                                         labels = <phen_var>_labels)
+
+# Remove vector of answer labels
+rm(<phen_var>_labels)
+
+# View variable to check
+sjlabelled::as_label(dat) %>%
+  select(<questionnaire.phenotype>) %>%
+  tbl_summary(missing_text = "Missing")
 ```
 
 
@@ -770,11 +781,7 @@ Continuous variables should be excluded, as they are already numeric
 Text variables also need to be excluded
 ```{r Specify excluded columns}
 exclude_cols_numeric <- c(
-  "ID",
-  "sample",
-  "startDate",
-  "endDate",
-  # other columns as required
+  # columns as required
   )
 ```
 

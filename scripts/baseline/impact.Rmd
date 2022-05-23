@@ -149,7 +149,8 @@ question_labels <- sjlabelled::get_label(dat)
 answer_labels <- sjlabelled::get_labels(dat, values = "as.name")
 ```
 
-```{r}
+Change answer_labels to fit 3 digit non-answer values
+```{r Modify answer_labels}
 # Change non-answers in value labels names
 chng <- rapply(sapply(answer_labels, names), function(x) ifelse(x==-77,-777,x), how = "replace")
 chng <- rapply(chng, function(x) ifelse(x==-55,-555,x), how = "replace")
@@ -277,7 +278,7 @@ Change the COVID CNS variables to match GLAD
 -99	Prefer not to answer
 
 Create current employment status variable
-```{r Create empl status}
+```{r Create emp status}
 dat <- dat %>%
   mutate(
     impact.current_employment_status =
@@ -342,6 +343,9 @@ emp_status_labels <- c("In paid employment or self-employed" = 1,
 # Set answer labels
 dat$impact.current_employment_status <- sjlabelled::set_labels(dat$impact.current_employment_status,
                                                         labels = emp_status_labels)
+
+# Remove vector of answer labels
+rm(emp_status_labels)
 
 # View variable to check
 sjlabelled::as_label(dat) %>%
@@ -424,6 +428,9 @@ emp_change_labels <- c("My employment status has not changed" = 0,
 dat$impact.employment_change_covid <- sjlabelled::set_labels(dat$impact.employment_change_covid,
                                                         labels = emp_change_labels)
 
+# Remove vector of answer labels
+rm(emp_change_labels)
+
 # Check attributes
 c(attr(dat$impact.employment_change_covid, "label"), attr(dat$impact.employment_change_covid, "labels"))
 
@@ -439,12 +446,6 @@ Specify columns to be excluded from add_numeric function
 Continuous variables should be excluded, as they are already numeric
 Text variables also need to be excluded
 ```{r Specify excluded columns}
-leaders_cols_numeric <- c(
-  "ID",
-  "startDate",
-  "endDate"
-)
-
 exclude_cols_numeric <- c(
   "impact.othertext.txt"
   )
@@ -453,8 +454,7 @@ exclude_cols_numeric <- c(
 Add numeric columns
 ```{r Add numeric}
 dat <- dat %>% 
-  add_numeric_1(exclude = exclude_cols_numeric,
-                leaders = leaders_cols_numeric)
+  add_numeric_1(exclude = exclude_cols_numeric)
 
 # Inspect colnames
 dat %>%

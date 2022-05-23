@@ -245,26 +245,6 @@ matching_joined <-
     )
 ```
 
-
-## List of tibbles to join, not including website data
-```{r List of tibbles to join}
-tibble_list_2 <- 
-  list(
-    matching_joined,
-    ncrf1_dem_covidcns_clean_selected
-    )
-```
-
-Joining of demographics and questionnaires, not including website data
-```{r Joining of demographics and questionnaires}
-matching_joined_2 <- 
-  plyr::join_all(
-    dfs =  tibble_list_2,
-    by = c("ID"),
-    type = "full"
-    )
-```
-
 Change Incorrect IDs from Qualtrics
 ```{r change incorrect ids}
 # Read in excel sheet of IDs to change as data frame
@@ -274,25 +254,25 @@ swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/data_raw/ids/Swa
 # Set sensical column names
 colnames(swapped_ids) <- c("correct_ID", "incorrect_ID")
 
-# Initial empty vector of rows to change IDs for in matching_joined_2
+# Initial empty vector of rows to change IDs for in matching_joined
 swapping_rows <- c()
 
 # Create vector of rows corresponding to IDs that need changing
 for (i in swapped_ids$incorrect_ID) {
-  swapping_rows <- append(x = swapping_rows, values = which(matching_joined_2$ID == i))
+  swapping_rows <- append(x = swapping_rows, values = which(matching_joined$ID == i))
 }
 
 # Add row numbers to swapped_ids data frame
 swapped_ids <- cbind(swapped_ids, swapping_rows)
 
-# Swap IDs in matching_joined_2 by row number
+# Swap IDs in matching_joined by row number
 for (i in 1:length(swapped_ids)) {
-  matching_joined_2[swapped_ids[i,3], 1] <- swapped_ids[i,1]
+  matching_joined[swapped_ids[i,3], 1] <- swapped_ids[i,1]
 }
 
 ```
 
-Coalesce age and sex demographic variables from baseline and ncrf dem
+Coalesce age sex demographic variables from baseline and ncrf dem
 ```{r Coalesce age sex dem}
 matching_joined <- matching_joined %>%
   mutate(
@@ -306,13 +286,13 @@ matching_joined <- matching_joined %>%
     
     dem.what_gender_do_you_identify_with_numeric = coalesce(
       dem.what_gender_do_you_identify_with_numeric,
-      ncrf1_dem.sex_at_birth_numeric)
+      ncrf1_dem.sex_at_birth_numeric),
   )
 ```
 
 Select columns for data extraction
 ```{r matching Select columns}
-data_export_matching <- data_joined %>%
+data_export_matching <- matching_joined %>%
   select(
       "ID",
       
