@@ -424,6 +424,9 @@ emp_change_labels <- c("My employment status has not changed" = 0,
 dat$impact.employment_change_covid <- sjlabelled::set_labels(dat$impact.employment_change_covid,
                                                         labels = emp_change_labels)
 
+# Check attributes
+c(attr(dat$impact.employment_change_covid, "label"), attr(dat$impact.employment_change_covid, "labels"))
+
 # View variable to check
 sjlabelled::as_label(dat) %>%
   select(impact.employment_change_covid) %>%
@@ -436,18 +439,22 @@ Specify columns to be excluded from add_numeric function
 Continuous variables should be excluded, as they are already numeric
 Text variables also need to be excluded
 ```{r Specify excluded columns}
-exclude_cols_numeric <- c(
+leaders_cols_numeric <- c(
   "ID",
-  "sample",
   "startDate",
   "endDate"
+)
+
+exclude_cols_numeric <- c(
+  "impact.othertext.txt"
   )
 ```
 
 Add numeric columns
 ```{r Add numeric}
 dat <- dat %>% 
-  add_numeric_1(exclude = exclude_cols_numeric)
+  add_numeric_1(exclude = exclude_cols_numeric,
+                leaders = leaders_cols_numeric)
 
 # Inspect colnames
 dat %>%

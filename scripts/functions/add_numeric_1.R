@@ -19,26 +19,33 @@
 #' 
 #' @export
 #' 
-add_numeric_1 <- function(dat, exclude = NULL) {
+add_numeric_1 <- function(dat, exclude = NULL, leaders = c("ID", "sample", "startDate", "endDate")) {
+
+  # error if exclude cols don't match dat
+  if(!all(exclude %in% colnames(dat))){
+    stop("Exclude columns don't match your dataset, check your exclude_cols_numeric vector.")
+  }
+  
+  # error if exclude cols don't match dat
+  if(!all(leaders %in% colnames(dat))){
+    stop("Leader columns don't match your dataset, modify the default argument.")
+  }
   
   # preserve cols excluded from numeric function
-  non_num <- dat[colnames(dat) %in% exclude[5:length(exclude)]]
+  non_num <- dat[colnames(dat) %in% exclude]
   
-  # preserve ID, sample, startDate, endDate
-  headers <- dat[1:4]
+  # preserve leader cols
+  lead_col <- dat[,leaders]
   
   # produce labelled forms of numeric columns
-  labs <- sjlabelled::as_label(dat[!colnames(dat) %in% exclude])
+  labs <- sjlabelled::as_label(dat[!colnames(dat) %in% c(leaders, exclude)])
   
   # keep numeric forms of numeric columns
-  nums <- dat[!colnames(dat) %in% exclude]
+  nums <- dat[!colnames(dat) %in% c(leaders, exclude)]
   
   # append numeric to names
   colnames(nums) <- paste(colnames(nums), "numeric", sep = "_")
   
   # bind columns
-  out <- bind_cols(headers, labs, non_num, nums)
-  
-  # remove extra ID_numeric columns (find a cleaner fix)
-  out <- out[!colnames(out) %in% "ID_numeric"]
+  out <- bind_cols(lead_col, labs, non_num, nums)
 }
