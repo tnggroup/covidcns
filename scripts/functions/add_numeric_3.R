@@ -1,6 +1,6 @@
-#' @title add_numeric_1
+#' @title add_numeric_3
 #' 
-#' @description add_numeric_1 is a function that adds categorical and labelled
+#' @description add_numeric_3 is a function that adds categorical and labelled
 #' forms of data. It takes in a dataframe of labelled variables and generates
 #' both labelled and numeric forms of the variables with _numeric appended to
 #' the numeric variable names. The 'exclude' argument allows the user to specify
@@ -19,7 +19,7 @@
 #' 
 #' @export
 #' 
-add_numeric_1 <- function(dat, exclude = NULL, leaders = c("ID", "startDate", "endDate")) {
+add_numeric_3 <- function(dat, exclude = NULL, leaders = c("ID", "startDate", "endDate")) {
 
   # error if exclude cols don't match dat
   if(!all(exclude %in% colnames(dat))){

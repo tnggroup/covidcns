@@ -429,7 +429,8 @@ Select columns for joining
 impact_covidcns_clean_selected <-
   impact_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 impact_covidcns_clean_selected %>%
@@ -660,67 +661,65 @@ nonmotor_covidcns_clean_selected %>%
 
 
 
-### past_medical_history_mental_health_covidcns_clean
+### MHD
 Read in & variable names
-
-Had this name before: past_medical_history_mental_health_covidcns_clean.rds
-```{r past_medical_history_mental_health_covidcns_clean Read in data & variable names}
-past_medical_history_mental_health_covidcns_clean <-
+```{r mhd Read in data & variable names}
+mhd <-
   read_rds(
     file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/baseline/PHH_forgreta_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/mhd_covidcns_clean.rds")
   )
 
 
-past_medical_history_mental_health_covidcns_clean %>%
+mhd %>%
   dim()
 ```
 
 Dimensions
-```{r past_medical_history_mental_health_covidcns_clean Dimensions}
-past_medical_history_mental_health_covidcns_clean %>%
+```{r mhd Dimensions}
+mhd %>%
   colnames()
 ```
 
 Select columns for joining
-```{r past_medical_history_mental_health_covidcns_clean Select columns for joining}
-past_medical_history_mental_health_covidcns_clean_selected <- past_medical_history_mental_health_covidcns_clean %>%
+```{r mhd Select columns for joining}
+mhd_selected <- mhd %>%
   select(
     -all_of(exclude_variables)
   )
 
-past_medical_history_mental_health_covidcns_clean_selected %>%
+mhd_selected %>%
   slice(1:5)
 ```
 
 
-### past_medical_history_physical_health_covidcns_clean
+### phh
 Read in & variable names
-```{r past_medical_history_physical_health_covidcns_clean Read in data & variable names, eval=FALSE, include=FALSE}
-past_medical_history_physical_health_covidcns_clean <-
+```{r phh Read in data & variable names}
+phh <-
   read_rds(
     file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/baseline/past_medical_history_physical_health_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/phh_covidcns_clean.rds")
   )
 
-past_medical_history_physical_health_covidcns_clean %>%
+phh %>%
   dim()
 ```
 
 Dimensions
-```{r past_medical_history_physical_health_covidcns_clean Dimensions, eval=FALSE, include=FALSE}
-past_medical_history_physical_health_covidcns_clean %>%
+```{r phh Dimensions}
+phh %>%
   colnames()
 ```
 
 Select columns for joining
-```{r past_medical_history_physical_health_covidcns_clean Select columns for joining, eval=FALSE, include=FALSE}
-past_medical_history_physical_health_covidcns_clean_selected <- past_medical_history_physical_health_covidcns_clean %>%
+```{r phh Select columns for joining}
+phh_selected <- phh %>%
   select(
     -all_of(exclude_variables)
   )
 
-past_medical_history_physical_health_covidcns_clean_selected %>%
+phh_selected %>%
   slice(1:5)
 ```
 
@@ -1686,8 +1685,8 @@ tibble_list <-
     dem_language_covidcns_clean_selected,
     nis_outp_covidcns_clean_selected,
     nonmotor_covidcns_clean_selected,
-    past_medical_history_mental_health_covidcns_clean_selected,# for greta file
-    #past_medical_history_physical_health_covidcns_clean_selected,
+    mhd_selected,
+    phh_selected,
     pcl5_covidcns_clean_selected,
     phq9_covidcns_clean_selected,
     dem_sex_gender_sexuality_covidcns_clean_selected,
@@ -1876,7 +1875,7 @@ data_export_matching <- data_joined %>%
       "impact.parttime_employed",
       "impact.zerohours_contract",
       "impact.selfemployed",
-      "impact.small_buisness_owner",
+      "impact.small_business_owner",
       "impact.retired",
       "impact.student_.1"
       )
@@ -1914,7 +1913,7 @@ saveRDS(
 
 
 Select columns for data extraction
-```{r yun Select columns}
+```{r yun Select columns, eval=FALSE, include=FALSE}
 data_export_yun <- data_joined %>%
   select(
     
@@ -1922,11 +1921,9 @@ data_export_yun <- data_joined %>%
 ```
 
 # Save joined data set
-```{r yun Save joint data set}
+```{r yun Save joint data set, eval=FALSE, include=FALSE}
 saveRDS(
   object = data_export_yun, 
   file = paste0(ilovecovidcns, "/data/joined/covidcns_yun.rds")
 )
 ```
-
-

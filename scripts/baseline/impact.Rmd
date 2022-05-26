@@ -43,7 +43,7 @@ Add the recode_check function - used to check for implausible values when recodi
 Add the imp_clean function - used to check variables for implausible values
 Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "scripts/functions/add_numeric_1.R")
+source(file = "scripts/functions/add_numeric_3.R")
 source(file = "scripts/functions/remove_duplicates.R")
 source(file = "scripts/functions/sumscores.R")
 source(file = "scripts/functions/package_check.R")
@@ -454,7 +454,7 @@ exclude_cols_numeric <- c(
 Add numeric columns
 ```{r Add numeric}
 dat <- dat %>% 
-  add_numeric_1(exclude = exclude_cols_numeric)
+  add_numeric_3(exclude = exclude_cols_numeric)
 
 # Inspect colnames
 dat %>%

@@ -164,9 +164,9 @@ source(knitr::purl("scripts/baseline/nonmotor.Rmd"))
 source(knitr::purl("scripts/baseline/PCL5.Rmd"))
 ```
 
-## PHH_forgreta.Rmd
+## PHH.Rmd
 ```{r PHH_forgreta.Rmd Cleaning the individual questionnaires}
-source(knitr::purl("scripts/baseline/PHH_forgreta.Rmd"))
+source(knitr::purl("scripts/baseline/PHH.Rmd"))
 ```
 
 ## PHQ9
