@@ -1,7 +1,7 @@
 ---
-title: "COVIDCNS Insert Title Here"
-author: "Insert Your Full Name Here"
-date: "DD/MM/YYYY"
+title: "COVIDCNS NCRF1 Demographics Cleaning Script"
+author: "Zain Ahmad"
+date: "15/05/2022"
 output: html_document
 ---
 
@@ -63,7 +63,7 @@ Ensure that your credentials directory is correctly located
 source(file = "scripts/credentials/paths.R")
 ```
 
-# Read in the data: Full Name of Questionnaire/Demographic
+# Read in the data: Neuro Case Report Form Module 1 Demographics
 Change this heading to the name of your questionnaire/demographic
 Load COVIDCNS data
 
@@ -81,7 +81,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/covidcns/data_file.rds")
+  file = paste0(ilovecovidcns, "/data_raw/2022-05-09/neuro_case_report/ncrf1_dem_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -101,7 +101,11 @@ exclude_cols_numeric <- c(
   "sample",
   "startDate",
   "endDate",
-  # other columns as required
+  "ncrf1_dem.date_of_birth.txt",
+  "ncrf1_dem.country_of_birth.txt",
+  "ncrf1_dem.ethnicity.txt",
+  "ncrf1_dem.please_describe_these_difficulties.txt",
+  "ncrf1_dem.carers_occupation.txt"
   )
 ```
 
@@ -117,7 +121,24 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          sample,
          startDate,
          endDate,
-         # other columns as necessary
+         ncrf1_dem.sex_at_birth,
+         ncrf1_dem.date_of_birth.txt,
+         ncrf1_dem.patient_currently_hospitalised,
+         ncrf1_dem.patient_currently_pregnant,
+         ncrf1_dem.patient_currently_incarcerated,
+         ncrf1_dem.patient_in_long_term_care_facility,
+         ncrf1_dem.country_of_birth.txt,
+         ncrf1_dem.ethnicity.txt,
+         ncrf1_dem.level_of_education,
+         ncrf1_dem.child_attend_school_type,
+         ncrf1_dem.does_the_child_receive_educational_support,
+         ncrf1_dem.childs_education_performance_illness,
+         ncrf1_dem.difficulties_illness_child_impact,
+         ncrf1_dem.please_describe_these_difficulties.txt,
+         ncrf1_dem.will_the_carers_seek_additional_educational_support,
+         ncrf1_dem.carers_report_return_school,
+         ncrf1_dem.carers_occupation.txt,
+         ncrf1_dem.carers_highest_level_of_education_
          ) %>%
   add_numeric_1(exclude = exclude_cols_numeric)
 
@@ -154,7 +175,6 @@ dat <- covidcns_dat_id
 # Check
 dat %>% glimpse()
 ```
-
 Discard columns of all NA
 ```{r Discard empty vars}
 dat <- dat %>%
@@ -198,19 +218,58 @@ Vectors of potential values should only contain possible values (exclude nonansw
 Create sequential vectors of categorical values
 ```{r Vector categorical values}
 vals_cat_1 <- c(
-  
+  "Male",
+  "Female",
+  "Seen but not answered",
+  "Not specified",
   NA
 )
 vals_cat_2 <- c(
-  
+  "Yes",
+  "No",
+  "Seen but not answered",
   NA
 )
 vals_cat_3 <- c(
-  
+  "Seen but not answered",
+  "Primary school",
+  "Secondary school",
+  "Graduate",
+  "Postgraduate",
   NA
 )
 vals_cat_4 <- c(
-  
+  "Don't know",
+  "Seen but not answered",
+  "Too young to attend school",
+  "Pre-school",
+  "Primary",
+  "Secondary",
+  "College",
+  "Does not attend school",
+  NA
+)
+vals_cat_5 <- c(
+  "Don't know",
+  "Seen but not answered",
+  "No",
+  "Yes",
+  NA
+)
+vals_cat_6 <- c(
+  "Don't know",
+  "Seen but not answered",
+  "Above average",
+  "Average",
+  "Below average",
+  NA
+)
+vals_cat_7 <- c(
+  "Don't know",
+  "Seen but not answered",
+  "Less than high school",
+  "High school",
+  "Vocational/some college",
   NA
 )
 ```
@@ -220,25 +279,45 @@ Create list of categorical values vectors
 values_cat_list <- list(
   vals_cat_1,
   vals_cat_2,
+  vals_cat_2,
+  vals_cat_2,
+  vals_cat_2,
   vals_cat_3,
-  vals_cat_4
-)
+  vals_cat_4,
+  vals_cat_5,
+  vals_cat_6,
+  vals_cat_5,
+  vals_cat_5,
+  vals_cat_5,
+  vals_cat_7
+  )
 ```
 
 Remove values vectors from environment
-```{r Remove values vectors}
+```{r Remove categorical values vectors}
 rm(
   vals_cat_1,
   vals_cat_2,
-  vals_cat_3,
-  vals_cat_4
+  vals_cat_3
 )
 ```
 
 Set names of list to variable names
-```{r Set list names}
+```{r Set list names categorical}
 names(values_cat_list) <- c(
-  "questionnaire.variable_name"
+  "ncrf1_dem.sex_at_birth",
+  "ncrf1_dem.patient_currently_hospitalised",
+  "ncrf1_dem.patient_currently_pregnant",
+  "ncrf1_dem.patient_currently_incarcerated",
+  "ncrf1_dem.patient_in_long_term_care_facility",
+  "ncrf1_dem.level_of_education",
+  "ncrf1_dem.child_attend_school_type",
+  "ncrf1_dem.does_the_child_receive_educational_support",
+  "ncrf1_dem.childs_education_performance_illness",
+  "ncrf1_dem.difficulties_illness_child_impact",
+  "ncrf1_dem.will_the_carers_seek_additional_educational_support",
+  "ncrf1_dem.carers_report_return_school",
+  "ncrf1_dem.carers_highest_level_of_education_"
 )
 ```
 
@@ -266,11 +345,17 @@ Vectors of potential values should only contain possible values (exclude nonansw
 Create sequential vectors of numeric values
 ```{r Vector numeric values}
 vals_num_1 <- c(
-  
+  0,
+  1,
+  -777,
   NA
 )
 vals_num_2 <- c(
-  
+  0,
+  1,
+  2,
+  3,
+  -777,
   NA
 )
 ```
@@ -279,12 +364,16 @@ Create list of numeric values vectors
 ```{r List numeric values vectors}
 values_num_list <- list(
   vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
+  vals_num_1,
   vals_num_2
 )
 ```
 
 Remove values vectors from environment
-```{r Remove values vectors}
+```{r Remove numeric values vectors}
 rm(
   vals_num_1,
   vals_num_2
@@ -292,9 +381,14 @@ rm(
 ```
 
 Set names of list to variable names
-```{r Set list names}
+```{r Set list names numeric}
 names(values_num_list) <- c(
-  "questionnaire.variable_name"
+  "ncrf1_dem.sex_at_birth_numeric",
+  "ncrf1_dem.patient_currently_hospitalised_numeric",
+  "ncrf1_dem.patient_currently_pregnant_numeric",
+  "ncrf1_dem.patient_currently_incarcerated_numeric",
+  "ncrf1_dem.patient_in_long_term_care_facility_numeric",
+  "ncrf1_dem.level_of_education_numeric"
 )
 ```
 
@@ -313,198 +407,12 @@ dat %>%
 ```
 
 
-# Recoding Incorrect Variables
-
-Use recode_check to ascertain implausible value
-```{r Recode_check variable coding}
-variable_values <- c(
-  # add correct values here
-  NA
-)
-recode_check(data = dat,
-             variables = "questionnaire.variable_name",
-             values = variable_values)
-```
-
-Recode incorrect variable
-Can be removed after data recoded in qualtrics and after data export
-If variables are found to be incorrect:
-Report the error in the issue log spreadsheet
-Recode the variable yourself using `case_when` as below
-Continue cleaning your script with the recoded variable until fixed from source
-DO NOT run this chunk multiple times: it will mess up the variable coding, requiring you to run the script again from the beginning
-```{r Recode incorrect variable}
-dat <- dat %>% 
-  mutate(across(questionnaire.variable_name,
-                ~case_when(
-                  . == 1 ~ 0,
-                  . == 2 ~ 1,
-                  . == 3 ~ 2,
-                  . == 4 ~ 3,
-                  . == 5 ~ 4,
-                  TRUE ~ .)))
-```
-
-Re-check variable coding
-```{r Recheck variable coding}
-recode_check(data = dat,
-             variables = "questionnaire.variable_name",
-             values = variable_values)
-```
-
-
-# Cleaning Continuous Variables
-
-Create vector of continuous variables
-```{r Create cont vars vector}
-variables_cont <- c(
-  "questionnaire.variable_name"
-)
-```
-
-Inspect continuous variables
-Use the question labels to ascertain context at this point and check for obvious outliers
-The percentiles can be modified to exclude nonanswer values as appropriate to your data
-```{r Inspect cont vars}
-dat %>%
-  select(all_of(variables_cont)) %>%
-  tbl_summary(
-    missing_text = "Missing",
-    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
-```
-
-Check unique values in continuous variables
-If the fields contain text at this point, use the chunk below to clean manually
-```{r Cont vars unique}
-dat %>%
-  select(all_of(variables_cont)) %>%
-  sapply(., unique)
-```
-
-Manually clean continuous variables to ensure parsing as numeric
-Use the output from the chunk above and clean the variable manually here until there are no 'rogue' values
-Case_when is type-specific so number must be specified as char and the variable mutated to numeric as below
-REMOVE THIS CHUNK IF NOT NECESSARY
-```{r Cont vars manual clean}
-dat <- dat %>%
-  mutate(across(questionnaire.variable_name,
-                ~case_when(str_detect(questionnaire.variable_name, "pattern") ~ "1",
-                           TRUE ~ .)
-                )
-         )
-```
-
-Mutate variables to numeric after cleaning manually
-This step is necessary to check for non-integer values
-Modify the all_of statement as required: DO NOT MUTATE TO NUMERIC UNNECESSARILY
-REMOVE THIS CHUNK IF NOT NECESSARY
-```{r Cont vars to numeric}
-dat <- dat %>%
-  mutate(across(all_of(variables_cont),
-                ~as.numeric(.)
-                )
-         )
-```
-
-Transform nonanswer values to 3 digit
-```{r Cont vars nonanswer}
-dat <- dat %>%
-  mutate(across(
-    all_of(variables_cont),
-    ~case_when(. == -55 ~ -555,
-               . == -77 ~ -777,
-               . == -88 ~ -888,
-               . == -99 ~ -999,
-               TRUE ~ .)
-                )
-         )
-```
-
-Transform negative values to positive excluding nonanswer
-ONLY USE THIS CHUNK IF RELEVANT TO YOUR DATA: DELETE IF NOT
-```{r Cont vars neg to pos}
-dat <- dat %>%
-  mutate(across(
-    all_of(variables_cont),
-    ~case_when(. == -555 ~ -555,
-               . == -777 ~ -777,
-               . == -888 ~ -888,
-               . == -999 ~ -999,
-               TRUE ~ abs(.))
-                )
-         )
-```
-
-Recheck continuous variables
-```{r Recheck cont vars}
-dat %>%
-  select(all_of(variables_cont)) %>%
-  tbl_summary(
-    missing_text = "Missing",
-    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
-```
-
-Create matrix of limits for continuous variables
-Matrix is series of vectors (lower, upper)
-Define limits for variable and list reasoning below
-Variable name:
-- Lower:
-- Upper:
-Variable name:
-- Lower:
-- Upper:
-```{r Create matrix limits}
-limits_mat <- rbind(
-  c(<lower>, <upper>),
-  c(<lower>, <upper>)
-  )
-```
-
-Set row and col names of limits_mat
-This allows your to easily refer back to limits_mat for a summary
-```{r Set lim_mat names}
-rownames(limits_mat) <- variables_cont
-colnames(limits_mat) <- c("Lower", "Upper")
-```
-
-Use cont_clean to check if any implausible values and provide replacement vectors
-Cont_clean will not proceed if variables are not numeric type, clean manually above if necessary
-```{r Cont_clean cont vars}
-cont_list <- cont_clean(
-  variables = variables_cont,
-  limits_mat = limits_mat,
-  dat = dat
-)
-for (i in 1:length(variables_cont)){
-  print(paste0("Implausibles in ", variables_cont[i], ": ", cont_list[[variables_cont[i]]]$Count))
-}
-```
-
-Mutate variables with implausible values removed
-```{r Mutate cont vars}
-dat <- dat %>%
-  mutate(
-    questionnaire.variable_name = cont_list$questionnaire.variable_name$Replacement
-  )
-```
-
-Re-inspect variables after cleaning
-```{r Inspect after cleaning}
-dat %>%
-  select(all_of(variables_cont)) %>%
-  tbl_summary(
-    missing_text = "Missing",
-    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})")
-  )
-```
-
-
 # Cleaning Dates
 
 Create vector of date variables
 ```{r Vector date vars}
 variables_date <- c(
-  "questionnaire.variable_name"
+  "ncrf1_dem.date_of_birth.txt"
 )
 ```
 
@@ -532,6 +440,11 @@ dat <- dat %>%
                                             orders = c("d m y", "d/m/y", "d.m.y"),
                                             tz = "Europe/London")
                 )
+         ) %>%
+  mutate(across(all_of(variables_date),
+                ~as.POSIXct(.,
+                            origin = lubridate::origin)
+                )
          )
 ```
 
@@ -542,37 +455,89 @@ dat %>%
   tbl_summary(missing_text = "Missing")
 ```
 
-Define limits for variable and list reasoning below
-Variable name:
-- Upper: 
-- Lower: 
-```{r Date vars define limits}
-upper_limit <- as.POSIXct("yyyy-mm-dd")
-lower_limit <- as.POSIXct("yyyy-mm-dd")
-```
-
-Recode variable outliers to NA
-```{r Date vars recode outliers to NA}
+# Create age from DOB
+```{r age from DOB}
 dat <- dat %>%
-    mutate(across(all_of(variables_date),
-                  ~ifelse(. > upper_limit | # bigger than the upper limit
-                          . < lower_limit, # smaller than the lower limit
-                          yes = NA_real_,
-                          no = .)
-                  )
-           ) %>%
-  mutate(across(all_of(variables_date),
-                ~as.POSIXct(.,
-                            origin = lubridate::origin)
-                )
-         )
+  add_column(ncrf1_dem.dob_age = NA,
+             .after = "ncrf1_dem.date_of_birth.txt") %>%
+  mutate(ncrf1_dem.dob_age = as.numeric(floor((startDate - ncrf1_dem.date_of_birth.txt)/365.25)))
+
+dat$ncrf1_dem.dob_age <- set_label(dat$ncrf1_dem.dob_age, "Age")
+
+dat %>%
+  select(ncrf1_dem.dob_age) %>%
+  str()
 ```
 
-Re-check dates
-```{r Recheck cleaned date vars}
+
+# Cleaning Continuous Variables
+
+Create vector of continuous variables
+```{r Create cont vars vector}
+variables_cont <- c(
+  "ncrf1_dem.dob_age"
+)
+```
+
+Inspect continuous variables
+Use the question labels to ascertain context at this point and check for obvious outliers
+The percentiles can be modified to exclude nonanswer values as appropriate to your data
+```{r Inspect cont vars}
 dat %>%
-  select(all_of(variables_date)) %>%
-  tbl_summary(missing_text = "Missing")
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
+```
+
+Create matrix of limits for continuous variables
+Matrix is series of vectors (lower, upper)
+Define limits for variable and list reasoning below
+Variable name: Age
+- Upper: 117
+- Lower: 0
+```{r Create matrix limits}
+limits_mat <- rbind(
+  c(0, 117)
+  )
+```
+
+Set row and col names of limits_mat
+This allows your to easily refer back to limits_mat for a summary
+```{r Set lim_mat names}
+rownames(limits_mat) <- variables_cont
+colnames(limits_mat) <- c("Lower", "Upper")
+```
+
+Use cont_clean to check if any implausible values and provide replacement vectors
+Cont_clean will not proceed if variables are not numeric type, clean manually above if necessary
+```{r Cont_clean cont vars}
+cont_list <- cont_clean(
+  variables = variables_cont,
+  limits_mat = limits_mat,
+  dat = dat
+)
+for (i in 1:length(variables_cont)){
+  print(paste0("Implausibles in ", variables_cont[i], ": ", cont_list[[variables_cont[i]]]$Count))
+}
+```
+
+Mutate variables with implausible values removed
+```{r Mutate cont vars}
+dat <- dat %>%
+  mutate(
+    ncrf1_dem.dob_age = cont_list$ncrf1_dem.dob_age$Replacement
+  )
+```
+
+Re-inspect variables after cleaning
+```{r Inspect after cleaning}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})")
+  )
 ```
 
 
@@ -581,107 +546,70 @@ dat %>%
 Create vector of text variables
 ```{r Vector text vars}
 variables_text <- c(
-  "questionnaire.variable_name"
+  "ncrf1_dem.country_of_birth.txt",
+  "ncrf1_dem.ethnicity.txt"
 )
 ```
 
 View text variables
-```{r Check text vars}
+```{r View text vars}
 dat %>%
   select(all_of(variables_text)) %>%
   tbl_summary()
 ```
 
-
-# Produce sumscores
-
-Reference the scoring guidance that you have used for your questionnaire here "link"
-
-If changing na_limit, CHECK your guidance, na_limit > 0 will replace NAs with 0, ensure that this is correct for your scoring guidance before proceeding
-
-Create vector of item coding
-The coding_keys vector must contain 1s for all variables to be added and -1 for all variables to be subtracted.
-Putting 0 in the vector will omit the variable at that position.
-length(coding_keys) MUST be the same as the number of variables to be summed
-
-sum_vars vector should contain ONLY and ALL variable names needed for scoring, do not add "ID" or "sample" etc.
-
-If using reverse keying:
-MAKE SURE that Reverse = TRUE is included as an argument, reverse keying will not work without this
-reverse_vars should contain all variable names to be reverse keyed
-If running multiple sumscores requiring reverse keying, a single reverse_vars vector containing all of the variable names to be reverse keyed is sufficient: `%in%` will pick the relevant variables for each sumscore
-
-The warnings "Scores vector contains missing values." and "Input contains non-answer values. These will be converted to NA_real_ for this calculation." are normal. They are there to inform you that some sumscores have not been calculated due to non-answer values (e.g. -777) being present. Any other errors or warnings need to be investigated.
-
-Create required variables for sumscore arguments
-```{r Sumscores inputs}
-keys <- c(
-  # should be a vector of 1s, 0s or -1s
-  )
-sum_vars <- c(
-  "questionnaire.variable_name_numeric"
-  # all variable names to add
-  )
-```
-
-Generate sumscores from questionnaire data and use mutate onto dat as new column
-sumscores assumes that all items in the questionnaire have the SAME minimum and maximum scores for ALL items, ensure that this is correct before proceeding
-
-When adding the column name for your sumscore use "questionnaire.score_name"
-
-Sumscores will produce a list of 2 elements, the first is "scores", the second is "na.count"
-
-Generate sumscores
-```{r Generate sumscores}
-sum_out <- sumscores(input = dat,
-                     sum_vars = sum_vars,
-                     coding_keys = keys,
-                     na_allowed = 0,
-                     min_item = ,
-                     max_item = ,
-                     min_score = ,
-                     max_score = 
-                     )
-```
-
-Add sumscores as new column
-```{r Add sumscores}
+Recode country of birth
+```{r COVIDCNS recode country of birth variable}
 dat <- dat %>% 
-  mutate(questionnaire.sum_score = sum_out$scores)
+  mutate(across(ncrf1_dem.country_of_birth.txt,
+                ~case_when(
+                  str_detect(ncrf1_dem.country_of_birth.txt, "rit") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "nite") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "ngla") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "ale") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "relan") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "uk") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "UK")
+                    ~ "United Kingdom",
+                  
+                  str_detect(ncrf1_dem.country_of_birth.txt, "Not") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "not") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "nk") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "NK") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "arribea") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "urdista") |
+                    str_detect(ncrf1_dem.country_of_birth.txt, "ndicat")
+                    ~ "Not Known",
+                  
+                  str_detect(ncrf1_dem.country_of_birth.txt, "iberi")
+                  ~ "Liberia",
+                  
+                  str_detect(ncrf1_dem.country_of_birth.txt, "igeri")
+                  ~ "Nigeria",
+                  
+                  str_detect(ncrf1_dem.country_of_birth.txt, "akista")
+                  ~ "Pakistan",
+                  
+                  str_detect(ncrf1_dem.country_of_birth.txt, "-77")
+                  ~ "Seen but not answered",
+                  
+                  TRUE ~ .)))
+
+dat$ncrf1_dem.country_of_birth.txt <- set_label(dat$ncrf1_dem.country_of_birth.txt, "Country of birth:")
 ```
 
-
-# Create binary phenotypes
-Add explanation of binary phenotype here:
-
-Create numeric phenotype variable
-```{r Numeric phenotype}
-dat <- dat %>%
-  mutate(
-    questionnaire.phenotype_numeric =
-      case_when(
-        questionnaire.sum_score >= ~ 1,
-        questionnaire.sum_score < ~ 0
-      )
-  )
+Check unique values
+```{r Text vars unique}
 dat %>%
-  select(questionnaire.phenotype_numeric) %>%
-  tbl_summary()
+  select(ncrf1_dem.ethnicity.txt) %>%
+  sapply(., unique) %>%
+  sort()
 ```
 
-Create categorical phenotype variable
-```{r Categorical phenotype variable}
-dat <- dat %>%
-  mutate(
-    questionnaire.phenotype =
-      recode_factor(
-        questionnaire.phenotype_numeric,
-        "0" = "No Phenotype",
-        "1" = "Phenotype"
-      )
-  )
+Recheck text variables
+```{r Recheck text vars}
 dat %>%
-  select(questionnaire.phenotype) %>%
+  select(all_of(variables_text)) %>%
   tbl_summary()
 ```
 
@@ -696,6 +624,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovecovidcns, "/data/latest_freeze/covidcns/location/questionnaire_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_dem_covidcns_clean.rds")
     )
 ```

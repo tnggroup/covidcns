@@ -39,11 +39,11 @@ Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric_1.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check.R")
+source(file = "scripts/functions/add_numeric_1.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check.R")
 ```
 
 Use package_check to install and load dependencies
@@ -56,7 +56,7 @@ package_check(packages)
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: Vaccine Status
@@ -225,7 +225,7 @@ imp_check(data = dat,
 ```
 
 Create vector of categorical values for variables
-```{r Vector categorical values}
+```{r Vector categorical values.1}
 values_categorical.1 <- c(
   "Don't know",
   "Seen but not answered",
@@ -238,14 +238,14 @@ values_categorical.1
 ```
 
 Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r Imp_check categorical variables}
+```{r Imp_check categorical variables.1}
 imp_check(data = dat,
           variables = "vaccine.which_vaccine",
           values = values_categorical.1)
 ```
 
 Create vector of categorical values for variables
-```{r Vector categorical values}
+```{r Vector categorical values.2}
 values_categorical.2 <- c(
   "Date:",
   "Don't know",
@@ -256,14 +256,14 @@ values_categorical
 ```
 
 Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r Imp_check categorical variables}
+```{r Imp_check categorical variables.2}
 imp_check(data = dat,
           variables = "vaccine.approximately_day_ddmmyyyy_enter",
           values = values_categorical)
 ```
 
 Create vector of categorical values for variables
-```{r Vector categorical values}
+```{r Vector categorical values.3}
 values_categorical.3 <- c(
   "I prefer not to say why",
   "Seen but not answered",
@@ -276,7 +276,7 @@ values_categorical.3
 ```
 
 Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r Imp_check categorical variables}
+```{r Imp_check categorical variables.3}
 imp_check(data = dat,
           variables = "vaccine.reason_options_provide_selecting",
           values = values_categorical.3)
@@ -322,7 +322,7 @@ imp_check(data = dat,
 ```
 
 Create vector of numeric values 
-```{r Vector numeric values}
+```{r Vector numeric values.1}
 values_numeric.1 <- c(
   1,
   2,
@@ -336,14 +336,14 @@ values_numeric.1
 
 
 Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r Imp_check numeric variables}
+```{r Imp_check numeric variables.1}
 imp_check(data = dat,
           variables = "vaccine.which_vaccine_numeric",
           values = values_numeric.1)
 ```
 
 Create vector of numeric values 
-```{r Vector numeric values}
+```{r Vector numeric values.2}
 values_numeric.2 <- c(
   1,
   2,
@@ -356,7 +356,7 @@ values_numeric.2
 ```
 
 Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r Imp_check numeric variables}
+```{r Imp_check numeric variables.2}
 imp_check(data = dat,
           variables = "vaccine.reason_options_provide_selecting_numeric",
           values = values_numeric.2)
@@ -413,7 +413,7 @@ variables_date <- c(
 ```
 
 Inspect date variables
-```{r COVIDCNS inspect dates}
+```{r COVIDCNS inspect dates initial}
 dat %>%
   select(all_of(variables_date)) %>%
   glimpse()

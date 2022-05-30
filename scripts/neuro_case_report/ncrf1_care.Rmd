@@ -1,0 +1,421 @@
+---
+title: "COVIDCNS NCRF1 Supportive Care Cleaning Script"
+author: "Chelsea Mika Malouf, Zain Ahmad"
+date: "18/02/2022"
+output: html_document
+---
+
+#Set up 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+)
+```
+
+```{r Delete everything in your global environment}
+remove(list = ls())
+```
+
+```{r Read in functions}
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check.R")
+source(file = "scripts/functions/add_numeric.R")
+```
+
+```{r Install load dependencies}
+packages <- c("summarytools",
+              "sjlabelled",
+              "Amelia",
+              "gtsummary",
+              "tidyverse")
+package_check(packages)
+```
+
+```{r Recent date}
+date <- Sys.Date()
+date
+```
+
+
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "scripts/credentials/paths.R")
+```
+
+
+## Read in covid cns data
+```{r Covid cns load data} 
+ncrf_dat <- read_rds(
+  file = paste0(ilovecovidcns, "/data_raw/2022-05-09/neuro_case_report/ncrf1_care_covid_cns.rds"))
+  
+# Check variable names in dataframe
+ncrf_dat %>%
+  colnames()
+
+# Inspect dimensions of dataframe 
+ncrf_dat %>%
+  dim()
+```
+
+```{r covid cns specify excluded columns}
+exclude_cols_numeric <- c(
+  "ID",
+  "sample",
+  "startDate",
+  "endDate",
+  "ncrf1_care.icu_or_high_dependency_unit_admission.txt",
+  "ncrf1_care.o2_flow.txt",
+  "ncrf1_care.overall_duration_of_invasive_ventilation.txt",
+  "ncrf1_care.modified_rankin_score.txt",
+  "ncrf1_care.any_other_issue_of_significance_to_note.txt"
+  )
+```
+
+```{r CNS select}
+ncrf_dat_id <- ncrf_dat %>% #new dataset with ID
+  drop_na(externalDataReference) %>% # Drop participants with no ID
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
+  add_column(sample = "CNS",
+             .after = "externalDataReference") %>% # Create new sample column
+  select(
+         ID = externalDataReference, # ID
+         sample,
+         startDate,
+         endDate,
+         ncrf1_care.icu_or_high_dependency_unit_admission,
+         ncrf1_care.icu_or_high_dependency_unit_admission.txt,
+         ncrf1_care.oxygen_therapy,
+         ncrf1_care.o2_flow,
+         ncrf1_care.o2_flow.txt,
+         ncrf1_care.fio2_interface,
+         ncrf1_care.overall_duration_of_invasive_ventilation.txt,
+         ncrf1_care.noninvasive_ventilation,
+         ncrf1_care.ecmo,
+         ncrf1_care.prone_position,
+         ncrf1_care.vasopressors,
+         ncrf1_care.renal_support,
+         ncrf1_care.modified_rankin_score.txt,
+         ncrf1_care.any_other_issue_of_significance_to_note.txt
+         ) %>%
+  add_numeric(exclude = exclude_cols_numeric)
+
+# Inspect colnames
+ncrf_dat_id %>%
+  colnames()
+```
+
+```{r cns number excluded}
+# Inspect dimensions of new data set
+ncrf_dat_id %>%
+  dim()
+
+# Inspect number of rows dropped
+ncrf_excluded <- dim(ncrf_dat_id)[1] - dim(ncrf_dat)[1]
+ncrf_excluded
+```
+
+```{r inspect numeric variables}
+ncrf_dat_id %>%
+   select(all_of(ends_with("numeric"))) %>%
+   tbl_summary(missing_text = "Missing")
+```
+
+```{r inspect missingness}
+miss_map <- ncrf_dat_id %>% 
+   missmap()
+ 
+miss_map
+```
+
+
+```{r Recode NA values}
+ dat <- ncrf_dat_id %>%
+   mutate(across(ends_with("numeric"),
+                 ~case_when(
+                   . == -55 ~ -555,
+                   . == -77 ~ -777,
+                   . == -88 ~ -888,
+                   . == -99 ~ -999,
+                   TRUE ~ .)))
+```
+
+
+
+# Cleaning Categorical variables
+```{r vector categorical variables ICU or high dependency unit admission}
+variables_categorical_icu_or_high_dependency_unit_admission <-
+  c(
+    "ncrf1_care.icu_or_high_dependency_unit_admission"
+    )
+variables_categorical_icu_or_high_dependency_unit_admission
+```
+
+```{r vector categorical values ICU or high dependency unit admission}
+values_categorical_icu_or_high_dependency_unit_admission <- 
+  c(
+    "Yes",
+    "No",
+    "Unknown",
+    "Seen but not answered",
+    NA
+  )
+values_categorical_icu_or_high_dependency_unit_admission
+```
+
+```{r imp_check categorical variables ICU or high dependency unit admission}
+imp_check(data = dat,
+          variables = variables_categorical_icu_or_high_dependency_unit_admission,
+          values = values_categorical_icu_or_high_dependency_unit_admission)
+#The number of implausible values in the dataset is 97. Please investigate
+```
+
+#Recode names 
+++ CMM Please note that the date is supposed to be provided if answered yes and shown in the text, but the text is all NA so the data for this round will be cleaned as Yes/No
+```{r recode ICU or high dependency unit admission}
+dat <- dat %>%  
+  mutate(
+    ncrf1_care.icu_or_high_dependency_unit_admission =
+           fct_recode(ncrf1_care.icu_or_high_dependency_unit_admission,
+    "Yes" = "Yes (provide date)"
+  )
+    )
+```
+
+```{r redo imp_check categorical variables ICU or high dependency unit admission}
+imp_check(data = dat,
+          variables = variables_categorical_icu_or_high_dependency_unit_admission,
+          values = values_categorical_icu_or_high_dependency_unit_admission)
+#There are no implausible values in the dataset. Can leave these variables as they are
+```
+
+
+```{r vector categorical variables 0_1}
+variables_categorical_0_1 <-
+  c(
+    "ncrf1_care.oxygen_therapy",
+    "ncrf1_care.noninvasive_ventilation",
+    "ncrf1_care.ecmo",
+    "ncrf1_care.prone_position",
+    "ncrf1_care.vasopressors",
+    "ncrf1_care.renal_support"
+    )
+variables_categorical_0_1
+```
+
+```{r vector categorical values 0_1}
+values_categorical_0_1 <- 
+  c(
+    "Yes",
+    "No",
+    "Unknown",
+    "Seen but not answered",
+    NA
+  )
+values_categorical_0_1
+```
+
+```{r imp_check categorical variables 0_1}
+imp_check(data = dat,
+          variables = variables_categorical_0_1,
+          values = values_categorical_0_1)
+#There are no implausible values in the dataset. Can leave these variables as they are
+```
+
+
+```{r vector categorical variables O2 flow}
+variables_categorical_O2_flow <-
+  c(
+    "ncrf1_care.o2_flow"
+    )
+variables_categorical_O2_flow
+```
+
+```{r vector categorical values O2 flow}
+values_categorical_O2_flow <- 
+  c(
+    "1-5 L/min",
+    "6-10 L/min",
+    "11-15 L/min",
+    "Other (L/min)",
+    "Unknown",
+    "Seen but not answered",
+    NA
+  )
+values_categorical_O2_flow
+```
+
+```{r imp_check categorical variables O2 flow}
+imp_check(data = dat,
+          variables = variables_categorical_O2_flow,
+          values = values_categorical_O2_flow)
+#There are no implausible values in the dataset. Can leave these variables as they are
+```
+   
+   
+```{r vector categorical variables FiO2 Interface}
+variables_categorical_FiO2_interface <-
+  c(
+    "ncrf1_care.fio2_interface"
+    )
+variables_categorical_FiO2_interface
+```
+
+```{r vector categorical values FiO2 Interface}
+values_categorical_FiO2_interface <- 
+  c(
+    "Nasal prongs",
+    "HF nasal canula",
+    "Mask",
+    "Mask with reservoir",
+    "CPAP/NIV mask",
+    "Unknown",
+    "Seen but not answered",
+    NA
+  )
+values_categorical_FiO2_interface
+```
+
+```{r imp_check categorical variables FiO2 Interface}
+imp_check(data = dat,
+          variables = variables_categorical_FiO2_interface,
+          values = values_categorical_FiO2_interface)
+#There are no implausible values in the dataset. Can leave these variables as they are.
+```
+
+
+# Numeric variables
+```{r vector numeric variables 0_1}
+variables_numeric_0_1 <-
+  c(
+    "ncrf1_care.icu_or_high_dependency_unit_admission_numeric",
+    "ncrf1_care.oxygen_therapy_numeric",
+    "ncrf1_care.noninvasive_ventilation_numeric",
+    "ncrf1_care.ecmo_numeric",
+    "ncrf1_care.prone_position_numeric",
+    "ncrf1_care.vasopressors_numeric",
+    "ncrf1_care.renal_support_numeric"
+    )
+variables_numeric_0_1
+```
+
+```{r vector numeric values 0_1}
+values_numeric_0_1 <- 
+  c(
+    0,
+    1,
+    -777,
+    -888,
+    NA
+  )
+values_numeric_0_1
+```
+
+```{r imp_check numeric variables 0_1}
+imp_check(data = dat,
+          variables = variables_numeric_0_1,
+          values = values_numeric_0_1)
+#There are no implausible values in the dataset. Can leave these variables as they are
+```
+
+
+```{r vector numeric variables o2_flow}
+variables_numeric_o2_flow <-
+  c(
+    "ncrf1_care.o2_flow_numeric"
+    )
+variables_numeric_o2_flow
+```
+
+```{r vector numeric values o2_flow}
+values_numeric_o2_flow <- 
+  c(
+    1,
+    2,
+    3,
+    4,
+    -777,
+    -888,
+    NA
+  )
+values_numeric_o2_flow
+```
+
+```{r imp_check numeric variables o2_flow}
+imp_check(data = dat,
+          variables = variables_numeric_o2_flow,
+          values = values_numeric_o2_flow)
+#There are no implausible values in the dataset. Can leave these variables as they are
+```
+
+```{r vector numeric variables fio2_interface}
+variables_numeric_fio2_interface <-
+  c(
+    "ncrf1_care.fio2_interface_numeric"
+    )
+variables_numeric_fio2_interface
+```
+
+```{r vector numeric values fio2_interface}
+values_numeric_fio2_interface <- 
+  c(
+    1,
+    2,
+    3,
+    4,
+    5,
+    -777,
+    -888,
+    NA
+  )
+values_numeric_fio2_interface
+```
+
+```{r imp_check numeric variables fio2_interface}
+imp_check(data = dat,
+          variables = variables_numeric_fio2_interface,
+          values = values_numeric_fio2_interface)
+#There are no implausible values in the dataset. Can leave these variables as they are
+```
+
+
+
+# Save cleaned data
+## Export variables
+
+```{r Export variables}
+export_variables <- c(
+         "ID",
+         "sample",
+         "startDate",
+         "endDate",
+         "ncrf1_care.icu_or_high_dependency_unit_admission",
+         "ncrf1_care.icu_or_high_dependency_unit_admission_numeric",
+         "ncrf1_care.oxygen_therapy",
+         "ncrf1_care.oxygen_therapy_numeric",
+         "ncrf1_care.o2_flow",
+         "ncrf1_care.o2_flow_numeric",
+         "ncrf1_care.fio2_interface",
+         "ncrf1_care.fio2_interface_numeric",
+         "ncrf1_care.noninvasive_ventilation",
+         "ncrf1_care.noninvasive_ventilation_numeric",
+         "ncrf1_care.ecmo",
+         "ncrf1_care.ecmo_numeric",
+         "ncrf1_care.prone_position",
+         "ncrf1_care.prone_position_numeric",
+         "ncrf1_care.vasopressors",
+         "ncrf1_care.vasopressors_numeric",
+         "ncrf1_care.renal_support",
+         "ncrf1_care.renal_support_numeric"
+         )
+```
+
+```{r Save clean data as a .rds file}
+dat %>% 
+  select(all_of(export_variables)) %>% 
+  saveRDS(file = 
+            paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_care_covidcns_clean.rds"))
+```

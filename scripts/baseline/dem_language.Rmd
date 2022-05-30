@@ -25,11 +25,11 @@ Add the add_numeric function - used to convert character variables into numeric 
 Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 ```{r Read in functions}
-source(file = "../functions/add_numeric_1.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check.R")
+source(file = "scripts/functions/add_numeric_1.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check.R")
 ```
 
 Note: always load tidyverse last
@@ -53,7 +53,7 @@ date
 
 ## Read in file with path to ilovecovidcns channel on Teams
 ```{r Read in file with path to ilovecovidcns channel on Teams}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: Demographics

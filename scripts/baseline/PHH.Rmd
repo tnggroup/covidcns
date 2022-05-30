@@ -5,831 +5,6 @@ date: "14/03/2022"
 output: html_document
 ---
 
-All
-
-#neuro
-"phh.epilepsy_or_convulsions",
-"phh.migraines",
-"phh.multiple_sclerosis",
-"phh.parkinsons_disease",
-"phh.brain_tumour",
-"phh.severe_memory_loss_",
-"phh.cerebral_palsy",
-"phh.dont_know",
-"phh.prefer_not_to_answer",
-"phh.none_of_the_above",
-
-#allergy
-"phh.hay_fever",
-"phh.drug_allergy",
-"phh.drug_allergy_text.txt",
-"phh.food_allergy_",
-"phh.food_allergy_text.txt",
-"phh.any_other_allergy_",
-"phh.allergy_text.txt",
-"phh.dont_know.1",
-"phh.prefer_not_to_answer.1",
-"phh.none_of_the_above.1",
-
-#osteo
-"phh.ankylosing_spondylitis",
-"phh.osteoporosis_or_thin_bones",
-"phh.hypermobility_",
-"phh.osteoarthritis",
-"phh.rheumatoid_arthritis",
-"phh.other_arthritis",
-"phh.other_arthritistext.txt",
-"phh.none_of_the_above.2",
-"phh.dont_know.2",
-
-#resp
-"phh.asthma",
-"phh.pulmonary_fibrosis",
-"phh.chronic_obstructive_pulmonary_disease_",
-"phh.cystic_fibrosis",
-"phh.pleural_effusion",
-"phh.pneumonia_",
-"phh.pulmonary_embolus_",
-"phh.emphysema_or_chronic_bronchitis",
-"phh.other",
-"phh.othertext.txt",
-"phh.dont_know.3",
-"phh.prefer_not_to_say",
-"phh.none_of_the_above.3",
-
-#cardio
-"phh.heart_attack_angina",
-"phh.high_blood_cholesterol",
-"phh.high_blood_pressure",
-"phh.atrial_fibrillation",
-"phh.stroke",
-"phh.paroxysmal_tachycardia_sydrome_",
-"phh.dont_know.4",
-"phh.prefer_not_to_answer.3",
-"phh.none_of_the_above.4",
-
-#cancer
-"phh.breast_cancer",
-"phh.lung_cancer",
-"phh.stomach_cancer",
-"phh.colon_cancer",
-"phh.uterus_cancer",
-"phh.prostate_cancer",
-"phh.bladder_cancer",
-"phh.bowel_cancer",
-"phh.rectal_cancer",
-"phh.lymphoma",
-"phh.melanoma",
-"phh.skin_cancer",
-"phh.ovarian_cancer",
-"phh.none_of_the_above.5",
-"phh.dont_know.5",
-"phh.prefer_not_to_answer.4",
-
-#derm
-"phh.psoriasis",
-"phh.vitiligo",
-"phh.eczema",
-"phh.thyroid_disease_",
-"phh.thyroid_disease_text.txt",
-"phh.pain_due_to_virus_",
-"phh.none_of_the_above.6",
-"phh.dont_know.6",
-"phh.prefer_not_to_answer.5",
-
-#medications
-"phh.list_reason_taking_type.txt",
-"phh.chronic_medical_conditions_mentioned",
-"phh.chronic_medical_conditions_diagnosis.txt",
-"phh.nbsp",
-"phh.nbsp.1",
-"phh.",
-"phh..1",
-"phh..2",
-"phh.nbsp.2",
-"phh.nbsp.3",
-"phh..3",
-"phh..4",
-"phh..5",
-"phh.nbsp.4",
-"phh.nbsp.5",
-"phh..6",
-"phh..7",
-"phh..8",
-"phh.longterm_prescription_medication",
-"phh.non_steroid_antiinflammatory_drugs",
-"phh.steroids",
-"phh.immunosuppressants",
-"phh.htr",
-"phh.thyroid_hormones",
-"phh.contraceptive_pill",
-"phh.intrauterine_device",
-"phh.intrauterine_system",
-"phh.bronchodilators",
-
-#neuro
-"phh.epilepsy_or_convulsions.1",
-"phh.migraines.1",
-"phh.multiple_sclerosis.1",
-"phh.parkinsons_disease.1",
-"phh.brain_tumour.1",
-"phh.severe_memory_loss",
-"phh.cerebral_palsy.1",
-"phh.dont_know.7",
-"phh.prefer_not_to_answer.6",
-"phh.none_of_the_above.7",
-"phh.epilepsy_or_convulsions.2",
-"phh.migraines.2",
-"phh.multiple_sclerosis.2",
-"phh.parkinsons_disease.2",
-"phh.brain_tumour.2",
-"phh.severe_memory_loss.1",
-"phh.cerebral_palsy.2",
-"phh.dont_know.8",
-"phh.prefer_not_to_answer.7",
-"phh.none_of_the_above.8",
-"phh.epilepsy_or_convulsions.3",
-"phh.migraines.3",
-"phh.multiple_sclerosis.3",
-"phh.parkinsons_disease.3",
-"phh.brain_tumour.3",
-"phh.severe_memory_loss.2",
-"phh.cerebral_palsy.3",
-"phh.dont_know.9",
-"phh.prefer_not_to_answer.8",
-"phh.none_of_the_above.9",
-
-#osteo
-"phh.ankylosing_spondylitis.1",
-"phh.osteoporosis_or_thin_bones.1",
-"phh.hypermobility",
-"phh.osteoarthritis.1",
-"phh.rheumatoid_arthritis.1",
-"phh.other_arthritis.1",
-"phh.prefer_not_to_answer.9",
-"phh.none_of_the_above.10",
-"phh.dont_know.10",
-"phh.ankylosing_spondylitis.2",
-"phh.osteoporosis_or_thin_bones.2",
-"phh.hypermobility.1",
-"phh.osteoarthritis.2",
-"phh.rheumatoid_arthritis.2",
-"phh.other_arthritis.2",
-"phh.prefer_not_to_answer.10",
-"phh.none_of_the_above.11",
-"phh.dont_know.11",
-"phh.ankylosing_spondylitis.3",
-"phh.osteoporosis_or_thin_bones.3",
-"phh.hypermobility.2",
-"phh.osteoarthritis.3",
-"phh.rheumatoid_arthritis.3",
-"phh.other_arthritis.3",
-"phh.prefer_not_to_answer.11",
-"phh.none_of_the_above.12",
-"phh.dont_know.12",
-
-#resp
-"phh.asthma.1",
-"phh.pulmonary_fibrosis.1",
-"phh.chronic_obstructive_pulmonary_disease",
-"phh.cystic_fibrosis.1",
-"phh.pleural_effusion.1",
-"phh.pneumonia",
-"phh.pulmonary_embolus",
-"phh.emphysema_or_chronic_bronchitis.1",
-"phh.other.1",
-"phh.dont_know.13",
-"phh.prefer_not_to_say.1",
-"phh.none_of_the_above.13",
-"phh.asthma.2",
-"phh.pulmonary_fibrosis.2",
-"phh.chronic_obstructive_pulmonary_disease.1",
-"phh.cystic_fibrosis.2",
-"phh.pleural_effusion.2",
-"phh.pneumonia.1",
-"phh.pulmonary_embolus.1",
-"phh.emphysema_or_chronic_bronchitis.2",
-"phh.other.2",
-"phh.dont_know.14",
-"phh.prefer_not_to_say.2",
-"phh.none_of_the_above.14",
-"phh.asthma.3",
-"phh.pulmonary_fibrosis.3",
-"phh.chronic_obstructive_pulmonary_disease.2",
-"phh.cystic_fibrosis.3",
-"phh.pleural_effusion.3",
-"phh.pneumonia.2",
-"phh.pulmonary_embolus.2",
-"phh.emphysema_or_chronic_bronchitis.3",
-"phh.other.3",
-"phh.dont_know.15",
-"phh.prefer_not_to_say.3",
-"phh.none_of_the_above.15",
-
-#cardio
-"phh.heart_attack_angina.1",
-"phh.high_blood_cholesterol.1",
-"phh.high_blood_pressure.1",
-"phh.atrial_fibrillation.1",
-"phh.stroke.1",
-"phh.paroxysmal_tachycardia_sydrome",
-"phh.dont_know.16",
-"phh.prefer_not_to_answer.12",
-"phh.none_of_the_above.16",
-"phh.heart_attack_angina.2",
-"phh.high_blood_cholesterol.2",
-"phh.high_blood_pressure.2",
-"phh.atrial_fibrillation.2",
-"phh.stroke.2",
-"phh.paroxysmal_tachycardia_sydrome.1",
-"phh.dont_know.17",
-"phh.prefer_not_to_answer.13",
-"phh.none_of_the_above.17",
-"phh.heart_attack_angina.3",
-"phh.high_blood_cholesterol.3",
-"phh.high_blood_pressure.3",
-"phh.atrial_fibrillation.3",
-"phh.stroke.3",
-"phh.paroxysmal_tachycardia_sydrome.2",
-"phh.dont_know.18",
-"phh.prefer_not_to_answer.14",
-"phh.none_of_the_above.18",
-
-#cancer
-"phh.breast_cancer.1",
-"phh.lung_cancer.1",
-"phh.stomach_cancer.1",
-"phh.colon_cancer.1",
-"phh.uterus_cancer.1",
-"phh.prostate_cancer.1",
-"phh.bladder_cancer.1",
-"phh.bowel_cancer.1",
-"phh.rectal_cancer.1",
-"phh.lymphoma.1",
-"phh.melanoma.1",
-"phh.skin_cancer.1",
-"phh.ovarian_cancer.1",
-"phh.none_of_the_above.19",
-"phh.dont_know.19",
-"phh.prefer_not_to_answer.15",
-"phh.breast_cancer.2",
-"phh.lung_cancer.2",
-"phh.stomach_cancer.2",
-"phh.colon_cancer.2",
-"phh.uterus_cancer.2",
-"phh.prostate_cancer.2",
-"phh.bladder_cancer.2",
-"phh.bowel_cancer.2",
-"phh.rectal_cancer.2",
-"phh.lymphoma.2",
-"phh.melanoma.2",
-"phh.skin_cancer.2",
-"phh.ovarian_cancer.2",
-"phh.none_of_the_above.20",
-"phh.dont_know.20",
-"phh.prefer_not_to_answer.16",
-"phh.breast_cancer.3",
-"phh.lung_cancer.3",
-"phh.stomach_cancer.3",
-"phh.colon_cancer.3",
-"phh.uterus_cancer.3",
-"phh.prostate_cancer.3",
-"phh.bladder_cancer.3",
-"phh.bowel_cancer.3",
-"phh.rectal_cancer.3",
-"phh.lymphoma.3",
-"phh.melanoma.3",
-"phh.skin_cancer.3",
-"phh.ovarian_cancer.3",
-"phh.none_of_the_above.21",
-"phh.dont_know.21",
-"phh.prefer_not_to_answer.17",
-
-#derm
-"phh.psoriasis.1",
-"phh.vitiligo.1",
-"phh.eczema.1",
-"phh.thyroid_disease_.1",
-"phh.pain_due_to_virus",
-"phh.none_of_the_above.22",
-"phh.dont_know.22",
-"phh.prefer_not_to_answer.18",
-"phh.psoriasis.2",
-"phh.vitiligo.2",
-"phh.eczema.2",
-"phh.thyroid_disease_.2",
-"phh.pain_due_to_virus.1",
-"phh.none_of_the_above.23",
-"phh.dont_know.23",
-"phh.prefer_not_to_answer.19",
-"phh.psoriasis.3",
-"phh.vitiligo.3",
-"phh.eczema.3",
-"phh.thyroid_disease_.3",
-"phh.pain_due_to_virus.2",
-"phh.none_of_the_above.24",
-"phh.dont_know.24",
-"phh.prefer_not_to_answer.20",
-
-#allergy
-"phh.hay_fever.1",
-"phh.drug_allergy_",
-"phh.food_allergy_.1",
-"phh.any_other_allergy_.1",
-"phh.dont_know.25",
-"phh.prefer_not_to_answer.21",
-"phh.none_of_the_above.25",
-"phh.hay_fever.2",
-"phh.drug_allergy_.1",
-"phh.food_allergy_.2",
-"phh.any_other_allergy_.2",
-"phh.dont_know.26",
-"phh.prefer_not_to_answer.22",
-"phh.none_of_the_above.26",
-"phh.hay_fever.3",
-"phh.drug_allergy_.2",
-"phh.food_allergy_.3",
-"phh.any_other_allergy_.3",
-"phh.dont_know.27",
-"phh.prefer_not_to_answer.23",
-"phh.none_of_the_above.27",
-
-#gastro
-"phh.crohns_disease",
-"phh.ulcerative_colitis",
-"phh.irritable_bowel_disease_",
-"phh.coeliac_disease",
-"phh.bacterial_stomach_infection_",
-"phh.viral_weeks_bacterial_stomach",
-"phh.diabetes_type_1_",
-"phh.diabetes_type_2_",
-"phh.pain_due_to_diabetes_",
-"phh.dont_know.28",
-"phh.prefer_not_to_answer.24",
-"phh.none_of_the_above.28",
-"phh.crohns_disease.1",
-"phh.ulcerative_colitis.1",
-"phh.irritable_bowel_disease",
-"phh.coeliac_disease.1",
-"phh.bacterial_stomach_infection",
-"phh.viral_weeks_bacterial_stomach.1",
-"phh.diabetes_type_1",
-"phh.diabetes_type_2",
-"phh.pain_due_to_diabetes",
-"phh.dont_know.29",
-"phh.prefer_not_to_answer.25",
-"phh.none_of_the_above.29",
-"phh.crohns_disease.2",
-"phh.ulcerative_colitis.2",
-"phh.irritable_bowel_disease.1",
-"phh.coeliac_disease.2",
-"phh.bacterial_stomach_infection.1",
-"phh.viral_weeks_bacterial_stomach.2",
-"phh.diabetes_type_1.1",
-"phh.diabetes_type_2.1",
-"phh.pain_due_to_diabetes.1",
-"phh.dont_know.30",
-"phh.prefer_not_to_answer.26",
-"phh.none_of_the_above.30",
-"phh.crohns_disease.3",
-"phh.ulcerative_colitis.3",
-"phh.irritable_bowel_disease.2",
-"phh.coeliac_disease.3",
-"phh.bacterial_stomach_infection.2",
-"phh.viral_weeks_bacterial_stomach.3",
-"phh.diabetes_type_1.2",
-"phh.diabetes_type_2.2",
-"phh.pain_due_to_diabetes.2",
-"phh.dont_know.31",
-"phh.prefer_not_to_answer.27",
-"phh.none_of_the_above.31"
-
-
-Ages
-
-#neuro
-"phh.epilepsy_or_convulsions.1",
-"phh.migraines.1",
-"phh.multiple_sclerosis.1",
-"phh.parkinsons_disease.1",
-"phh.brain_tumour.1",
-"phh.severe_memory_loss",
-"phh.cerebral_palsy.1",
-"phh.dont_know.7",
-"phh.prefer_not_to_answer.6",
-"phh.none_of_the_above.7",
-
-#osteo
-"phh.ankylosing_spondylitis.1",
-"phh.osteoporosis_or_thin_bones.1",
-"phh.hypermobility",
-"phh.osteoarthritis.1",
-"phh.rheumatoid_arthritis.1",
-"phh.other_arthritis.1",
-"phh.prefer_not_to_answer.9",
-"phh.none_of_the_above.10",
-"phh.dont_know.10",
-
-#resp
-"phh.asthma.1",
-"phh.pulmonary_fibrosis.1",
-"phh.chronic_obstructive_pulmonary_disease",
-"phh.cystic_fibrosis.1",
-"phh.pleural_effusion.1",
-"phh.pneumonia",
-"phh.pulmonary_embolus",
-"phh.emphysema_or_chronic_bronchitis.1",
-"phh.other.1",
-"phh.dont_know.13",
-"phh.prefer_not_to_say.1",
-"phh.none_of_the_above.13",
-
-#cardio
-"phh.heart_attack_angina.1",
-"phh.high_blood_cholesterol.1",
-"phh.high_blood_pressure.1",
-"phh.atrial_fibrillation.1",
-"phh.stroke.1",
-"phh.paroxysmal_tachycardia_sydrome",
-"phh.dont_know.16",
-"phh.prefer_not_to_answer.12",
-"phh.none_of_the_above.16",
-
-#cancer
-"phh.breast_cancer.1",
-"phh.lung_cancer.1",
-"phh.stomach_cancer.1",
-"phh.colon_cancer.1",
-"phh.uterus_cancer.1",
-"phh.prostate_cancer.1",
-"phh.bladder_cancer.1",
-"phh.bowel_cancer.1",
-"phh.rectal_cancer.1",
-"phh.lymphoma.1",
-"phh.melanoma.1",
-"phh.skin_cancer.1",
-"phh.ovarian_cancer.1",
-"phh.none_of_the_above.19",
-"phh.dont_know.19",
-"phh.prefer_not_to_answer.15",
-
-#derm
-"phh.psoriasis.1",
-"phh.vitiligo.1",
-"phh.eczema.1",
-"phh.thyroid_disease_.1",
-"phh.pain_due_to_virus",
-"phh.none_of_the_above.22",
-"phh.dont_know.22",
-"phh.prefer_not_to_answer.18",
-
-#allergy
-"phh.hay_fever.1",
-"phh.drug_allergy_",
-"phh.food_allergy_.1",
-"phh.any_other_allergy_.1",
-"phh.dont_know.25",
-"phh.prefer_not_to_answer.21",
-"phh.none_of_the_above.25",
-
-#gastro
-"phh.crohns_disease.1",
-"phh.ulcerative_colitis.1",
-"phh.irritable_bowel_disease",
-"phh.coeliac_disease.1",
-"phh.bacterial_stomach_infection",
-"phh.viral_weeks_bacterial_stomach.1",
-"phh.diabetes_type_1",
-"phh.diabetes_type_2",
-"phh.pain_due_to_diabetes",
-"phh.dont_know.29",
-"phh.prefer_not_to_answer.25",
-"phh.none_of_the_above.29"
-
-
-
-Text
-"phh.nbsp",
-"phh.nbsp.1",
-"phh.",
-"phh..1",
-"phh..2",
-"phh.nbsp.2",
-"phh.nbsp.3",
-"phh..3",
-"phh..4",
-"phh..5",
-"phh.nbsp.4",
-"phh.nbsp.5",
-"phh..6",
-"phh..7",
-"phh..8",
-"phh.drug_allergy_text.txt",
-"phh.food_allergy_text.txt",
-"phh.allergy_text.txt",
-"phh.other_arthritistext.txt",
-"phh.othertext.txt",
-"phh.thyroid_disease_text.txt",
-"phh.list_reason_taking_type.txt",
-"phh.chronic_medical_conditions_diagnosis.txt"
-
-
-
-Categorical
-"phh.epilepsy_or_convulsions",
-"phh.migraines",
-"phh.multiple_sclerosis",
-"phh.parkinsons_disease",
-"phh.brain_tumour",
-"phh.severe_memory_loss_",
-"phh.cerebral_palsy",
-"phh.dont_know",
-"phh.prefer_not_to_answer",
-"phh.none_of_the_above",
-"phh.hay_fever",
-"phh.drug_allergy",
-
-
-"phh.food_allergy_",
-
-
-"phh.any_other_allergy_",
-
-
-"phh.dont_know.1",
-"phh.prefer_not_to_answer.1",
-"phh.none_of_the_above.1",
-"phh.ankylosing_spondylitis",
-"phh.osteoporosis_or_thin_bones",
-"phh.hypermobility_",
-"phh.osteoarthritis",
-"phh.rheumatoid_arthritis",
-"phh.other_arthritis",
-
-
-"phh.none_of_the_above.2",
-"phh.dont_know.2",
-"phh.asthma",
-"phh.pulmonary_fibrosis",
-"phh.chronic_obstructive_pulmonary_disease_",
-"phh.cystic_fibrosis",
-"phh.pleural_effusion",
-"phh.pneumonia_",
-"phh.pulmonary_embolus_",
-"phh.emphysema_or_chronic_bronchitis",
-"phh.other",
-
-
-"phh.dont_know.3",
-"phh.prefer_not_to_say",
-"phh.none_of_the_above.3",
-"phh.heart_attack_angina",
-"phh.high_blood_cholesterol",
-"phh.high_blood_pressure",
-"phh.atrial_fibrillation",
-"phh.stroke",
-"phh.paroxysmal_tachycardia_sydrome_",
-"phh.dont_know.4",
-"phh.prefer_not_to_answer.3",
-"phh.none_of_the_above.4",
-"phh.breast_cancer",
-"phh.lung_cancer",
-"phh.stomach_cancer",
-"phh.colon_cancer",
-"phh.uterus_cancer",
-"phh.prostate_cancer",
-"phh.bladder_cancer",
-"phh.bowel_cancer",
-"phh.rectal_cancer",
-"phh.lymphoma",
-"phh.melanoma",
-"phh.skin_cancer",
-"phh.ovarian_cancer",
-"phh.none_of_the_above.5",
-"phh.dont_know.5",
-"phh.prefer_not_to_answer.4",
-"phh.psoriasis",
-"phh.vitiligo",
-"phh.eczema",
-"phh.thyroid_disease_",
-
-
-"phh.pain_due_to_virus_",
-"phh.none_of_the_above.6",
-"phh.dont_know.6",
-"phh.prefer_not_to_answer.5",
-
-
-"phh.chronic_medical_conditions_mentioned",
-
-
-"phh.longterm_prescription_medication",
-
-
-"phh.non_steroid_antiinflammatory_drugs",
-"phh.steroids",
-"phh.immunosuppressants",
-"phh.htr",
-"phh.thyroid_hormones",
-"phh.contraceptive_pill",
-"phh.intrauterine_device",
-"phh.intrauterine_system",
-"phh.bronchodilators",
-
-
-"phh.epilepsy_or_convulsions.2",
-"phh.migraines.2",
-"phh.multiple_sclerosis.2",
-"phh.parkinsons_disease.2",
-"phh.brain_tumour.2",
-"phh.severe_memory_loss.1",
-"phh.cerebral_palsy.2",
-"phh.dont_know.8",
-"phh.prefer_not_to_answer.7",
-"phh.none_of_the_above.8",
-"phh.epilepsy_or_convulsions.3",
-"phh.migraines.3",
-"phh.multiple_sclerosis.3",
-"phh.parkinsons_disease.3",
-"phh.brain_tumour.3",
-"phh.severe_memory_loss.2",
-"phh.cerebral_palsy.3",
-"phh.dont_know.9",
-"phh.prefer_not_to_answer.8",
-"phh.none_of_the_above.9",
-
-
-"phh.ankylosing_spondylitis.2",
-"phh.osteoporosis_or_thin_bones.2",
-"phh.hypermobility.1",
-"phh.osteoarthritis.2",
-"phh.rheumatoid_arthritis.2",
-"phh.other_arthritis.2",
-"phh.prefer_not_to_answer.10",
-"phh.none_of_the_above.11",
-"phh.dont_know.11",
-"phh.ankylosing_spondylitis.3",
-"phh.osteoporosis_or_thin_bones.3",
-"phh.hypermobility.2",
-"phh.osteoarthritis.3",
-"phh.rheumatoid_arthritis.3",
-"phh.other_arthritis.3",
-"phh.prefer_not_to_answer.11",
-"phh.none_of_the_above.12",
-"phh.dont_know.12",
-
-
-"phh.asthma.2",
-"phh.pulmonary_fibrosis.2",
-"phh.chronic_obstructive_pulmonary_disease.1",
-"phh.cystic_fibrosis.2",
-"phh.pleural_effusion.2",
-"phh.pneumonia.1",
-"phh.pulmonary_embolus.1",
-"phh.emphysema_or_chronic_bronchitis.2",
-"phh.other.2",
-"phh.dont_know.14",
-"phh.prefer_not_to_say.2",
-"phh.none_of_the_above.14",
-"phh.asthma.3",
-"phh.pulmonary_fibrosis.3",
-"phh.chronic_obstructive_pulmonary_disease.2",
-"phh.cystic_fibrosis.3",
-"phh.pleural_effusion.3",
-"phh.pneumonia.2",
-"phh.pulmonary_embolus.2",
-"phh.emphysema_or_chronic_bronchitis.3",
-"phh.other.3",
-"phh.dont_know.15",
-"phh.prefer_not_to_say.3",
-"phh.none_of_the_above.15",
-
-
-"phh.heart_attack_angina.2",
-"phh.high_blood_cholesterol.2",
-"phh.high_blood_pressure.2",
-"phh.atrial_fibrillation.2",
-"phh.stroke.2",
-"phh.paroxysmal_tachycardia_sydrome.1",
-"phh.dont_know.17",
-"phh.prefer_not_to_answer.13",
-"phh.none_of_the_above.17",
-"phh.heart_attack_angina.3",
-"phh.high_blood_cholesterol.3",
-"phh.high_blood_pressure.3",
-"phh.atrial_fibrillation.3",
-"phh.stroke.3",
-"phh.paroxysmal_tachycardia_sydrome.2",
-"phh.dont_know.18",
-"phh.prefer_not_to_answer.14",
-"phh.none_of_the_above.18",
-
-
-"phh.breast_cancer.2",
-"phh.lung_cancer.2",
-"phh.stomach_cancer.2",
-"phh.colon_cancer.2",
-"phh.uterus_cancer.2",
-"phh.prostate_cancer.2",
-"phh.bladder_cancer.2",
-"phh.bowel_cancer.2",
-"phh.rectal_cancer.2",
-"phh.lymphoma.2",
-"phh.melanoma.2",
-"phh.skin_cancer.2",
-"phh.ovarian_cancer.2",
-"phh.none_of_the_above.20",
-"phh.dont_know.20",
-"phh.prefer_not_to_answer.16",
-"phh.breast_cancer.3",
-"phh.lung_cancer.3",
-"phh.stomach_cancer.3",
-"phh.colon_cancer.3",
-"phh.uterus_cancer.3",
-"phh.prostate_cancer.3",
-"phh.bladder_cancer.3",
-"phh.bowel_cancer.3",
-"phh.rectal_cancer.3",
-"phh.lymphoma.3",
-"phh.melanoma.3",
-"phh.skin_cancer.3",
-"phh.ovarian_cancer.3",
-"phh.none_of_the_above.21",
-"phh.dont_know.21",
-"phh.prefer_not_to_answer.17",
-
-
-"phh.psoriasis.2",
-"phh.vitiligo.2",
-"phh.eczema.2",
-"phh.thyroid_disease_.2",
-"phh.pain_due_to_virus.1",
-"phh.none_of_the_above.23",
-"phh.dont_know.23",
-"phh.prefer_not_to_answer.19",
-"phh.psoriasis.3",
-"phh.vitiligo.3",
-"phh.eczema.3",
-"phh.thyroid_disease_.3",
-"phh.pain_due_to_virus.2",
-"phh.none_of_the_above.24",
-"phh.dont_know.24",
-"phh.prefer_not_to_answer.20",
-
-
-"phh.hay_fever.2",
-"phh.drug_allergy_.1",
-"phh.food_allergy_.2",
-"phh.any_other_allergy_.2",
-"phh.dont_know.26",
-"phh.prefer_not_to_answer.22",
-"phh.none_of_the_above.26",
-"phh.hay_fever.3",
-"phh.drug_allergy_.2",
-"phh.food_allergy_.3",
-"phh.any_other_allergy_.3",
-"phh.dont_know.27",
-"phh.prefer_not_to_answer.23",
-"phh.none_of_the_above.27",
-"phh.crohns_disease",
-"phh.ulcerative_colitis",
-"phh.irritable_bowel_disease_",
-"phh.coeliac_disease",
-"phh.bacterial_stomach_infection_",
-"phh.viral_weeks_bacterial_stomach",
-"phh.diabetes_type_1_",
-"phh.diabetes_type_2_",
-"phh.pain_due_to_diabetes_",
-"phh.dont_know.28",
-"phh.prefer_not_to_answer.24",
-"phh.none_of_the_above.28",
-
-
-"phh.crohns_disease.2",
-"phh.ulcerative_colitis.2",
-"phh.irritable_bowel_disease.1",
-"phh.coeliac_disease.2",
-"phh.bacterial_stomach_infection.1",
-"phh.viral_weeks_bacterial_stomach.2",
-"phh.diabetes_type_1.1",
-"phh.diabetes_type_2.1",
-"phh.pain_due_to_diabetes.1",
-"phh.dont_know.30",
-"phh.prefer_not_to_answer.26",
-"phh.none_of_the_above.30",
-"phh.crohns_disease.3",
-"phh.ulcerative_colitis.3",
-"phh.irritable_bowel_disease.2",
-"phh.coeliac_disease.3",
-"phh.bacterial_stomach_infection.2",
-"phh.viral_weeks_bacterial_stomach.3",
-"phh.diabetes_type_1.2",
-"phh.diabetes_type_2.2",
-"phh.pain_due_to_diabetes.2",
-"phh.dont_know.31",
-"phh.prefer_not_to_answer.27",
-"phh.none_of_the_above.31"
-
 
 All arguments should be in their own row, including the first argument
 Closing bracket should have its own row
@@ -862,13 +37,16 @@ Add the add_numeric function - used to convert character variables into numeric 
 Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
 Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
-Add the imp_check function - used to check variables for implausible values
+Add the recode_check function - used to check for implausible values when recoding
+Add the imp_clean function - used to check variables for implausible values
+Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric_1.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check_1.R")
+source(file = "scripts/functions/add_numeric_1.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/recode_check.R")
+source(file = "scripts/functions/cont_clean.R")
 ```
 
 Use package_check to install and load dependencies
@@ -878,13 +56,13 @@ packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
 package_check(packages)
 ```
 
-Read in file with path to ilovedata channel on Teams
+Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
-```{r Read in file with path to ilovedata channel on teams}
-source(file = "../credentials/paths.R")
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "scripts/credentials/paths.R")
 ```
 
-# Read in the data: Full Name of Questionnaire/Demographic
+# Read in the data: New Look PHH Script
 Change this heading to the name of your questionnaire/demographic
 Load COVIDCNS data
 
@@ -902,7 +80,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovedata, "/data_raw/latest_freeze/covid_cns/baseline/phh_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/phh_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -912,7 +90,831 @@ covidcns_dat %>%
 # Inspect dimensions of dataframe 
 covidcns_dat %>%
   dim()
+
+# Count NAs in ID column
+sum(is.na(covidcns_dat$externalDataReference))
+
+# Count duplicates in ID column
+sum(table(covidcns_dat$externalDataReference)-1)
+
+# Report duplicates in ID column
+table(covidcns_dat$externalDataReference)[table(covidcns_dat$externalDataReference)>1]
 ```
+
+Select & rename relevant columns
+```{r COVIDCNS select}
+covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
+  drop_na(externalDataReference) %>% # Drop participants with no ID
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
+  add_column(sample = "COVIDCNS",
+             .after = "externalDataReference") %>%
+  dplyr::rename(
+    "ID" = "externalDataReference"
+  )
+
+# Inspect colnames
+covidcns_dat_id %>%
+  colnames()
+```
+
+Look at number of people excluded
+The number of people to be excluded should be negative
+```{r COVIDCNS number excluded}
+# Inspect dimensions of new data set
+covidcns_dat_id %>%
+  dim()
+
+# Inspect number of rows dropped
+covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
+covidcns_excluded
+```
+
+Check missingness by missmap
+```{r COVIDCNS inspect missingness}
+covidcns_miss_map <- covidcns_dat_id %>% 
+  missmap()
+
+covidcns_miss_map
+```
+
+Create dat as copy of covidcns_dat_id for brevity
+This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
+```{r Create dat}
+dat <- covidcns_dat_id 
+```
+
+Extract and save labels
+```{r}
+question_labels <- sjlabelled::get_label(dat)
+
+answer_labels <- sjlabelled::get_labels(dat, values = "as.name")
+
+chng <- rapply(sapply(answer_labels, names), function(x) ifelse(x==-77,-777,x), how = "replace")
+
+for (i in 5:length(chng)){
+  names(answer_labels[[i]]) <- chng[[i]]
+}
+```
+
+Create list of all labels and attributes
+```{r List labels attrs, eval=FALSE, include=FALSE}
+lablst <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
+lablst
+```
+
+
+Recode Non-answer values to 3 digits
+-555 'Not applicable' response from participant
+-777 Seen but not answered
+-888 Don't know
+-999 Prefer not to answer/Prefer not to say
+`NA` Were not shown the question (genuinely missing value)
+When we code someone as being 'not applicable' by deduction, we use `NA_real_`
+```{r Recode NA values}
+dat <- dat %>%
+  mutate(across(where(is.numeric),
+                ~case_when(
+                  . == -55 ~ -555,
+                  . == -77 ~ -777,
+                  . == -88 ~ -888,
+                  . == -99 ~ -999,
+                  TRUE ~ .)
+                )
+         )
+
+dat <- sjlabelled::set_label(dat, question_labels)
+dat <- sjlabelled::set_labels(dat, labels = answer_labels)
+```
+
+# Cleaning Continuous Variables
+
+Create vector of continuous variables
+```{r Create cont vars vector}
+variables_cont <- c(
+  #ages
+  #neuro
+  "phh.epilepsy_or_convulsions.1",
+  "phh.migraines.1",
+  "phh.multiple_sclerosis.1",
+  "phh.parkinsons_disease.1",
+  "phh.brain_tumour.1",
+  "phh.severe_memory_loss",
+  "phh.cerebral_palsy.1",
+  "phh.dont_know.7",
+  "phh.prefer_not_to_answer.6",
+  "phh.none_of_the_above.7",
+  
+  #osteo
+  "phh.ankylosing_spondylitis.1",
+  "phh.osteoporosis_or_thin_bones.1",
+  "phh.hypermobility",
+  "phh.osteoarthritis.1",
+  "phh.rheumatoid_arthritis.1",
+  "phh.other_arthritis.1",
+  "phh.prefer_not_to_answer.9",
+  "phh.none_of_the_above.10",
+  "phh.dont_know.10",
+  
+  #resp
+  "phh.asthma.1",
+  "phh.pulmonary_fibrosis.1",
+  "phh.chronic_obstructive_pulmonary_disease",
+  "phh.cystic_fibrosis.1",
+  "phh.pleural_effusion.1",
+  "phh.pneumonia",
+  "phh.pulmonary_embolus",
+  "phh.emphysema_or_chronic_bronchitis.1",
+  "phh.other.1",
+  "phh.dont_know.13",
+  "phh.prefer_not_to_say.1",
+  "phh.none_of_the_above.13",
+  
+  #cardio
+  "phh.heart_attack_angina.1",
+  "phh.high_blood_cholesterol.1",
+  "phh.high_blood_pressure.1",
+  "phh.atrial_fibrillation.1",
+  "phh.stroke.1",
+  "phh.paroxysmal_tachycardia_sydrome",
+  "phh.dont_know.16",
+  "phh.prefer_not_to_answer.12",
+  "phh.none_of_the_above.16",
+  
+  #cancer
+  "phh.breast_cancer.1",
+  "phh.lung_cancer.1",
+  "phh.stomach_cancer.1",
+  "phh.colon_cancer.1",
+  "phh.uterus_cancer.1",
+  "phh.prostate_cancer.1",
+  "phh.bladder_cancer.1",
+  "phh.bowel_cancer.1",
+  "phh.rectal_cancer.1",
+  "phh.lymphoma.1",
+  "phh.melanoma.1",
+  "phh.skin_cancer.1",
+  "phh.ovarian_cancer.1",
+  "phh.none_of_the_above.19",
+  "phh.dont_know.19",
+  "phh.prefer_not_to_answer.15",
+  
+  #derm
+  "phh.psoriasis.1",
+  "phh.vitiligo.1",
+  "phh.eczema.1",
+  "phh.thyroid_disease_.1",
+  "phh.pain_due_to_virus",
+  "phh.none_of_the_above.22",
+  "phh.dont_know.22",
+  "phh.prefer_not_to_answer.18",
+  
+  #allergy
+  "phh.hay_fever.1",
+  "phh.drug_allergy_",
+  "phh.food_allergy_.1",
+  "phh.any_other_allergy_.1",
+  "phh.dont_know.25",
+  "phh.prefer_not_to_answer.21",
+  "phh.none_of_the_above.25",
+  
+  #gastro
+  "phh.crohns_disease.1",
+  "phh.ulcerative_colitis.1",
+  "phh.irritable_bowel_disease",
+  "phh.coeliac_disease.1",
+  "phh.bacterial_stomach_infection",
+  "phh.viral_weeks_bacterial_stomach.1",
+  "phh.diabetes_type_1",
+  "phh.diabetes_type_2",
+  "phh.pain_due_to_diabetes",
+  "phh.dont_know.29",
+  "phh.prefer_not_to_answer.25",
+  "phh.none_of_the_above.29"
+)
+length(variables_cont)
+```
+
+Inspect continuous variables
+Use the question labels to ascertain context at this point and check for obvious outliers
+The percentiles can be modified to exclude nonanswer values as appropriate to your data
+```{r Inspect cont vars}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
+```
+
+Check for text in continuous variables
+If the fields contain text at this point, use the chunk below to clean manually
+```{r Cont vars check text}
+check_for_string <- function(x){
+  sum(str_detect(x, "[a-zA-Z]"), na.rm = TRUE) > 0}
+
+dat %>%
+  select(all_of(variables_cont)) %>%
+  select(where(check_for_string)) %>%
+  filter(
+    if_any(where(check_for_string),
+           ~str_detect(., "[a-zA-Z\\s]+")
+           )
+    )
+```
+
+Remove text from numeric variables
+```{r Cont vars remove text}
+dat <- dat %>%
+  mutate(across(all_of(variables_cont),
+                ~str_remove(., "[a-zA-Z\\s]+")
+                )
+         )
+```
+
+Remove empty variables from variables_cont
+These all contain only NAs and serve only to interfere with processing
+```{r}
+rem_vars <- dat %>%
+  select(all_of(variables_cont)) %>%
+  select(where(~all(is.na(.))
+               )
+         ) %>%
+  colnames()
+
+variables_cont <- variables_cont[!variables_cont %in% rem_vars]
+length(variables_cont)
+```
+
+Mutate variables to numeric after cleaning out text
+This step is necessary to check for non-integer values
+Modify the all_of statement as required: DO NOT MUTATE TO NUMERIC UNNECESSARILY
+REMOVE THIS CHUNK IF NOT NECESSARY
+
+```{r Cont vars to numeric}
+dat <- dat %>%
+  mutate(across(all_of(variables_cont),
+                ~as.numeric(.)
+                )
+         )
+
+dat <- sjlabelled::set_label(dat, question_labels)
+dat <- sjlabelled::set_labels(dat, labels = answer_labels)
+```
+
+Transform nonanswer values to 3 digit
+```{r Cont vars nonanswer}
+dat <- dat %>%
+  mutate(across(where(is.numeric),
+                ~case_when(
+                  . == -55 ~ -555,
+                  . == -77 ~ -777,
+                  . == -88 ~ -888,
+                  . == -99 ~ -999,
+                  TRUE ~ .)
+                )
+         )
+
+dat <- sjlabelled::set_label(dat, question_labels)
+dat <- sjlabelled::set_labels(dat, labels = answer_labels)
+```
+
+Create matrix of limits for continuous variables
+Matrix is series of vectors (lower, upper)
+Define limits for variable and list reasoning below
+Variable name: Age
+- Lower: 0
+- Upper: 117 (oldest person in the world)
+```{r Create matrix limits}
+limits_mat <- t(matrix(rep(c(0,117), 62), nrow = 2, ncol = 62))
+dim(limits_mat)
+```
+
+Set row and col names of limits_mat
+This allows your to easily refer back to limits_mat for a summary
+```{r Set lim_mat names}
+rownames(limits_mat) <- variables_cont
+colnames(limits_mat) <- c("Lower", "Upper")
+```
+
+Use cont_clean to check if any implausible values and provide replacement vectors
+Cont_clean will not proceed if variables are not numeric type, clean manually above if necessary
+```{r Cont_clean cont vars}
+cont_list <- cont_clean(
+  variables = variables_cont,
+  limits_mat = limits_mat,
+  dat = dat
+)
+
+imp_checklist <- c()
+
+for (i in 1:length(variables_cont)){
+  if(cont_list[[variables_cont[i]]]$Count > 0){
+    imp_checklist <- append(x = imp_checklist, variables_cont[i])
+    print(paste0("Implausibles in ", variables_cont[i], ": ", cont_list[[variables_cont[i]]]$Count))
+  }
+}
+```
+
+Check unique values in variables containing implausible values
+** Fields contain years which require import of dob data to extract age, transform to -666 for now
+```{r Cont vars implausible unique}
+dat %>%
+  select(all_of(imp_checklist)) %>%
+  sapply(., function(x) sort(unique(x)))
+```
+
+Mutate variables with implausible values removed
+```{r Mutate cont vars}
+dat <- dat %>%
+  mutate(
+    phh.asthma.1 = cont_list$phh.asthma.1$Replacement
+  )
+
+dat <- dat %>%
+  mutate(
+    phh.pulmonary_fibrosis.1 = cont_list$phh.pulmonary_fibrosis.1$Replacement
+  )
+
+dat <- dat %>%
+  mutate(
+    phh.pneumonia = cont_list$phh.pneumonia$Replacement
+  )
+
+dat <- dat %>%
+  mutate(
+    phh.high_blood_cholesterol.1 = cont_list$phh.high_blood_cholesterol.1$Replacement
+  )
+
+dat <- dat %>%
+  mutate(
+    phh.high_blood_pressure.1 = cont_list$phh.high_blood_pressure.1$Replacement
+  )
+
+dat <- dat %>%
+  mutate(
+    phh.atrial_fibrillation.1 = cont_list$phh.atrial_fibrillation.1$Replacement
+  )
+
+dat <- dat %>%
+  mutate(
+    phh.hay_fever.1 = cont_list$phh.hay_fever.1$Replacement
+  )
+
+dat <- dat %>%
+  mutate(
+    phh.drug_allergy_ = cont_list$phh.drug_allergy_$Replacement
+  )
+
+dat <- dat %>%
+  mutate(
+    phh.food_allergy_.1 = cont_list$phh.food_allergy_.1$Replacement
+  )
+
+dat <- dat %>%
+  mutate(
+    phh.irritable_bowel_disease = cont_list$phh.irritable_bowel_disease$Replacement
+  )
+
+dat <- dat %>%
+  mutate(
+    phh.diabetes_type_2 = cont_list$phh.diabetes_type_2$Replacement
+  )
+```
+
+Re-inspect variables after cleaning
+```{r Inspect after cleaning}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})")
+  )
+```
+
+
+# Text variables
+
+Inspect text variables
+```{r Inspect text vars}
+variables_text <- c(
+  "phh.nbsp",
+  "phh.nbsp.1",
+  "phh.",
+  "phh..1",
+  "phh..2",
+  "phh.nbsp.2",
+  "phh.nbsp.3",
+  "phh..3",
+  "phh..4",
+  "phh..5",
+  "phh.nbsp.4",
+  "phh.nbsp.5",
+  "phh..6",
+  "phh..7",
+  "phh..8",
+  "phh.drug_allergy_text.txt",
+  "phh.food_allergy_text.txt",
+  "phh.allergy_text.txt",
+  "phh.other_arthritistext.txt",
+  "phh.othertext.txt",
+  "phh.thyroid_disease_text.txt",
+  "phh.list_reason_taking_type.txt",
+  "phh.chronic_medical_conditions_diagnosis.txt"
+  )
+
+dat %>%
+  select(all_of(variables_text)) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Recode medications 1
+```{r COVIDCNS recode medications 1 variable}
+dat <- dat %>% 
+  mutate(across(phh.nbsp,
+                ~case_when(
+                  str_detect(phh.nbsp, "Adeport")  ~ "Tacrolimus",
+                  str_detect(phh.nbsp, "Adizem")  ~ "Diltiazem",
+                  str_detect(phh.nbsp, "ALLOPUR")  ~ "Allopurinol",
+                  str_detect(phh.nbsp, "mitr")  ~ "Amitriptyline",
+                  str_detect(phh.nbsp, "Amilidopalin")  ~ "Amlodipine",
+                  str_detect(phh.nbsp, "mlodip")  ~ "Amlodipine",
+                  str_detect(phh.nbsp, "Amrizaprol")  ~ "Omeprazole",
+                  str_detect(phh.nbsp, "Artorvostatin")  ~ "Atorvastatin",
+                  str_detect(phh.nbsp, "spirin")  ~ "Aspirin",
+                  str_detect(phh.nbsp, "Atanolel")  ~ "Atenolol",
+                  str_detect(phh.nbsp, "torvastat")  ~ "Atorvastatin",
+                  str_detect(phh.nbsp, "Cadesartan")  ~ "Candesartan",
+                  str_detect(phh.nbsp, "Candesarten")  ~ "Candesartan",
+                  str_detect(phh.nbsp, "Cerazette")  ~ "Desogestrel",
+                  str_detect(phh.nbsp, "LOPIDOGR")  ~ "Clopidogrel",
+                  str_detect(phh.nbsp, "cocodamol")  ~ "Co-codamol",
+                  str_detect(phh.nbsp, "Doxacosin")  ~ "Doxazosin",
+                  str_detect(phh.nbsp, "doxaban")  ~ "Edoxaban",
+                  str_detect(phh.nbsp, "flecanide")  ~ "Flecainide",
+                  str_detect(phh.nbsp, "ostair")  ~ "Beclometasone/Formoterol",
+                  str_detect(phh.nbsp, "abape")  ~ "Gabapentin",
+                  str_detect(phh.nbsp, "indapamide")  ~ "Indapamide",
+                  str_detect(phh.nbsp, "EVETIRC")  ~ "Levetiracetam",
+                  str_detect(phh.nbsp, "evothyro")  ~ "Levothyroxine",
+                  str_detect(phh.nbsp, "Lipitor")  ~ "Atorvastatin",
+                  str_detect(phh.nbsp, "loratadine")  ~ "Loratadine",
+                  str_detect(phh.nbsp, "lozartan")  ~ "Lozartan",
+                  str_detect(phh.nbsp, "Madopar")  ~ "Benserazide",
+                  str_detect(phh.nbsp, "etformi")  ~ "Metformin",
+                  str_detect(phh.nbsp, "irena")  ~ "Levonorgestrel",
+                  str_detect(phh.nbsp, "nortryptiline")  ~ "Nortriptyline",
+                  str_detect(phh.nbsp, "Olanzipine")  ~ "Olanzapine",
+                  str_detect(phh.nbsp, "pantoprasole")  ~ "Pantoprazole",
+                  str_detect(phh.nbsp, "Pentasa")  ~ "Mesalamine",
+                  str_detect(phh.nbsp, "rednis")  ~ "Prednisolone",
+                  str_detect(phh.nbsp, "regab")  ~ "Pregabalin",
+                  str_detect(phh.nbsp, "Propraolol")  ~ "Propranolol",
+                  str_detect(phh.nbsp, "ramapril")  ~ "Ramipril",
+                  str_detect(phh.nbsp, "amipr")  ~ "Ramipril",
+                  str_detect(phh.nbsp, "albutam")  ~ "Salbutamol",
+                  str_detect(phh.nbsp, "teroid")  ~ "Steroids",
+                  str_detect(phh.nbsp, "Sukkarto")  ~ "Metformin",
+                  str_detect(phh.nbsp, "ymbicor")  ~ "Budesonide/Formoterol",
+                  str_detect(phh.nbsp, "amsulos")  ~ "Tamsulosin",
+                  str_detect(phh.nbsp, "TEGRETOL")  ~ "Carbamazepine",
+                  str_detect(phh.nbsp, "Trelegy")  ~ "Fluticasone/Umeclinidium/Vilanterol",
+                  str_detect(phh.nbsp, "nkno")  ~ "-77",
+                  str_detect(phh.nbsp, "enlafaxin")  ~ "Venlafaxine",
+                  str_detect(phh.nbsp, "Xaretto")  ~ "Rivaroxaban",
+                  str_detect(phh.nbsp, "ivarox")  ~ "Rivaroxaban",
+                  str_detect(phh.nbsp, "zinc")  ~ "Zinc",
+                  str_detect(phh.nbsp, "On medica")  ~ "-77",
+                  TRUE ~ .)))
+```
+
+Re-check coding
+```{r COVIDCNS recheck coding 1}
+dat %>%
+  select(phh.nbsp) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Recode medications 2
+```{r COVIDCNS recode medications 2 variable}
+dat <- dat %>% 
+  mutate(across(phh.nbsp.1,
+                ~case_when(
+                  str_detect(phh.nbsp.1, "Benzofibrate")  ~ "Bezafibrate",
+                  str_detect(phh.nbsp.1, "Isporol")  ~ "Bisoprolol",
+                  str_detect(phh.nbsp.1, "Questran")  ~ "Cholestyramine",
+                  str_detect(phh.nbsp.1, "salbutomal")  ~ "Salbutamol",
+                  str_detect(phh.nbsp.1, "imvast")  ~ "Simvastatin",
+                  str_detect(phh.nbsp.1, "iotrop")  ~ "Tiotropium",
+                  str_detect(phh.nbsp.1, "Yacella")  ~ "Ethinylestradiol/Drospirenone",
+                  str_detect(phh.nbsp.1, "Statin")  ~ "Statins",
+                  str_detect(phh.nbsp.1, "EDOXOBAN")  ~ "Edoxaban",
+                  str_detect(phh.nbsp.1, "ESCITALOPRAM")  ~ "Escitalopram",
+                  str_detect(phh.nbsp.1, "Flutiform")  ~ "Fluticasone/Formoterol",
+                  str_detect(phh.nbsp.1, "Keppra")  ~ "Levetiracetam",
+                  str_detect(phh.nbsp.1, "Leveciraterem")  ~ "Levetiracetam",
+                  str_detect(phh.nbsp.1, "Levetiractam")  ~ "Levetiracetam",
+                  str_detect(phh.nbsp.1, "evothryoxine")  ~ "Levothyroxine",
+                  str_detect(phh.nbsp.1, "irtaz")  ~ "Mirtazapine",
+                  str_detect(phh.nbsp.1, "ontelu")  ~ "Montelukast",
+                  str_detect(phh.nbsp.1, "ycophen")  ~ "Mycophenolate",
+                  str_detect(phh.nbsp.1, "mepr")  ~ "Omeprazole",
+                  str_detect(phh.nbsp.1, "Bipisporol")  ~ "Bisoprolol",
+                  str_detect(phh.nbsp.1, "isop")  ~ "Bisoprolol",
+                  str_detect(phh.nbsp.1, "Adizem")  ~ "Diltiazem",
+                  str_detect(phh.nbsp.1, "ALLOPUR")  ~ "Allopurinol",
+                  str_detect(phh.nbsp.1, "mitr")  ~ "Amitriptyline",
+                  str_detect(phh.nbsp.1, "Amilidopalin")  ~ "Amlodipine",
+                  str_detect(phh.nbsp.1, "mlodip")  ~ "Amlodipine",
+                  str_detect(phh.nbsp.1, "Amrizaprol")  ~ "Omeprazole",
+                  str_detect(phh.nbsp.1, "Artorvostatin")  ~ "Atorvastatin",
+                  str_detect(phh.nbsp.1, "atorvostatin")  ~ "Atorvastatin",
+                  str_detect(phh.nbsp.1, "Atrovarstatin")  ~ "Atorvastatin",
+                  str_detect(phh.nbsp.1, "ATORVASTATIN")  ~ "Atorvastatin",
+                  str_detect(phh.nbsp.1, "spirin")  ~ "Aspirin",
+                  str_detect(phh.nbsp.1, "Atanolel")  ~ "Atenolol",
+                  str_detect(phh.nbsp.1, "torvastat")  ~ "Atorvastatin",
+                  str_detect(phh.nbsp.1, "Cadesartan")  ~ "Candesartan",
+                  str_detect(phh.nbsp.1, "Candersartan")  ~ "Candesartan",
+                  str_detect(phh.nbsp.1, "Candesarten")  ~ "Candesartan",
+                  str_detect(phh.nbsp.1, "Colafac")  ~ "Mebeverine",
+                  str_detect(phh.nbsp.1, "Dueloxitine")  ~ "Duloxetine",
+                  str_detect(phh.nbsp.1, "Ditropan")  ~ "Oxybutynin",
+                  str_detect(phh.nbsp.1, "erazette")  ~ "Desogestrel",
+                  str_detect(phh.nbsp.1, "LOPIDOGR")  ~ "Clopidogrel",
+                  str_detect(phh.nbsp.1, "cocodamol")  ~ "Co-codamol",
+                  str_detect(phh.nbsp.1, "Doxacosin")  ~ "Doxazosin",
+                  str_detect(phh.nbsp.1, "doxaban")  ~ "Edoxaban",
+                  str_detect(phh.nbsp.1, "flecanide")  ~ "Flecainide",
+                  str_detect(phh.nbsp.1, "ostair")  ~ "Beclometasone/Formoterol",
+                  str_detect(phh.nbsp.1, "abape")  ~ "Gabapentin",
+                  str_detect(phh.nbsp.1, "indapamide")  ~ "Indapamide",
+                  str_detect(phh.nbsp.1, "EVETIRC")  ~ "Levetiracetam",
+                  str_detect(phh.nbsp.1, "evothyro")  ~ "Levothyroxine",
+                  str_detect(phh.nbsp.1, "Lipitor")  ~ "Atorvastatin",
+                  str_detect(phh.nbsp.1, "loratadine")  ~ "Loratadine",
+                  str_detect(phh.nbsp.1, "lozartan")  ~ "Lozartan",
+                  str_detect(phh.nbsp.1, "Madopar")  ~ "Benserazide",
+                  str_detect(phh.nbsp.1, "etformi")  ~ "Metformin",
+                  str_detect(phh.nbsp.1, "irena")  ~ "Levonorgestrel",
+                  str_detect(phh.nbsp.1, "nortryptiline")  ~ "Nortriptyline",
+                  str_detect(phh.nbsp.1, "Olanzipine")  ~ "Olanzapine",
+                  str_detect(phh.nbsp.1, "pantoprasole")  ~ "Pantoprazole",
+                  str_detect(phh.nbsp.1, "Pentasa")  ~ "Mesalamine",
+                  str_detect(phh.nbsp.1, "rednis")  ~ "Prednisolone",
+                  str_detect(phh.nbsp.1, "regab")  ~ "Pregabalin",
+                  str_detect(phh.nbsp.1, "Propraolol")  ~ "Propranolol",
+                  str_detect(phh.nbsp.1, "ramapril")  ~ "Ramipril",
+                  str_detect(phh.nbsp.1, "amipr")  ~ "Ramipril",
+                  str_detect(phh.nbsp.1, "albutam")  ~ "Salbutamol",
+                  str_detect(phh.nbsp.1, "teroid")  ~ "Steroids",
+                  str_detect(phh.nbsp.1, "Sukkarto")  ~ "Metformin",
+                  str_detect(phh.nbsp.1, "ymbicor")  ~ "Budesonide/Formoterol",
+                  str_detect(phh.nbsp.1, "amsulos")  ~ "Tamsulosin",
+                  str_detect(phh.nbsp.1, "TEGRETOL")  ~ "Carbamazepine",
+                  str_detect(phh.nbsp.1, "Trelegy")  ~ "Fluticasone/Umeclinidium/Vilanterol",
+                  str_detect(phh.nbsp.1, "nkno")  ~ "-77",
+                  str_detect(phh.nbsp.1, "enlafaxin")  ~ "Venlafaxine",
+                  str_detect(phh.nbsp.1, "Xaretto")  ~ "Rivaroxaban",
+                  str_detect(phh.nbsp.1, "ivarox")  ~ "Rivaroxaban",
+                  str_detect(phh.nbsp.1, "zinc")  ~ "Zinc",
+                  str_detect(phh.nbsp.1, "On medica")  ~ "-77",
+                  TRUE ~ .)))
+```
+
+Re-check coding
+```{r COVIDCNS recheck coding 2}
+dat %>%
+  select(phh.nbsp.1) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Recode medications 3
+```{r COVIDCNS recode medications 3 variable}
+dat <- dat %>% 
+  mutate(across(phh.,
+                ~case_when(
+                  str_detect(phh., "Accrete")  ~ "Colecalciferol",
+                  str_detect(phh., "Amatryptyline")  ~ "Amitriptyline",
+                  str_detect(phh., "torvast")  ~ "Atorvastatin",
+                  str_detect(phh., "endroflu")  ~ "Bendroflumethiazide",
+                  str_detect(phh., "etahis")  ~ "Betahistine",
+                  str_detect(phh., "BISOPROLOL")  ~ "Bisoprolol",
+                  str_detect(phh., "lopido")  ~ "Clopidogrel",
+                  str_detect(phh., "mespro")  ~ "Esomeprazole",
+                  str_detect(phh., "zetim")  ~ "Ezetimibe",
+                  str_detect(phh., "exof")  ~ "Fexofenadine",
+                  str_detect(phh., "Fluox")  ~ "Fluoxetine",
+                  str_detect(phh., "Flutiform")  ~ "Fluticasone/Formoterol",
+                  str_detect(phh., "ostair")  ~ "Beclometasone/Formoterol",
+                  str_detect(phh., "Fultium")  ~ "Colecalciferol",
+                  str_detect(phh., "glickasade")  ~ "Gliclazide",
+                  str_detect(phh., "glipizide")  ~ "Gliclazide",
+                  str_detect(phh., "anzo")  ~ "Lansoprazole",
+                  str_detect(phh., "anso")  ~ "Lansoprazole",
+                  str_detect(phh., "ANSO")  ~ "Lansoprazole",
+                  str_detect(phh., "Lipitor")  ~ "Atorvastatin",
+                  str_detect(phh., "formin")  ~ "Metformin",
+                  str_detect(phh., "mperazo")  ~ "Omeprazole",
+                  str_detect(phh., "amip")  ~ "Ramipril",
+                  str_detect(phh., "Rebar")  ~ "Fluticasone/Vilanterol",
+                  str_detect(phh., "ymbicor")  ~ "Budesonide/Formoterol",
+                  str_detect(phh., "Tamsolosin")  ~ "Tamsulosin",
+                  str_detect(phh., "agife")  ~ "Estradiol",
+                  TRUE ~ .)))
+```
+
+Re-check coding
+```{r COVIDCNS recheck coding 3}
+dat %>%
+  select(phh.) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Recode medications 4
+```{r COVIDCNS recode medications 4 variable}
+dat <- dat %>% 
+  mutate(across(phh..1,
+                ~case_when(
+                  str_detect(phh..1, "Ad-")  ~ "Colecalciferol",
+                  str_detect(phh..1, "Adcal")  ~ "Colecalciferol",
+                  str_detect(phh..1, "llopur")  ~ "Allopurinol",
+                  str_detect(phh..1, "pixab")  ~ "Apixaban",
+                  str_detect(phh..1, "spirin")  ~ "Aspirin",
+                  str_detect(phh..1, "torv")  ~ "Atorvastatin",
+                  str_detect(phh..1, "TORV")  ~ "Atorvastatin",
+                  str_detect(phh..1, "torav")  ~ "Atorvastatin",
+                  str_detect(phh..1, "tropin")  ~ "Atropine",
+                  str_detect(phh..1, "ispro")  ~ "Bisoprolol",
+                  str_detect(phh..1, "buprenorphine")  ~ "Buprenorphine",
+                  str_detect(phh..1, "dorzolamide")  ~ "Dorzolamide",
+                  str_detect(phh..1, "Dutesterdide")  ~ "Dutasteride",
+                  str_detect(phh..1, "Furosmide")  ~ "Furosemide",
+                  str_detect(phh..1, "insulin")  ~ "Insulin",
+                  str_detect(phh..1, "ansopr")  ~ "Lansoprazole",
+                  str_detect(phh..1, "Levetractam")  ~ "Levetiracetam",
+                  str_detect(phh..1, "ormin")  ~ "Metformin",
+                  str_detect(phh..1, "icrogyn")  ~ "Ethinylestradiol/Levonorgestrel",
+                  str_detect(phh..1, "Mirtazipine")  ~ "Mirtazapine",
+                  str_detect(phh..1, "fenolate")  ~ "Mycophenolate",
+                  str_detect(phh..1, "Oxybutinin")  ~ "Oxybutynin",
+                  str_detect(phh..1, "aracetamol")  ~ "Paracetamol",
+                  str_detect(phh..1, "uinin")  ~ "Quinine",
+                  str_detect(phh..1, "entoli")  ~ "Salbutamol",
+                  str_detect(phh..1, "enna")  ~ "Senna",
+                  str_detect(phh..1, "ertral")  ~ "Sertraline",
+                  str_detect(phh..1, "it D")  ~ "Colecalciferol",
+                  str_detect(phh..1, "eletran")  ~ "Buprenorphine",
+                  TRUE ~ .)))
+```
+
+Re-check coding
+```{r COVIDCNS recheck coding 4}
+dat %>%
+  select(phh..1) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Recode medications 5
+```{r COVIDCNS recode medications 5 variable}
+dat <- dat %>% 
+  mutate(across(phh..2,
+                ~case_when(
+                  str_detect(phh..2, "Advograf")  ~ "Tacrolimus",
+                  str_detect(phh..2, "statin")  ~ "Atorvastatin",
+                  str_detect(phh..2, "pril")  ~ "Ramipril",
+                  str_detect(phh..2, "PRIL")  ~ "Ramipril",
+                  str_detect(phh..2, "lipti")  ~ "Sitagliptin",
+                  str_detect(phh..2, "B12")  ~ "Cobalamin",
+                  str_detect(phh.nbsp.1, "ostair")  ~ "Beclometasone/Formoterol",
+                  str_detect(phh..2, "obala")  ~ "Cobalamin",
+                  str_detect(phh..2, "odein")  ~ "Codeine",
+                  str_detect(phh..2, "Famitidine")  ~ "Famotidine",
+                  str_detect(phh..2, "Gaba")  ~ "Gabapentin",
+                  str_detect(phh..2, "nsuli")  ~ "Insulin",
+                  str_detect(phh..2, "Jardiance")  ~ "Empagliflozin",
+                  str_detect(phh..2, "antan")  ~ "Latanoprost",
+                  str_detect(phh..2, "Letrazole")  ~ "Letrozole",
+                  str_detect(phh..2, "Ocrevus")  ~ "Ocrelizumab",
+                  str_detect(phh..2, "stexerol")  ~ "Colecalciferol",
+                  str_detect(phh..2, "sumatriptan")  ~ "Sumatriptan",
+                  str_detect(phh..2, "Waferin")  ~ "Warfarin",
+                  str_detect(phh..2, "Zapain")  ~ "Co-codamol",
+                  TRUE ~ .)))
+```
+
+Re-check coding
+```{r COVIDCNS recheck coding 5}
+dat %>%
+  select(phh..2) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Recode medications 6
+```{r COVIDCNS recode medications 6 variable}
+dat <- dat %>% 
+  mutate(across(phh.nbsp.2,
+                ~case_when(
+                  str_detect(phh.nbsp.2, "abl")  ~ "Tablets",
+                  str_detect(phh.nbsp.2, "aps")  ~ "Capsules",
+                  str_detect(phh.nbsp.2, "ABL")  ~ "Tablets",
+                  str_detect(phh.nbsp.2, "nha")  ~ "Inhaler",
+                  
+                  TRUE ~ .)))
+```
+
+Re-check coding
+```{r COVIDCNS recheck coding 6}
+dat %>%
+  select(phh.nbsp.2) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Recode medications 7
+```{r COVIDCNS recode medications 7 variable}
+dat <- dat %>% 
+  mutate(across(phh.nbsp.3,
+                ~case_when(
+                  str_detect(phh.nbsp.3, "abl")  ~ "Tablets",
+                  str_detect(phh.nbsp.3, "ABL")  ~ "Tablets",
+                  str_detect(phh.nbsp.3, "nha")  ~ "Inhaler",
+                  
+                  TRUE ~ .)))
+```
+
+Re-check coding
+```{r COVIDCNS recheck coding 7}
+dat %>%
+  select(phh.nbsp.3) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Recode medications 8
+```{r COVIDCNS recode medications 8 variable}
+dat <- dat %>% 
+  mutate(across(phh..3,
+                ~case_when(
+                  str_detect(phh..3, "ab")  ~ "Tablets",
+                  str_detect(phh..3, "ABL")  ~ "Tablets",
+                  str_detect(phh..3, "nha")  ~ "Inhaler",
+                  
+                  TRUE ~ .)))
+```
+
+Re-check coding
+```{r COVIDCNS recheck coding 8}
+dat %>%
+  select(phh..3) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Recode medications 9
+```{r COVIDCNS recode medications 9 variable}
+dat <- dat %>% 
+  mutate(across(phh..4,
+                ~case_when(
+                  str_detect(phh..4, "ab")  ~ "Tablets",
+                  str_detect(phh..4, "ABL")  ~ "Tablets",
+                  str_detect(phh..4, "nha")  ~ "Inhaler",
+                  str_detect(phh..4, "atc")  ~ "Patch",
+                  TRUE ~ .)))
+```
+
+Re-check coding
+```{r COVIDCNS recheck coding 9}
+dat %>%
+  select(phh..4) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Recode medications 10
+```{r COVIDCNS recode medications 10 variable}
+dat <- dat %>% 
+  mutate(across(phh..5,
+                ~case_when(
+                  str_detect(phh..5, "abl")  ~ "Tablets",
+                  str_detect(phh..5, "ABL")  ~ "Tablets",
+                  str_detect(phh..5, "nha")  ~ "Inhaler",
+                  
+                  TRUE ~ .)))
+```
+
+Re-check coding
+```{r COVIDCNS recheck coding 10}
+dat %>%
+  select(phh..5) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+
+
+Re-check coding
+```{r COVIDCNS recheck coding final}
+dat %>%
+  select(all_of(variables_text)) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+
+# Add Numeric Variables
 
 Specify columns to be excluded from add_numeric function
 Continuous variables should be excluded, as they are already numeric
@@ -1032,826 +1034,22 @@ exclude_cols_numeric <- c(
 ```
 
 Select & rename relevant columns
-```{r COVIDCNS select}
-covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
-  drop_na(externalDataReference) %>% # Drop participants with no ID
-  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
-  add_column(sample = "COVIDCNS",
-             .after = "externalDataReference") %>% # Create new sample column
-  select(
-         ID = externalDataReference, # ID
-         sample,
-         startDate,
-         endDate,
-         phh.epilepsy_or_convulsions,
-         phh.migraines,
-         phh.multiple_sclerosis,
-         phh.parkinsons_disease,
-         phh.brain_tumour,
-         phh.severe_memory_loss_,
-         phh.cerebral_palsy,
-         phh.dont_know,
-         phh.prefer_not_to_answer,
-         phh.none_of_the_above,
-         phh.hay_fever,
-         phh.drug_allergy,
-         phh.drug_allergy_text.txt,
-         phh.food_allergy_,
-         phh.food_allergy_text.txt,
-         phh.any_other_allergy_,
-         phh.allergy_text.txt,
-         phh.dont_know.1,
-         phh.prefer_not_to_answer.1,
-         phh.none_of_the_above.1,
-         phh.ankylosing_spondylitis,
-         phh.osteoporosis_or_thin_bones,
-         phh.hypermobility_,
-         phh.osteoarthritis,
-         phh.rheumatoid_arthritis,
-         phh.other_arthritis,
-         phh.other_arthritistext.txt,
-         phh.none_of_the_above.2,
-         phh.dont_know.2,
-         phh.asthma,
-         phh.pulmonary_fibrosis,
-         phh.chronic_obstructive_pulmonary_disease_,
-         phh.cystic_fibrosis,
-         phh.pleural_effusion,
-         phh.pneumonia_,
-         phh.pulmonary_embolus_,
-         phh.emphysema_or_chronic_bronchitis,
-         phh.other,
-         phh.othertext.txt,
-         phh.dont_know.3,
-         phh.prefer_not_to_say,
-         phh.none_of_the_above.3,
-         phh.heart_attack_angina,
-         phh.high_blood_cholesterol,
-         phh.high_blood_pressure,
-         phh.atrial_fibrillation,
-         phh.stroke,
-         phh.paroxysmal_tachycardia_sydrome_,
-         phh.dont_know.4,
-         phh.prefer_not_to_answer.3,
-         phh.none_of_the_above.4,
-         phh.breast_cancer,
-         phh.lung_cancer,
-         phh.stomach_cancer,
-         phh.colon_cancer,
-         phh.uterus_cancer,
-         phh.prostate_cancer,
-         phh.bladder_cancer,
-         phh.bowel_cancer,
-         phh.rectal_cancer,
-         phh.lymphoma,
-         phh.melanoma,
-         phh.skin_cancer,
-         phh.ovarian_cancer,
-         phh.none_of_the_above.5,
-         phh.dont_know.5,
-         phh.prefer_not_to_answer.4,
-         phh.psoriasis,
-         phh.vitiligo,
-         phh.eczema,
-         phh.thyroid_disease_,
-         phh.thyroid_disease_text.txt,
-         phh.pain_due_to_virus_,
-         phh.none_of_the_above.6,
-         phh.dont_know.6,
-         phh.prefer_not_to_answer.5,
-         phh.list_reason_taking_type.txt,
-         phh.chronic_medical_conditions_mentioned,
-         phh.chronic_medical_conditions_diagnosis.txt,
-         phh.nbsp,
-         phh.nbsp.1,
-         phh.,
-         phh..1,
-         phh..2,
-         phh.nbsp.2,
-         phh.nbsp.3,
-         phh..3,
-         phh..4,
-         phh..5,
-         phh.nbsp.4,
-         phh.nbsp.5,
-         phh..6,
-         phh..7,
-         phh..8,
-         phh.longterm_prescription_medication,
-         phh.non_steroid_antiinflammatory_drugs,
-         phh.steroids,
-         phh.immunosuppressants,
-         phh.htr,
-         phh.thyroid_hormones,
-         phh.contraceptive_pill,
-         phh.intrauterine_device,
-         phh.intrauterine_system,
-         phh.bronchodilators,
-         phh.epilepsy_or_convulsions.1,
-         phh.migraines.1,
-         phh.multiple_sclerosis.1,
-         phh.parkinsons_disease.1,
-         phh.brain_tumour.1,
-         phh.severe_memory_loss,
-         phh.cerebral_palsy.1,
-         phh.dont_know.7,
-         phh.prefer_not_to_answer.6,
-         phh.none_of_the_above.7,
-         phh.epilepsy_or_convulsions.2,
-         phh.migraines.2,
-         phh.multiple_sclerosis.2,
-         phh.parkinsons_disease.2,
-         phh.brain_tumour.2,
-         phh.severe_memory_loss.1,
-         phh.cerebral_palsy.2,
-         phh.dont_know.8,
-         phh.prefer_not_to_answer.7,
-         phh.none_of_the_above.8,
-         phh.epilepsy_or_convulsions.3,
-         phh.migraines.3,
-         phh.multiple_sclerosis.3,
-         phh.parkinsons_disease.3,
-         phh.brain_tumour.3,
-         phh.severe_memory_loss.2,
-         phh.cerebral_palsy.3,
-         phh.dont_know.9,
-         phh.prefer_not_to_answer.8,
-         phh.none_of_the_above.9,
-         phh.ankylosing_spondylitis.1,
-         phh.osteoporosis_or_thin_bones.1,
-         phh.hypermobility,
-         phh.osteoarthritis.1,
-         phh.rheumatoid_arthritis.1,
-         phh.other_arthritis.1,
-         phh.prefer_not_to_answer.9,
-         phh.none_of_the_above.10,
-         phh.dont_know.10,
-         phh.ankylosing_spondylitis.2,
-         phh.osteoporosis_or_thin_bones.2,
-         phh.hypermobility.1,
-         phh.osteoarthritis.2,
-         phh.rheumatoid_arthritis.2,
-         phh.other_arthritis.2,
-         phh.prefer_not_to_answer.10,
-         phh.none_of_the_above.11,
-         phh.dont_know.11,
-         phh.ankylosing_spondylitis.3,
-         phh.osteoporosis_or_thin_bones.3,
-         phh.hypermobility.2,
-         phh.osteoarthritis.3,
-         phh.rheumatoid_arthritis.3,
-         phh.other_arthritis.3,
-         phh.prefer_not_to_answer.11,
-         phh.none_of_the_above.12,
-         phh.dont_know.12,
-         phh.asthma.1,
-         phh.pulmonary_fibrosis.1,
-         phh.chronic_obstructive_pulmonary_disease,
-         phh.cystic_fibrosis.1,
-         phh.pleural_effusion.1,
-         phh.pneumonia,
-         phh.pulmonary_embolus,
-         phh.emphysema_or_chronic_bronchitis.1,
-         phh.other.1,
-         phh.dont_know.13,
-         phh.prefer_not_to_say.1,
-         phh.none_of_the_above.13,
-         phh.asthma.2,
-         phh.pulmonary_fibrosis.2,
-         phh.chronic_obstructive_pulmonary_disease.1,
-         phh.cystic_fibrosis.2,
-         phh.pleural_effusion.2,
-         phh.pneumonia.1,
-         phh.pulmonary_embolus.1,
-         phh.emphysema_or_chronic_bronchitis.2,
-         phh.other.2,
-         phh.dont_know.14,
-         phh.prefer_not_to_say.2,
-         phh.none_of_the_above.14,
-         phh.asthma.3,
-         phh.pulmonary_fibrosis.3,
-         phh.chronic_obstructive_pulmonary_disease.2,
-         phh.cystic_fibrosis.3,
-         phh.pleural_effusion.3,
-         phh.pneumonia.2,
-         phh.pulmonary_embolus.2,
-         phh.emphysema_or_chronic_bronchitis.3,
-         phh.other.3,
-         phh.dont_know.15,
-         phh.prefer_not_to_say.3,
-         phh.none_of_the_above.15,
-         phh.heart_attack_angina.1,
-         phh.high_blood_cholesterol.1,
-         phh.high_blood_pressure.1,
-         phh.atrial_fibrillation.1,
-         phh.stroke.1,
-         phh.paroxysmal_tachycardia_sydrome,
-         phh.dont_know.16,
-         phh.prefer_not_to_answer.12,
-         phh.none_of_the_above.16,
-         phh.heart_attack_angina.2,
-         phh.high_blood_cholesterol.2,
-         phh.high_blood_pressure.2,
-         phh.atrial_fibrillation.2,
-         phh.stroke.2,
-         phh.paroxysmal_tachycardia_sydrome.1,
-         phh.dont_know.17,
-         phh.prefer_not_to_answer.13,
-         phh.none_of_the_above.17,
-         phh.heart_attack_angina.3,
-         phh.high_blood_cholesterol.3,
-         phh.high_blood_pressure.3,
-         phh.atrial_fibrillation.3,
-         phh.stroke.3,
-         phh.paroxysmal_tachycardia_sydrome.2,
-         phh.dont_know.18,
-         phh.prefer_not_to_answer.14,
-         phh.none_of_the_above.18,
-         phh.breast_cancer.1,
-         phh.lung_cancer.1,
-         phh.stomach_cancer.1,
-         phh.colon_cancer.1,
-         phh.uterus_cancer.1,
-         phh.prostate_cancer.1,
-         phh.bladder_cancer.1,
-         phh.bowel_cancer.1,
-         phh.rectal_cancer.1,
-         phh.lymphoma.1,
-         phh.melanoma.1,
-         phh.skin_cancer.1,
-         phh.ovarian_cancer.1,
-         phh.none_of_the_above.19,
-         phh.dont_know.19,
-         phh.prefer_not_to_answer.15,
-         phh.breast_cancer.2,
-         phh.lung_cancer.2,
-         phh.stomach_cancer.2,
-         phh.colon_cancer.2,
-         phh.uterus_cancer.2,
-         phh.prostate_cancer.2,
-         phh.bladder_cancer.2,
-         phh.bowel_cancer.2,
-         phh.rectal_cancer.2,
-         phh.lymphoma.2,
-         phh.melanoma.2,
-         phh.skin_cancer.2,
-         phh.ovarian_cancer.2,
-         phh.none_of_the_above.20,
-         phh.dont_know.20,
-         phh.prefer_not_to_answer.16,
-         phh.breast_cancer.3,
-         phh.lung_cancer.3,
-         phh.stomach_cancer.3,
-         phh.colon_cancer.3,
-         phh.uterus_cancer.3,
-         phh.prostate_cancer.3,
-         phh.bladder_cancer.3,
-         phh.bowel_cancer.3,
-         phh.rectal_cancer.3,
-         phh.lymphoma.3,
-         phh.melanoma.3,
-         phh.skin_cancer.3,
-         phh.ovarian_cancer.3,
-         phh.none_of_the_above.21,
-         phh.dont_know.21,
-         phh.prefer_not_to_answer.17,
-         phh.psoriasis.1,
-         phh.vitiligo.1,
-         phh.eczema.1,
-         phh.thyroid_disease_.1,
-         phh.pain_due_to_virus,
-         phh.none_of_the_above.22,
-         phh.dont_know.22,
-         phh.prefer_not_to_answer.18,
-         phh.psoriasis.2,
-         phh.vitiligo.2,
-         phh.eczema.2,
-         phh.thyroid_disease_.2,
-         phh.pain_due_to_virus.1,
-         phh.none_of_the_above.23,
-         phh.dont_know.23,
-         phh.prefer_not_to_answer.19,
-         phh.psoriasis.3,
-         phh.vitiligo.3,
-         phh.eczema.3,
-         phh.thyroid_disease_.3,
-         phh.pain_due_to_virus.2,
-         phh.none_of_the_above.24,
-         phh.dont_know.24,
-         phh.prefer_not_to_answer.20,
-         phh.hay_fever.1,
-         phh.drug_allergy_,
-         phh.food_allergy_.1,
-         phh.any_other_allergy_.1,
-         phh.dont_know.25,
-         phh.prefer_not_to_answer.21,
-         phh.none_of_the_above.25,
-         phh.hay_fever.2,
-         phh.drug_allergy_.1,
-         phh.food_allergy_.2,
-         phh.any_other_allergy_.2,
-         phh.dont_know.26,
-         phh.prefer_not_to_answer.22,
-         phh.none_of_the_above.26,
-         phh.hay_fever.3,
-         phh.drug_allergy_.2,
-         phh.food_allergy_.3,
-         phh.any_other_allergy_.3,
-         phh.dont_know.27,
-         phh.prefer_not_to_answer.23,
-         phh.none_of_the_above.27,
-         phh.crohns_disease,
-         phh.ulcerative_colitis,
-         phh.irritable_bowel_disease_,
-         phh.coeliac_disease,
-         phh.bacterial_stomach_infection_,
-         phh.viral_weeks_bacterial_stomach,
-         phh.diabetes_type_1_,
-         phh.diabetes_type_2_,
-         phh.pain_due_to_diabetes_,
-         phh.dont_know.28,
-         phh.prefer_not_to_answer.24,
-         phh.none_of_the_above.28,
-         phh.crohns_disease.1,
-         phh.ulcerative_colitis.1,
-         phh.irritable_bowel_disease,
-         phh.coeliac_disease.1,
-         phh.bacterial_stomach_infection,
-         phh.viral_weeks_bacterial_stomach.1,
-         phh.diabetes_type_1,
-         phh.diabetes_type_2,
-         phh.pain_due_to_diabetes,
-         phh.dont_know.29,
-         phh.prefer_not_to_answer.25,
-         phh.none_of_the_above.29,
-         phh.crohns_disease.2,
-         phh.ulcerative_colitis.2,
-         phh.irritable_bowel_disease.1,
-         phh.coeliac_disease.2,
-         phh.bacterial_stomach_infection.1,
-         phh.viral_weeks_bacterial_stomach.2,
-         phh.diabetes_type_1.1,
-         phh.diabetes_type_2.1,
-         phh.pain_due_to_diabetes.1,
-         phh.dont_know.30,
-         phh.prefer_not_to_answer.26,
-         phh.none_of_the_above.30,
-         phh.crohns_disease.3,
-         phh.ulcerative_colitis.3,
-         phh.irritable_bowel_disease.2,
-         phh.coeliac_disease.3,
-         phh.bacterial_stomach_infection.2,
-         phh.viral_weeks_bacterial_stomach.3,
-         phh.diabetes_type_1.2,
-         phh.diabetes_type_2.2,
-         phh.pain_due_to_diabetes.2,
-         phh.dont_know.31,
-         phh.prefer_not_to_answer.27,
-         phh.none_of_the_above.31
-         ) %>%
+```{r COVIDCNS add numeric}
+dat <- dat %>% 
   add_numeric_1(exclude = exclude_cols_numeric)
 
 # Inspect colnames
-covidcns_dat_id %>%
+dat %>%
   colnames()
 ```
 
-Look at number of people excluded
-The number of people to be excluded should be negative
-```{r COVIDCNS number excluded}
-# Inspect dimensions of new data set
-covidcns_dat_id %>%
-  dim()
-
-# Inspect number of rows dropped
-covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
-covidcns_excluded
-```
-
-Check missingness by missmap
-```{r COVIDCNS inspect missingness}
-covidcns_miss_map <- covidcns_dat_id %>% 
-  missmap()
-
-covidcns_miss_map
-```
-
-Create dat as copy of covidcns_dat_id for brevity
-This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
-```{r Create dat}
-dat <- covidcns_dat_id 
-
-# Check
-dat %>% glimpse()
-```
-
-Recode Non-answer values to 3 digits
--555 'Not applicable' response from participant
--777 Seen but not answered
--888 Don't know
--999 Prefer not to answer/Prefer not to say
-`NA` Were not shown the question (genuinely missing value)
-When we code someone as being 'not applicable' by deduction, we use `NA_real_`
-```{r Recode NA values}
-dat <- dat %>%
-  mutate(across(ends_with("numeric"),
-                ~case_when(
-                  . == -55 ~ -555,
-                  . == -77 ~ -777,
-                  . == -88 ~ -888,
-                  . == -99 ~ -999,
-                  TRUE ~ .)))
-```
-
-Create list of all unique values
-```{r List unique values}
-ulst <- sapply(dat, unique)
-llst <- sapply(dat, levels)
-```
-
-
-# Cleaning Categorical Variables
-
-Name your vectors in line with the chunks below
-Number the vectors or name them intuitively if you have multiple vectors
-Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
-
-Create sequential vectors of categorical values for variables
-Save vectors to a list
-Add variable names as names of list
-```{r Vector categorical values}
-vals_cat_1 <- c(
-  
-  NA
-)
-
-vals_cat_2 <- c(
-  
-  NA
-)
-
-vals_cat_3 <- c(
-  
-  NA
-)
-
-vals_cat_4 <- c(
-  
-  NA
-)
-```
-
-Create list of numeric values vectors
-```{r List categorical values vectors}
-values_cat_list <- list(
-  vals_cat_1,
-  vals_cat_2,
-  vals_cat_3,
-  vals_cat_4
-)
-```
-
-Create vector of categorical domains variables 
-```{r Vector categorical variables}
-variables_cat <- c(
-  "questionnaire.variable_name"
-)
-```
-
-Set names of list to variable names
-```{r Set list names}
-names(values_cat_list) <- variables_cat
-```
-
-Use imp_check iteratively to find if any implausible values
-```{r Imp_check categorical variables}
-# Create empty list
-imp_list_cat <- list()
-
-# Loop over each variable, checking against relevant set of values from list
-# Add imp_message to list
-for (i in 1:length(variables_cat)) {
-  imp_list_cat[i] <- imp_check_1(data = dat,
-                                 variables = names(values_cat_list)[i],
-                                 values = values_cat_list[[i]]) 
-
-}
-
-# Name list with var names to correspond to imp_messages
-names(imp_list_cat) <- variables_cat
-
-# View list of imp_messages with corresponding var names
-print(imp_list_cat)
-```
-
-Produce summary table of variables
-```{r Summary table categorical variables}
-dat %>%
-  tbl_summary(
-    include = all_of(variables_cat),
-    missing_text = "Missing")
-```
-
-
-# Cleaning Numeric Variables
-
-Name your vectors in line with the chunks below
-Number the vectors or name them intuitively if you have multiple vectors
-Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
-
-Create sequential vectors of numeric values for variables
-Save vectors to a list
-Add variable names as names of list
-```{r Vector numeric values}
-vals_num_1 <- c(
-  
-  NA
-)
-
-vals_num_2 <- c(
-  
-  NA
-)
-```
-
-Create list of numeric values vectors
-```{r List numeric values vectors}
-values_num_list <- list(
-  vals_num_1,
-  vals_num_2
-)
-```
-
-Create vector of categorical domains variables 
-```{r Vector numeric variables}
-variables_num <- c(
-  "questionnaire.variable_name"
-)
-```
-
-Set names of list to variable names
-```{r Set list names}
-names(values_num_list) <- variables_num
-```
-
-Use imp_check iteratively
-Use imp_check iteratively to find if any implausible values
-```{r Imp_check numeric variables}
-# Create empty list
-imp_list_num <- list()
-
-# Loop over each variable, checking against relevant set of values from list
-# Add imp_message to list
-for (i in 1:length(variables_num)) {
-  imp_list_num[i] <- imp_check_1(data = dat,
-                                 variables = names(values_num_list)[i],
-                                 values = values_num_list[[i]]) 
-
-}
-
-# Name list with var names to correspond to imp_messages
-names(imp_list_num) <- variables_num
-
-# View list of imp_messages with corresponding var names
-print(imp_list_num)
-```
-
-Produce summary table of variables
-```{r Summary table numeric variables}
-dat %>%
-  tbl_summary(
-    include = all_of(variables_num),
-    missing_text = "Missing")
-```
-
-
-# Recoding Incorrect Variables
-
-Variable is coded wrong
-```{r Inspect incorrect variable}
-dat %>%
-  select(
-    questionnaire.variable_name,
-    questionnaire.variable_name) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
-Recode incorrect variable
-Can be removed after data recoded in qualtrics and after data export
-If variables are found to be incorrect:
-Report the error in the qualtrics issues spreadsheet
-Add as action point on teams with yourself and Molly tagged
-Recode the variable yourself using `case_when` as below
-Continue cleaning your script with the recoded variable until fixed from source
-DO NOT run this chunk multiple times: it will mess up the variable coding, requiring you to run the script again from the beginning
-```{r Recode incorrect variable}
-dat <- dat %>% 
-  mutate(across(questionnaire.variable_name,
-                ~case_when(
-                  . == 1 ~ 0,
-                  . == 2 ~ 1,
-                  . == 3 ~ 2,
-                  . == 4 ~ 3,
-                  . == 5 ~ 4,
-                  TRUE ~ .)))
-```
-
-Re-check variable coding
-```{r Recheck variable coding}
-dat %>%
-  select(
-    questionnaire.variable_name,
-    questionnaire.variable_name) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
-
-# Cleaning Continuous Variables
-
-Inspect range prior to cleaning
-```{r Check range of values}
-dat %>%
-  select(variable_one) %>%
-  tbl_summary()
-```
-
-Define limits for variable and list reasoning below
-Variable name:
-- Upper: reasoning
-- Lower: reasoning
-
-```{r Define limits}
-variable_one_upper_limit = 
-variable_one_lower_limit = 
-```
-
-Count number of outliers in variable
-```{r Outlier count}
-dat %>%
-  filter(
-    variable_one > variable_one_upper_limit | # bigger than the upper limit
-      variable_one < variable_one_lower_limit & variable_one > -555 # smaller than the lower limit
-      # or special conditions
-    ) %>%
-  nrow()
-```
-
-Recode variable outliers to -666
-```{r Recode outliers to -666}
-dat <- dat %>%
-    mutate(
-      variable_one = 
-        if_else(
-          variable_one > variable_one_upper_limit | # bigger than the upper limit
-           variable_one < variable_one_lower_limit & variable_one > -555, # smaller than the lower limit
-            # or special conditions
-          true = -666,
-          false = variable_one,
-          missing = NA_real_
-        )
-    )
-```
-
-Re-inspect variable after cleaning
-```{r Inspect after recoding to -666}
-dat %>%
-  select(variable_one) %>%
-  tbl_summary()
-```
-
-
-# Cleaning Dates
-
-Create vector of date variables
-```{r Vector date variables}
-variables_date <- c(
-  "questionnaire.variable_name"
-)
-```
-
-Inspect date variables
-```{r COVIDCNS inspect dates}
-dat %>%
-  select(all_of(variables_date)) %>%
-  glimpse()
-```
-
-Replace -77 values with NA as POSIX will reject -77 as a value when converting
-```{r COVIDCNS recode -77 to NA}
-dat <- dat %>% 
-  mutate(across(
-    all_of(variables_date),
-    ~na_if(., "-77")
-                )
-         )
-```
-
-Parse dates using lubridate
-```{r COVIDCNS parse dates}
-
-dat <- dat %>% 
-  mutate(across(
-    all_of(variables_date),
-    ~lubridate::parse_date_time(
-    x = .,
-    orders = c("d m y", "d/m/y", "d.m.y"),
-    tz = "Europe/London"
-    )
-                )
-         )
-```
-
-Recheck date variables
-```{r COVIDCNS inspect dates}
-dat %>%
-  select(all_of(variables_date)) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
-Define limits for variable and list reasoning below
-Variable name:
-- Upper: latest data extraction, cannot have test in the future
-- Lower: 30/01/2020, first confirmed UK COVID cases 
-
-```{r Define limits}
-upper_limit <- as.POSIXct("2022-02-22")
-lower_limit <- as.POSIXct("2020-01-30")
-```
-
-Recode variable outliers to -666
-```{r Recode outliers to NA}
-dat <- dat %>%
-    mutate(across(
-    all_of(variables_date),
-    ~ifelse(
-      . > upper_limit | # bigger than the upper limit
-        . < lower_limit, # smaller than the lower limit
-      yes = NA_real_,
-      no = .
-        )
-    )
-) %>%
-  mutate(across(
-    all_of(variables_date),
-    ~as.POSIXct(., origin = lubridate::origin))
-  )
-```
-
-Re-check dates
-```{r COVID CNS recheck dates}
-dat %>%
-  select(all_of(variables_date)) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
-# Text variables
-
-Inspect text variables
-```{r Inspect text vars}
-variables_text <- c(
-  phh.nbsp
-phh.nbsp.1
-phh.
-phh..1
-phh..2
-phh.nbsp.2
-phh.nbsp.3
-phh..3
-phh..4
-phh..5
-phh.nbsp.4
-phh.nbsp.5
-phh..6
-phh..7
-phh..8
-  "phh.drug_allergy_text.txt",
-  "phh.food_allergy_text.txt",
-  "phh.allergy_text.txt",
-  "phh.other_arthritistext.txt",
-  "phh.othertext.txt",
-  "phh.thyroid_disease_text.txt",
-  "phh.list_reason_taking_type.txt",
-  "phh.chronic_medical_conditions_diagnosis.txt"
-)
-
-covidcns_dat %>%
-  select(all_of(variables_text)) %>%
-  tbl_summary(
-    missing_text = "Missing"
-  )
-```
 
 # Save cleaned data
-
-Check colnames before exporting final dataset
-```{r Check colnames}
-colnames(dat)
-```
 
 # COVIDCNS
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovedata, "/data/latest_freeze/covidcns/location/questionnaire_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/phh_covidcns_clean.rds")
     )
 ```

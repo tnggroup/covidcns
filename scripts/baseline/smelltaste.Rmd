@@ -39,11 +39,11 @@ Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check.R")
+source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check.R")
 ```
 
 Use package_check to install and load dependencies
@@ -56,7 +56,7 @@ package_check(packages)
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: Smell and Taste
@@ -203,7 +203,7 @@ imp_check(data = dat,
 ```
 
 Create vector of categorical values for variables
-```{r Vector categorical values}
+```{r Vector categorical values.1}
 values_categorical.1 <- c(
   "Mild (minor distress)",
   "Moderate (considerable distress)",
@@ -216,14 +216,14 @@ values_categorical.1
 ```
 
 Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r Imp_check categorical variables}
+```{r Imp_check categorical variables.1}
 imp_check(data = dat,
           variables = "smelltaste.how_severe_iswas_the_loss",
           values = values_categorical.1)
 ```
 
 Create vector of categorical values for variables
-```{r Vector categorical values}
+```{r Vector categorical values.2}
 values_categorical.2 <- c(
   "Yes",
   "No",
@@ -236,14 +236,14 @@ values_categorical.2
 ```
 
 Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r Imp_check categorical variables}
+```{r Imp_check categorical variables.2}
 imp_check(data = dat,
           variables = "smelltaste.taste_returned_sense_smell",
           values = values_categorical.2)
 ```
 
 Create vector of categorical values for variables
-```{r Vector categorical values}
+```{r Vector categorical values.3}
 values_categorical.3 <- c(
   "No - I had these symptoms or experiences before I had COVID-19",
   "Yes - it started after I had COVID-19 or during my infection with it",
@@ -255,7 +255,7 @@ values_categorical.3
 ```
 
 Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r Imp_check categorical variables}
+```{r Imp_check categorical variables.3}
 imp_check(data = dat,
           variables = "smelltaste.required_start_question_covid19",
           values = values_categorical.3)
@@ -297,7 +297,7 @@ imp_check(data = dat,
 ```
 
 Create vector of numeric values 
-```{r Vector numeric values}
+```{r Vector numeric values.1}
 values_numeric.1 <- c(
   1,
   2,
@@ -311,14 +311,14 @@ values_numeric.1
 ```
 
 Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r Imp_check numeric variables}
+```{r Imp_check numeric variables.1}
 imp_check(data = dat,
           variables = "smelltaste.how_severe_iswas_the_loss_numeric",
           values = values_numeric.1)
 ```
 
 Create vector of numeric values 
-```{r Vector numeric values}
+```{r Vector numeric values.2}
 values_numeric.2 <- c(
   0,
   1,
@@ -331,7 +331,7 @@ values_numeric.2
 ```
 
 Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r Imp_check numeric variables}
+```{r Imp_check numeric variables.2}
 imp_check(data = dat,
           variables = "smelltaste.taste_returned_sense_smell_numeric",
           values = values_numeric.2)
