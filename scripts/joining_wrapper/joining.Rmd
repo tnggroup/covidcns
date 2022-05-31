@@ -676,7 +676,7 @@ mhd %>%
 ```
 
 Dimensions
-```{r mhd Dimensions}
+```{r mhd Dimensions, eval=FALSE, include=FALSE}
 mhd %>%
   colnames()
 ```
@@ -707,7 +707,7 @@ phh %>%
 ```
 
 Dimensions
-```{r phh Dimensions}
+```{r phh Dimensions, eval=FALSE, include=FALSE}
 phh %>%
   colnames()
 ```
@@ -1645,6 +1645,8 @@ DfE_task_scores %>%
 
 Dimensions
 ```{r DfE_task_scores Dimensions}
+colnames(DfE_task_scores) <- paste(colnames(DfE_task_scores), "dfe", sep = "_")
+
 DfE_task_scores %>%
   colnames()
 ```
@@ -1653,7 +1655,7 @@ Select columns for joining
 ```{r DfE_task_scores Select columns for joining}
 DfE_task_scores_selected <- DfE_task_scores %>%
   dplyr::rename(
-    "ID" = "user_id"
+    "ID" = "user_id_dfe"
   )
 
 DfE_task_scores_selected %>%
