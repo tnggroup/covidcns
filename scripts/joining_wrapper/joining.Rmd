@@ -171,7 +171,8 @@ Select columns for joining
 als_covidcns_clean_selected <-
   als_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -c("startDate",
+       "endDate")
   )
 
 als_covidcns_clean_selected %>%
@@ -707,7 +708,7 @@ phh %>%
 ```
 
 Dimensions
-```{r phh Dimensions}
+```{r phh Dimensions, eval=FALSE, include=FALSE}
 phh %>%
   colnames()
 ```
@@ -814,9 +815,8 @@ dem_sex_gender_sexuality_covidcns_clean_selected <-
   dem_sex_gender_sexuality_covidcns_clean %>%
   select(
     -c(
-    "sample",
     "startDate",
-    "endDate...4") # that's odd
+    "endDate")
   )
 
 dem_sex_gender_sexuality_covidcns_clean_selected %>%
