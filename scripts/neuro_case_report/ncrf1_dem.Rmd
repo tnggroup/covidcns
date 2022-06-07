@@ -81,7 +81,7 @@ Document ANY changes to variable names in the issues spreadsheet "https://docs.g
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovecovidcns, "/data_raw/2022-05-09/neuro_case_report/ncrf1_dem_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/neuro_case_report/ncrf1_dem_covid_cns.rds")
   )
   
 # Check variable names in dataframe

@@ -50,7 +50,7 @@ source(file = "scripts/credentials/paths.R")
 ## Read in covid cns data
 ```{r Covid cns load data} 
 ncrf_dat <- read_rds(
-  file = paste0(ilovecovidcns, "/data_raw/2022-05-09/neuro_case_report/ncrf1_care_covid_cns.rds"))
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/neuro_case_report/ncrf1_care_covid_cns.rds"))
   
 # Check variable names in dataframe
 ncrf_dat %>%
