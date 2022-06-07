@@ -91,6 +91,22 @@ covidcns_dat %>%
 # Inspect dimensions of dataframe 
 covidcns_dat %>%
   dim()
+
+# Report counts of duplicates in ID column
+covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(.)
+
+# Report number of IDs to be dropped
+covidcns_excluded <- covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(.) %>%
+  select("Dropped IDs" = "freq") %>%
+  colSums() + 1
+
+covidcns_excluded
 ```
 
 Select & rename relevant columns

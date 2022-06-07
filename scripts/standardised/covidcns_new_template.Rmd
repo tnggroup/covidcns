@@ -11,9 +11,7 @@ Closing bracket should have its own row
 Functions with a single argument can have this on the same line
 One argument can be hashed out per line for debugging errors
 
-Chunk names should be all lower case except:
-Study name (COVIDCNS) all caps
-Capitalised first word
+Chunk names should be all lower case except capitalised first word
 Chunk names MUST be unique
 Points requiring user input are enclosed thus <>
 
@@ -74,10 +72,9 @@ EXCEPT in exceptional circumstances
 Document ANY changes to variable names in the Teams Data Issues Tracker
 
 - For variable names, use ONLY 'questionnaire.variable_name' syntax
-- For dataset, only use snake_case naming
-- When using pipe operator '%>%', each function should begin on a new line
-- Do not add empty lines at the beginning or end of a chunk
-- Use only tidyverse functions wherever possible
+- When using pipe operator '%>%', each function should begin on a new line for clarity
+- Do not add empty lines at the beginning or end of a chunk to keep the markdown as short as possible
+- Use only tidyverse functions wherever possible, they run faster than base R
 
 COVIDCNS data
 ```{r COVIDCNS load data}
@@ -93,14 +90,21 @@ covidcns_dat %>%
 covidcns_dat %>%
   dim()
 
-# Count NAs in ID column
-sum(is.na(covidcns_dat$externalDataReference))
+# Report counts of duplicates in ID column
+covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(.)
 
-# Count duplicates in ID column
-sum(table(covidcns_dat$externalDataReference)-1)
+# Report number of IDs to be dropped
+covidcns_excluded <- covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(.) %>%
+  select("Dropped IDs" = "freq") %>%
+  colSums() + 1
 
-# Report duplicates in ID column
-table(covidcns_dat$externalDataReference)[table(covidcns_dat$externalDataReference)>1]
+covidcns_excluded
 ```
 
 Create new df with renamed and de-duplicated/NA-removed ID column
@@ -114,18 +118,10 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
 # Inspect colnames
 covidcns_dat_id %>%
   colnames()
-```
 
-Look at number of people excluded
-The number of people to be excluded should be negative
-```{r COVIDCNS number excluded}
 # Inspect dimensions of new data set
 covidcns_dat_id %>%
   dim()
-
-# Inspect number of rows dropped
-covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
-covidcns_excluded
 ```
 
 Check missingness by missmap

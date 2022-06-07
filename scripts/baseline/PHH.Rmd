@@ -91,14 +91,21 @@ covidcns_dat %>%
 covidcns_dat %>%
   dim()
 
-# Count NAs in ID column
-sum(is.na(covidcns_dat$externalDataReference))
+# Report counts of duplicates in ID column
+covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(.)
 
-# Count duplicates in ID column
-sum(table(covidcns_dat$externalDataReference)-1)
+# Report number of IDs to be dropped
+covidcns_excluded <- covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(.) %>%
+  select("Dropped IDs" = "freq") %>%
+  colSums() + 1
 
-# Report duplicates in ID column
-table(covidcns_dat$externalDataReference)[table(covidcns_dat$externalDataReference)>1]
+covidcns_excluded
 ```
 
 Select & rename relevant columns
