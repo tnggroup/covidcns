@@ -96,14 +96,14 @@ covidcns_dat %>%
 covidcns_dat %>%
   select(externalDataReference) %>%
   filter(duplicated(.)) %>%
-  count(.)
+  count(., externalDataReference)
 
 # Report number of IDs to be dropped
 covidcns_excluded <- covidcns_dat %>%
   select(externalDataReference) %>%
   filter(duplicated(.)) %>%
-  count(.) %>%
-  select("Dropped IDs" = "freq") %>%
+  count(., externalDataReference) %>%
+  select("Dropped IDs" = "n") %>%
   colSums() + 1
 
 covidcns_excluded
@@ -123,18 +123,10 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
 # Inspect colnames
 covidcns_dat_id %>%
   colnames()
-```
 
-Look at number of people excluded
-The number of people to be excluded should be negative
-```{r COVIDCNS number excluded}
-# Inspect dimensions of new data set
+# Inspect dimensions
 covidcns_dat_id %>%
   dim()
-
-# Inspect number of rows dropped
-covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
-covidcns_excluded
 ```
 
 Check missingness by missmap

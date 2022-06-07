@@ -95,14 +95,14 @@ covidcns_dat %>%
 covidcns_dat %>%
   select(externalDataReference) %>%
   filter(duplicated(.)) %>%
-  count(.)
+  count(., externalDataReference)
 
 # Report number of IDs to be dropped
 covidcns_excluded <- covidcns_dat %>%
   select(externalDataReference) %>%
   filter(duplicated(.)) %>%
-  count(.) %>%
-  select("Dropped IDs" = "freq") %>%
+  count(., externalDataReference) %>%
+  select("Dropped IDs" = "n") %>%
   colSums() + 1
 
 covidcns_excluded
@@ -122,18 +122,10 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
 # Inspect colnames
 covidcns_dat_id %>%
   colnames()
-```
 
-Look at number of people excluded
-The number of people to be excluded should be negative
-```{r COVIDCNS number excluded}
-# Inspect dimensions of new data set
+# Inspect dimensions
 covidcns_dat_id %>%
   dim()
-
-# Inspect number of rows dropped
-covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
-covidcns_excluded
 ```
 
 Check missingness by missmap
@@ -151,13 +143,24 @@ dat <- covidcns_dat_id
 ```
 
 Extract and save labels
-```{r}
+```{r Extract save labels}
+# Save variable labels
 question_labels <- sjlabelled::get_label(dat)
 
+# Save value labels
 answer_labels <- sjlabelled::get_labels(dat, values = "as.name")
 
-chng <- rapply(sapply(answer_labels, names), function(x) ifelse(x==-77,-777,x), how = "replace")
+# Change -77 to -777 in value labels names
+chng <- rapply(sapply(answer_labels, names),
+               function(x) ifelse(x==-77, -777, x),
+               how = "replace")
 
+# Add multiple lines here as necessary to change other nonanswer values in labels
+# chng <- rapply(chng,
+#                function(x) ifelse(x==-88, -888, x),
+#                how = "replace")
+
+# Substitute new value labels into answer_labels
 for (i in 5:length(chng)){
   names(answer_labels[[i]]) <- chng[[i]]
 }
@@ -165,10 +168,9 @@ for (i in 5:length(chng)){
 
 Create list of all labels and attributes
 ```{r List labels attrs, eval=FALSE, include=FALSE}
-lablst <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
-lablst
+label_list <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
+label_list
 ```
-
 
 Recode Non-answer values to 3 digits
 -555 'Not applicable' response from participant
@@ -189,6 +191,7 @@ dat <- dat %>%
                 )
          )
 
+# Re-add labels after mutate
 dat <- sjlabelled::set_label(dat, question_labels)
 dat <- sjlabelled::set_labels(dat, labels = answer_labels)
 ```
