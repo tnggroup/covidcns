@@ -63,7 +63,7 @@ cognitron_final$user_id  <- cognitron_final$user_id %>% str_replace(".*_", "")
 cognitron_final <- filter(cognitron_final, str_detect(user_id, "CNS"))
 
 # Clean demographics data (I need to keep age, education, language, sex, handed )
-cols_to_keep = c("ID", "dem.dob_age", "dem.what_gender_do_you_identify_with",
+cols_to_keep = c("ID", "dem.dob_age", "dem.medical_history_birth_relevant",
                  "dem.is_english_your_first_language", "dem.highest_education")
 covid_matching <- covid_matching %>% select(all_of(cols_to_keep))
 new_colnames = c('user_id', 'age', 'sex',  'language', 'education')

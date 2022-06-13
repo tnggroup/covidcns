@@ -1820,12 +1820,12 @@ data_joined <- data_joined %>%
       dem.dob_age,
       ncrf1_dem.dob_age),
     
-    dem.what_gender_do_you_identify_with = coalesce(
-      dem.what_gender_do_you_identify_with,
+    dem.medical_history_birth_relevant = coalesce(
+      dem.medical_history_birth_relevant,
       ncrf1_dem.sex_at_birth),
     
-    dem.what_gender_do_you_identify_with_numeric = coalesce(
-      dem.what_gender_do_you_identify_with_numeric,
+    dem.medical_history_birth_relevant_numeric = coalesce(
+      dem.medical_history_birth_relevant_numeric,
       ncrf1_dem.sex_at_birth_numeric)
   )
 ```
@@ -1852,9 +1852,9 @@ data_export_matching <- data_joined %>%
       "dem.dob_age",
       "dem.how_old_are_you_now.txt",
       
-      # Gender
-      "dem.what_gender_do_you_identify_with",
-      "dem.what_gender_do_you_identify_with_numeric",
+      # Sex
+      "dem.medical_history_birth_relevant",
+      "dem.medical_history_birth_relevant_numeric",
       
       # Language
       "dem.is_english_your_first_language",
@@ -1895,6 +1895,12 @@ saveRDS(
 )
 ```
 
+```{r matching Save joint data set sharing}
+saveRDS(
+  object = data_export_matching, 
+  file = paste0(ilovecovidcns, "/data_sharing/matching/covidcns_matching.rds")
+)
+```
 
 Select columns for data extraction
 ```{r greta Select columns}
@@ -1912,6 +1918,12 @@ saveRDS(
 )
 ```
 
+```{r greta Save joint data set sharing}
+saveRDS(
+  object = data_export_greta, 
+  file = paste0(ilovecovidcns, "/data_sharing/liverpool/covidcns_greta.rds")
+)
+```
 
 
 Select columns for data extraction

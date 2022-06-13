@@ -53,7 +53,7 @@ source(file = "scripts/functions/cont_clean.R")
 Use package_check to install and load dependencies
 Load tidyverse last
 ```{r Install load dependencies}
-packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
+packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "lubridate", "tidyverse")
 package_check(packages)
 ```
 
@@ -238,40 +238,7 @@ vals_cat_3 <- c(
   "Postgraduate",
   NA
 )
-vals_cat_4 <- c(
-  "Don't know",
-  "Seen but not answered",
-  "Too young to attend school",
-  "Pre-school",
-  "Primary",
-  "Secondary",
-  "College",
-  "Does not attend school",
-  NA
-)
-vals_cat_5 <- c(
-  "Don't know",
-  "Seen but not answered",
-  "No",
-  "Yes",
-  NA
-)
-vals_cat_6 <- c(
-  "Don't know",
-  "Seen but not answered",
-  "Above average",
-  "Average",
-  "Below average",
-  NA
-)
-vals_cat_7 <- c(
-  "Don't know",
-  "Seen but not answered",
-  "Less than high school",
-  "High school",
-  "Vocational/some college",
-  NA
-)
+
 ```
 
 Create list of categorical values vectors
@@ -282,14 +249,7 @@ values_cat_list <- list(
   vals_cat_2,
   vals_cat_2,
   vals_cat_2,
-  vals_cat_3,
-  vals_cat_4,
-  vals_cat_5,
-  vals_cat_6,
-  vals_cat_5,
-  vals_cat_5,
-  vals_cat_5,
-  vals_cat_7
+  vals_cat_3
   )
 ```
 
@@ -310,14 +270,7 @@ names(values_cat_list) <- c(
   "ncrf1_dem.patient_currently_pregnant",
   "ncrf1_dem.patient_currently_incarcerated",
   "ncrf1_dem.patient_in_long_term_care_facility",
-  "ncrf1_dem.level_of_education",
-  "ncrf1_dem.child_attend_school_type",
-  "ncrf1_dem.does_the_child_receive_educational_support",
-  "ncrf1_dem.childs_education_performance_illness",
-  "ncrf1_dem.difficulties_illness_child_impact",
-  "ncrf1_dem.will_the_carers_seek_additional_educational_support",
-  "ncrf1_dem.carers_report_return_school",
-  "ncrf1_dem.carers_highest_level_of_education_"
+  "ncrf1_dem.level_of_education"
 )
 ```
 
@@ -455,18 +408,21 @@ dat %>%
   tbl_summary(missing_text = "Missing")
 ```
 
+```{r}
+str(dat$ncrf1_dem.date_of_birth.txt)
+str(dat$startDate)
+dat$ncrf1_dem.date_of_birth.txt
+```
+
+
 # Create age from DOB
 ```{r age from DOB}
 dat <- dat %>%
-  add_column(ncrf1_dem.dob_age = NA,
-             .after = "ncrf1_dem.date_of_birth.txt") %>%
-  mutate(ncrf1_dem.dob_age = as.numeric(floor((startDate - ncrf1_dem.date_of_birth.txt)/365.25)))
+  mutate(ncrf1_dem.dob_age = floor((startDate - ncrf1_dem.date_of_birth.txt)/dyears(1)))
 
 dat$ncrf1_dem.dob_age <- set_label(dat$ncrf1_dem.dob_age, "Age")
 
-dat %>%
-  select(ncrf1_dem.dob_age) %>%
-  str()
+str(dat$ncrf1_dem.dob_age)
 ```
 
 
