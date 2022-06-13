@@ -42,7 +42,7 @@ remove_duplicates <- function(data, ID_col, date_col = "endDate") {
   }
   
   # take labels for data
-  data_labels <- get_labels(data, value = TRUE)
+  data_labels <- get_labels(data, values = "as.name")
   data_label <- get_label(data)
   
   # Remove rows with NA in ID_col

@@ -94,7 +94,7 @@ ncrf_dat_id <- ncrf_dat %>% #new dataset with ID
          ncrf1_care.fio2_interface,
          ncrf1_care.overall_duration_of_invasive_ventilation.txt,
          ncrf1_care.noninvasive_ventilation,
-         ncrf1_care.ecmo,
+         ncrf1_care.emco,
          ncrf1_care.prone_position,
          ncrf1_care.vasopressors,
          ncrf1_care.renal_support,
@@ -198,7 +198,7 @@ variables_categorical_0_1 <-
   c(
     "ncrf1_care.oxygen_therapy",
     "ncrf1_care.noninvasive_ventilation",
-    "ncrf1_care.ecmo",
+    "ncrf1_care.emco",
     "ncrf1_care.prone_position",
     "ncrf1_care.vasopressors",
     "ncrf1_care.renal_support"
@@ -294,7 +294,7 @@ variables_numeric_0_1 <-
     "ncrf1_care.icu_or_high_dependency_unit_admission_numeric",
     "ncrf1_care.oxygen_therapy_numeric",
     "ncrf1_care.noninvasive_ventilation_numeric",
-    "ncrf1_care.ecmo_numeric",
+    "ncrf1_care.emco_numeric",
     "ncrf1_care.prone_position_numeric",
     "ncrf1_care.vasopressors_numeric",
     "ncrf1_care.renal_support_numeric"
@@ -402,8 +402,8 @@ export_variables <- c(
          "ncrf1_care.fio2_interface_numeric",
          "ncrf1_care.noninvasive_ventilation",
          "ncrf1_care.noninvasive_ventilation_numeric",
-         "ncrf1_care.ecmo",
-         "ncrf1_care.ecmo_numeric",
+         "ncrf1_care.emco",
+         "ncrf1_care.emco_numeric",
          "ncrf1_care.prone_position",
          "ncrf1_care.prone_position_numeric",
          "ncrf1_care.vasopressors",

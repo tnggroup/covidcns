@@ -35,7 +35,7 @@ Clear global environment prior to initiation
 remove(list = ls())
 ```
 
-Add the add_numeric function - used to convert character variables into numeric variables
+Add the add_labelled_numeric function - used to convert character variables into numeric variables
 Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
 Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
@@ -43,7 +43,7 @@ Add the recode_check function - used to check for implausible values when recodi
 Add the imp_clean function - used to check variables for implausible values
 Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "scripts/functions/add_numeric_3.R")
+source(file = "scripts/functions/add_labelled_numeric.R")
 source(file = "scripts/functions/remove_duplicates.R")
 source(file = "scripts/functions/sumscores.R")
 source(file = "scripts/functions/package_check.R")
@@ -454,7 +454,7 @@ exclude_cols_numeric <- c(
 Add numeric columns
 ```{r Add numeric}
 dat <- dat %>% 
-  add_numeric_3(exclude = exclude_cols_numeric)
+  add_labelled_numeric(exclude = exclude_cols_numeric)
 
 # Inspect colnames
 dat %>%
