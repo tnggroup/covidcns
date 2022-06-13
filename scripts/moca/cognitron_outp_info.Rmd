@@ -39,11 +39,11 @@ Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check.R")
+source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check.R")
 ```
 
 Use package_check to install and load dependencies
@@ -56,7 +56,7 @@ package_check(packages)
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: COVIDCNS Cognitron Outpatient Info
@@ -226,7 +226,7 @@ imp_check(data = dat,
 ```
 
 Create vector of categorical values for variables
-```{r Vector categorical values}
+```{r Vector categorical values.1}
 values_categorical.1 <- c(
   "Please tick as appropriate",
   NA
@@ -235,7 +235,7 @@ values_categorical.1
 ```
 
 Create vector of variable names for categorical variables
-```{r Vector categorical variables}
+```{r Vector categorical variables.1}
 variables_categorical.1 <- c(
   "cognitron_outp.severity_test_attempted_due",
   "cognitron_outp.test_attempted_due_nonneurologicalphysical",
@@ -258,7 +258,7 @@ variables_categorical.1
 ```
 
 Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r Imp_check categorical variables}
+```{r Imp_check categorical variables.1}
 imp_check(data = dat,
           variables = variables_categorical.1,
           values = values_categorical.1)
@@ -299,7 +299,7 @@ imp_check(data = dat,
 ```
 
 Create vector of numeric values 
-```{r Vector numeric values}
+```{r Vector numeric values.1}
 values_numeric.1 <- c(
   1,
   -777,
@@ -309,7 +309,7 @@ values_numeric.1
 ```
 
 Create vector of variable names for numeric variables
-```{r Vector numeric variables}
+```{r Vector numeric variables.1}
 variables_numeric.1 <- c(
   "cognitron_outp.severity_test_attempted_due_numeric",
   "cognitron_outp.test_attempted_due_nonneurologicalphysical_numeric",
@@ -332,7 +332,7 @@ variables_numeric.1
 ```
 
 Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r Imp_check numeric variables}
+```{r Imp_check numeric variables.1}
 imp_check(data = dat,
           variables = variables_numeric.1,
           values = values_numeric.1)

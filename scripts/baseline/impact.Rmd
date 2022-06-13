@@ -1,12 +1,27 @@
 ---
-title: "COVID CNS: Cleaning employment"
-author: "Alish Palmos"
-date: "14/01/2022"
+title: "COVIDCNS Impact Cleaning Script"
+author: "Zain Ahmad"
+date: "21/05/2022"
 output: html_document
 ---
 
-# Set up
-```{r setup, include=FALSE}
+
+All arguments should be in their own row, including the first argument
+Closing bracket should have its own row
+Functions with a single argument can have this on the same line
+One argument can be hashed out per line for debugging errors
+
+Chunk names should be all lower case except:
+Study name (COVIDCNS) all caps
+Capitalised first word
+Chunk names MUST be unique
+Points requiring user input are enclosed thus <>
+
+Ensure that you have deleted/untracked .DS_Store before your initial commit
+Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
   comment = '',
@@ -15,113 +30,87 @@ knitr::opts_chunk$set(
   )
 ```
 
+Clear global environment prior to initiation
 ```{r Clear global environment}
-rm(list=ls())
+remove(list = ls())
 ```
 
+Add the add_numeric function - used to convert character variables into numeric variables
+Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+Add the recode_check function - used to check for implausible values when recoding
+Add the imp_clean function - used to check variables for implausible values
+Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/imp_check.R")
+source(file = "scripts/functions/add_numeric_3.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/recode_check.R")
+source(file = "scripts/functions/cont_clean.R")
 ```
 
-Note: always load tidyverse last
+Use package_check to install and load dependencies
+Load tidyverse last
 ```{r Install load dependencies}
-packages = c(
-  "summarytools",
-  "sjlabelled",
-  "Amelia",
-  "knitr",
-  "gtsummary",
-  "tidyverse"
-  )
+packages <- c("sjlabelled",
+              "Amelia",
+              "gtsummary",
+              "tidyverse")
 package_check(packages)
 ```
 
-```{r Get system date}
-date <- Sys.Date()
-date
+Read in file with path to ilovecovidcns channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Source filepath to ilovecovidcns OneDrive}
+source(file = "scripts/credentials/paths.R")
 ```
 
-```{r Source the credentials file}
-source("../credentials/paths.R")
-```
+# Read in the data: COVIDCNS Impact
 
-# Read in the data 
-```{r COVID CNS employment data}
-covidcns_dat <- read_rds(file = 
-                   paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/impact_covid_cns.rds")
-                 )
+Do not change variable names from the NLP names that are produced by the extraction
+EXCEPT in exceptional circumstances
+Document ANY changes to variable names in the Teams Data Issues Tracker
 
-# check
-covidcns_dat %>% 
+- For variable names, use ONLY 'questionnaire.variable_name' syntax
+- For dataset, only use snake_case naming
+- When using pipe operator '%>%', each function should begin on a new line
+- Do not add empty lines at the beginning or end of a chunk
+- Use only tidyverse functions wherever possible
+
+COVIDCNS data
+```{r COVIDCNS load data}
+covidcns_dat <- read_rds(
+  file = paste0(ilovecovidcns,"/data_raw/latest_freeze/baseline/impact_covid_cns.rds")
+  )
+  
+# Check variable names in dataframe
+covidcns_dat %>%
+  colnames()
+
+# Inspect dimensions of dataframe 
+covidcns_dat %>%
   dim()
 
-covidcns_dat %>% 
-  colnames()
+# Count NAs in ID column
+sum(is.na(covidcns_dat$externalDataReference))
+
+# Count duplicates in ID column
+sum(table(covidcns_dat$externalDataReference)-1)
+
+# Report duplicates in ID column
+table(covidcns_dat$externalDataReference)[table(covidcns_dat$externalDataReference)>1]
 ```
 
-Specify columns to be excluded from add_numeric function
-Continuous variables should be excluded, as they are already numeric
-```{r COVID CNS specify excluded columns}
-exclude_cols_numeric <- c(
-  "ID",
-  "sample",
-  "startDate",
-  "endDate",
-  "impact.othertext.txt"
-  )
-```
-
-Select & rename relevant columns
-```{r COVID CNS select}
+Create new df with renamed and de-duplicated/NA-removed ID column
+```{r COVIDCNS select}
 covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
-  drop_na(externalDataReference) %>% # Drop participants with no ID
   remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
-  add_column(sample = "COVID-CNS",
-             .after = "externalDataReference") %>% # Create new sample column
-  select(
-         ID = externalDataReference, # ID
-         startDate,
-         endDate,
-         sample,
-         impact.fulltime_employed,
-         impact.unemployed,
-         impact.stayathome_parent_or_carer,
-         impact.contract_or_freelance_work,
-         impact.receiving_state_income,
-         impact.student_,
-         impact.prefer_not_to_say,
-         impact.parttime_employed,
-         impact.zerohours_contract,
-         impact.selfemployed,
-         impact.small_buisness_owner,
-         impact.retired,
-         impact.student_.1,
-         #employment chnage: 
-         impact.my_employment_status_has_not_changed,
-         impact.become_unemployed,
-         impact.become_employed,
-         impact.reduction_in_hours,
-         impact.increased_hours,
-         impact.benefits_increased,
-         impact.furloughed_or_paid_leave_,
-         impact.paid_leave_furloughed,
-         impact.other,
-         impact.changes_in_duties_or_responsibilities,
-         impact.reduction_in_salary,
-         impact.increased_salary,
-         impact.benefits_decreased,
-         impact.furloughed_or_paid_leave_.1,
-         impact.taking_unpaid_leave,
-         impact.prefer_not_to_say.1,
-         impact.losing_skip_risk_prefer,
-         impact.symptoms_impacted_carry_employment,
-         impact.employment_status_changed_contracting
-         ) %>%
-  add_numeric(exclude = exclude_cols_numeric)
+  dplyr::rename(
+    "ID" = "externalDataReference"
+  )
+
 # Inspect colnames
 covidcns_dat_id %>%
   colnames()
@@ -129,27 +118,52 @@ covidcns_dat_id %>%
 
 Look at number of people excluded
 The number of people to be excluded should be negative
-```{r COVID CNS number excluded}
+```{r COVIDCNS number excluded}
 # Inspect dimensions of new data set
 covidcns_dat_id %>%
   dim()
+
 # Inspect number of rows dropped
 covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
 covidcns_excluded
 ```
 
-Inspect numeric variables
-```{r COVID CNS inspect numeric variables}
-covidcns_dat_id %>%
-  select(all_of(ends_with("numeric"))) %>%
-  tbl_summary(missing_text = "Missing")
+Check missingness by missmap
+```{r COVIDCNS missmap}
+covidcns_dat_id %>% 
+  missmap()
 ```
 
-Check missingness by missmap
-```{r COVID CNS inspect missingness}
-covidcns_miss_map <- covidcns_dat_id %>% 
-  missmap()
-covidcns_miss_map
+Create dat as copy of covidcns_dat_id for brevity
+This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
+```{r Create dat}
+dat <- covidcns_dat_id 
+```
+
+Extract and save labels
+```{r Extract save labels}
+# Save variable labels
+question_labels <- sjlabelled::get_label(dat)
+
+# Save value labels
+answer_labels <- sjlabelled::get_labels(dat, values = "as.name")
+```
+
+Change answer_labels to fit 3 digit non-answer values
+```{r Modify answer_labels}
+# Change non-answers in value labels names
+chng <- rapply(sapply(answer_labels, names), function(x) ifelse(x==-77,-777,x), how = "replace")
+chng <- rapply(chng, function(x) ifelse(x==-55,-555,x), how = "replace")
+chng <- rapply(chng, function(x) ifelse(x==-88,-888,x), how = "replace")
+chng <- rapply(chng, function(x) ifelse(x==-99,-999,x), how = "replace")
+
+# Substitute new value labels into answer_labels
+for (i in 5:length(chng)){
+  names(answer_labels[[i]]) <- chng[[i]]
+}
+
+# Remove chng
+rm(chng)
 ```
 
 Recode Non-answer values to 3 digits
@@ -160,125 +174,98 @@ Recode Non-answer values to 3 digits
 `NA` Were not shown the question (genuinely missing value)
 When we code someone as being 'not applicable' by deduction, we use `NA_real_`
 ```{r Recode NA values}
-covidcns_dat_id <- covidcns_dat_id %>%
-  mutate(across(ends_with("numeric"),
+dat <- dat %>%
+  mutate(across(where(is.numeric),
                 ~case_when(
                   . == -55 ~ -555,
                   . == -77 ~ -777,
                   . == -88 ~ -888,
                   . == -99 ~ -999,
-                  TRUE ~ .)))
+                  TRUE ~ .)
+                )
+         )
+
+# Re-add labels after mutate
+dat <- sjlabelled::set_label(dat, question_labels)
+dat <- sjlabelled::set_labels(dat, labels = answer_labels)
+```
+
+Create list of all labels and attributes
+This chunk supersedes all categorical/numeric cleaning
+It gives you an output of c(the question label, all value-label pairs)
+for each variable
+Check for errors in the output of this chunk, including:
+- Label spelling errors (for questions and answers)
+- Incorrect values
+- Mismatches between labels and values
+- Scale errors
+- Variable naming issues from the data extraction
+- Any other issues you can see
+All issues/changes need to be logged as a to-do on Teams
+At this point, you also need to pick out any continuous, date or text variables 
+to be cleaned in the later chunks
+```{r List labels attrs}
+lablst <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
+lablst
 ```
 
 
-Cleaning Numeric 0-1 variables
-```{r vector of numeric values}
-values_numeric_0_1 <- c(
-  0,
-  1,
-  -777,
-  NA
-  )
-values_numeric_0_1
+# Rectifying incorrect variable naming
+
+View impact.small_buisness_owner
+Misspelled variable name and associated label
+```{r View impact.small_buisness_owner}
+str(dat$impact.small_buisness_owner)
+```
+
+Rename impact.small_buisness_owner using dplyr rename
+```{r Rename impact.small_buisness_owner}
+dat <- dat %>%
+  rename("impact.small_business_owner" = "impact.small_buisness_owner")
+```
+
+Reset impact.small_business_owner variable label
+```{r Reset impact.small_business_owner label}
+dat$impact.small_business_owner <- set_label(dat$impact.small_business_owner, c("impact.small_business_owner" = "What was your employment status prior to contracting COVID-19 ?"))
+```
+
+Check impact.small_business_owner naming
+```{r Recheck impact.small_business_owner naming}
+str(dat$impact.small_business_owner)
 ```
 
 
-Create vector of variable names for numeric variables
-```{r vector numeric variables}
-variables_numeric_0_1 <- c(
-  "impact.fulltime_employed_numeric",
-  "impact.unemployed_numeric",
-  "impact.stayathome_parent_or_carer_numeric",
-  "impact.contract_or_freelance_work_numeric",
-  "impact.receiving_state_income_numeric",
-  "impact.student__numeric",
-  "impact.prefer_not_to_say_numeric",
-  "impact.parttime_employed_numeric",
-  "impact.zerohours_contract_numeric",
-  "impact.selfemployed_numeric",
-  "impact.small_buisness_owner_numeric",
-  "impact.retired_numeric",
-  "impact.student_.1_numeric",
-  "impact.my_employment_status_has_not_changed_numeric",
-  "impact.become_unemployed_numeric",
-  "impact.become_employed_numeric",
-  "impact.reduction_in_hours_numeric",
-  "impact.increased_hours_numeric",
-  "impact.benefits_increased_numeric",
-  "impact.furloughed_or_paid_leave__numeric",
-  "impact.paid_leave_furloughed_numeric",
-  "impact.other_numeric",
-  "impact.changes_in_duties_or_responsibilities_numeric",
-  "impact.reduction_in_salary_numeric",
-  "impact.increased_salary_numeric",
-  "impact.benefits_decreased_numeric",
-  "impact.furloughed_or_paid_leave_.1_numeric",
-  "impact.taking_unpaid_leave_numeric",
-  "impact.prefer_not_to_say.1_numeric",
-  "impact.my_employment_status_has_not_changed_numeric",
-  "impact.become_unemployed_numeric",
-  "impact.become_employed_numeric",
-  "impact.reduction_in_hours_numeric",
-  "impact.increased_hours_numeric",
-  "impact.benefits_increased_numeric",
-  "impact.furloughed_or_paid_leave__numeric",
-  "impact.paid_leave_furloughed_numeric",
-  "impact.other_numeric",
-  "impact.changes_in_duties_or_responsibilities_numeric",
-  "impact.reduction_in_salary_numeric",
-  "impact.increased_salary_numeric",
-  "impact.benefits_decreased_numeric",
-  "impact.furloughed_or_paid_leave_.1_numeric",
-  "impact.taking_unpaid_leave_numeric",
-  "impact.prefer_not_to_say.1_numeric",
-  "impact.symptoms_impacted_carry_employment_numeric"
-  )
-variables_numeric_0_1
+# Rectifying incorrect variable labelling
+
+Check impact.small_business_owner labels
+Misspelled variable labels
+Misspelled variable name and associated label also requires noting
+```{r Check impact.small_business_owner labelling}
+str(dat$impact.small_business_owner)
 ```
 
-Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r imp_check numeric variables}
-imp_check(data = covidcns_dat_id,
-           variables = variables_numeric_0_1,
-          values = values_numeric_0_1)
+Rename value labels of impact.small_business_owner
+```{r Rename impact.small_business_owner value labels}
+# Named vector of correct labels
+new_levels_vec <- c("Not Small business owner" = 0, "Small business owner" = 1)
+
+# Assign new labels
+dat$impact.small_business_owner <- set_labels(dat$impact.small_business_owner, labels = new_levels_vec)
+
+# Remove labels vector
+rm(new_levels_vec)
+```
+
+Recheck impact.small_business_owner labelling
+```{r Recheck impact.small_business_owner labelling}
+str(dat$impact.small_business_owner)
 ```
 
 
-Name your vectors in line with the chunks below
-Number the vectors or name them intuitively if you have multiple vectors
-Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
+# Create phenotypes
 
-Create vector of categorical values for  variables
-```{r vector categorical values}
-values_categorical_0_1 <- c(
-  "Yes",
-  "No",
-  "Prefer not to answer",
-  "Seen but not answered",
-  NA
-  )
-values_categorical_0_1
-```
-
-Create vector of variable names for categorical  variables
-```{r vector categorical variables}
-variables_categorical_0_1 <-
-  c(
-    "impact.symptoms_impacted_carry_employment",
-    "impact.employment_status_changed_contracting"
-    )
-variables_categorical_0_1
-```
-
-Use imp_check function to find if any implausible values and obtain summary
-table of variables
-```{r imp_check categorical variables}
-imp_check(data = covidcns_dat_id,
-          variables = variables_categorical_0_1,
-          values = values_categorical_0_1)
-```
-
-# Change the COVID CNS variables to mactch GLAD
+# Employment
+Change the COVID CNS variables to match GLAD
 
 1	In paid employment or self-employed
 2	Retired
@@ -290,138 +277,197 @@ imp_check(data = covidcns_dat_id,
 8	None of the above
 -99	Prefer not to answer
 
-#Employment 
-```{r change COVID CNS variables to match GLAD}
-
-covidcns_dat_id <- covidcns_dat_id %>%
+Create current employment status variable
+```{r Create emp status}
+dat <- dat %>%
   mutate(
-    impact.what_is_your_current_employment_status_numeric = 
+    impact.current_employment_status =
       case_when(
-         impact.fulltime_employed_numeric == 1 ~ 1,
-         impact.parttime_employed_numeric == 1 ~ 1,
-         impact.unemployed_numeric == 1 ~ 5,
-         impact.zerohours_contract_numeric == 1 ~ 1,
-         impact.stayathome_parent_or_carer_numeric == 1 ~ 3,
-         impact.selfemployed_numeric == 1 ~ 1,
-         impact.contract_or_freelance_work_numeric == 1 ~ 1,
-         impact.small_buisness_owner_numeric == 1 ~ 1,
-         impact.receiving_state_income_numeric == 1 ~ 4,
-         impact.retired_numeric == 1 ~ 2,
-         impact.student__numeric == 1 ~ 7,
-         impact.student_.1_numeric == 1 ~ 7,
-           (impact.fulltime_employed_numeric == -77 |
-            impact.parttime_employed_numeric == -77 |
-            impact.unemployed_numeric == -77 |
-            impact.zerohours_contract_numeric == -77 |
-            impact.stayathome_parent_or_carer_numeric == -77 |
-            impact.selfemployed_numeric == -77 |
-            impact.contract_or_freelance_work_numeric == -77 |
-            impact.small_buisness_owner_numeric == -77 |
-            impact.receiving_state_income_numeric == -77 |
-            impact.retired_numeric == -77 |
-            impact.student__numeric == -77 |
-            impact.student_.1_numeric == -77) ~ -77
+        # cat 1 paid emp/self-emp
+        impact.fulltime_employed == 1 ~ 1,
+        impact.parttime_employed == 1 ~ 1,
+        impact.zerohours_contract == 1 ~ 1,
+        impact.selfemployed == 1 ~ 1,
+        impact.contract_or_freelance_work == 1 ~ 1,
+        impact.small_business_owner == 1 ~ 1,
+        # cat 2 retired
+        impact.retired == 1 ~ 2,
+        # cat 3 looking after home/family
+        impact.stayathome_parent_or_carer == 1 ~ 3,
+        # cat 4 unable to work sick/disabled
+        impact.receiving_state_income == 1 ~ 4,
+        # cat 5 unemployed
+        impact.unemployed == 1 ~ 5,
+        # cat 6 unpaid/voluntary not covered
+        # cat 7 student
+        impact.student_ == 1 ~ 7, #school
+        impact.student_.1 == 1 ~ 7, #uni
+        
+        # prefer not to say
+        impact.prefer_not_to_say == 1 ~ -999,
+        
+        impact.fulltime_employed == -777 |
+        impact.parttime_employed == -777 |
+        impact.unemployed == -777 |
+        impact.zerohours_contract == -777 |
+        impact.stayathome_parent_or_carer == -777 |
+        impact.selfemployed == -777 |
+        impact.contract_or_freelance_work == -777 |
+        impact.small_business_owner == -777 |
+        impact.receiving_state_income == -777 |
+        impact.retired == -777 |
+        impact.student_ == -777 |
+        impact.student_.1 == -777 ~ -777
       )
   )
+dat %>%
+  select(impact.current_employment_status) %>%
+  tbl_summary(missing_text = "Missing")
+```
 
-covidcns_dat_id <- covidcns_dat_id %>%
+Label current employment status
+```{r Label emp status}
+# Set question label
+dat$impact.current_employment_status <- sjlabelled::set_label(dat$impact.current_employment_status, "What is your current employment status?")
+
+# Create vector of answer labels
+emp_status_labels <- c("In paid employment or self-employed" = 1,
+                       "Retired" = 2,
+                       "Looking after home and/or family" = 3,
+                       "Unable to work because of sickness or disability" = 4,
+                       "Unemployed" = 5,
+                       "Full or part-time student" = 7,
+                       "Prefer not to say" = -999,
+                       "Seen but not answered" = -777)
+
+# Set answer labels
+dat$impact.current_employment_status <- sjlabelled::set_labels(dat$impact.current_employment_status,
+                                                        labels = emp_status_labels)
+
+# Remove vector of answer labels
+rm(emp_status_labels)
+
+# View variable to check
+sjlabelled::as_label(dat) %>%
+  select(impact.current_employment_status) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+Employment change due to covid collapsed to single factor
+
+Create employment change covid variable
+```{r Create emp change}
+dat <- dat %>%
   mutate(
-    impact.what_is_your_current_employment_status =
-      recode_factor(impact.what_is_your_current_employment_status_numeric,
-                    "1" = "In paid employment or self-employed",
-                    "2" = "Retired",
-                    "3" = "Looking after home and/or family",
-                    "4" = "Unable to work because of sickness or disability",
-                    "5" = "Unemployed",
-                    "6" = "Doing unpaid or voluntary work",
-                    "7" = "Full or part-time student",
-                    "8" = "None of the above",
-                    "-77" = "Seen not to answered",
-                    missing = NA_character_
+    impact.employment_change_covid =
+      case_when(
+        impact.my_employment_status_has_not_changed == 1 ~ 0,
+        impact.become_unemployed == 1 ~ 1,
+        impact.become_employed == 1 ~ 2,
+        impact.reduction_in_hours == 1 ~ 3,
+        impact.increased_hours == 1 ~ 4,
+        impact.benefits_increased == 1 ~ 5,
+        impact.furloughed_or_paid_leave_ == 1 ~ 6,
+        impact.paid_leave_furloughed == 1 ~ 7,
+        impact.other == 1 ~ 8,
+        impact.changes_in_duties_or_responsibilities == 1 ~ 9,
+        impact.reduction_in_salary == 1 ~ 10,
+        impact.increased_salary == 1 ~ 11,
+        impact.benefits_decreased == 1 ~ 12,
+        impact.furloughed_or_paid_leave_.1 == 1 ~ 13,
+        impact.taking_unpaid_leave == 1 ~ 14,
+        impact.prefer_not_to_say.1 == 1 ~ -999,
+        impact.my_employment_status_has_not_changed == -777 |
+        impact.become_unemployed == -777 |
+        impact.become_employed == -777 |
+        impact.reduction_in_hours == -777 |
+        impact.increased_hours == -777 |
+        impact.benefits_increased == -777 |
+        impact.furloughed_or_paid_leave_ == -777 |
+        impact.paid_leave_furloughed == -777 |
+        impact.other == -777 |
+        impact.changes_in_duties_or_responsibilities == -777 |
+        impact.reduction_in_salary == -777 |
+        impact.increased_salary == -777 |
+        impact.benefits_decreased == -777 |
+        impact.furloughed_or_paid_leave_.1 == -777 |
+        impact.taking_unpaid_leave == -777 |
+        impact.prefer_not_to_say.1 == -777 ~ -777
       )
+  )
+dat %>%
+  select(impact.employment_change_covid) %>%
+  tbl_summary()
+```
+
+Label employment change covid variable
+```{r Label emp change}
+# Set question label
+dat$impact.employment_change_covid <- sjlabelled::set_label(dat$impact.employment_change_covid, "Did your employment status change due to COVID?")
+
+# Create vector of answer labels
+emp_change_labels <- c("My employment status has not changed" = 0,
+                       "Become unemployed" = 1,
+                       "Become employed" = 2,
+                       "Reduction in hours" = 3,
+                       "Increased hours" = 4,
+                       "Benefits increased" = 5,
+                       "Furloughed or paid leave (Government funded)" = 6,
+                       "Furloughed or paid leave (Government funded with company supplement)" = 7,
+                       "Other" = 8,
+                       "Changes in duties or responsibilities" = 9,
+                       "Reduction in salary" = 10,
+                       "Increased Salary" = 11,
+                       "Benefits decreased" = 12,
+                       "Furloughed or paid leave (Company funded)" = 13,
+                       "Taking unpaid leave" = 14,
+                       "Seen but not answered" = -777,
+                       "Prefer not to say" = -999)
+
+# Set answer labels
+dat$impact.employment_change_covid <- sjlabelled::set_labels(dat$impact.employment_change_covid,
+                                                        labels = emp_change_labels)
+
+# Remove vector of answer labels
+rm(emp_change_labels)
+
+# Check attributes
+c(attr(dat$impact.employment_change_covid, "label"), attr(dat$impact.employment_change_covid, "labels"))
+
+# View variable to check
+sjlabelled::as_label(dat) %>%
+  select(impact.employment_change_covid) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+# Add Numeric Variables
+
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+Text variables also need to be excluded
+```{r Specify excluded columns}
+exclude_cols_numeric <- c(
+  "impact.othertext.txt"
   )
 ```
 
-#Employment change due to covid
-```{r change COVID CNS variables to match GLAD}
+Add numeric columns
+```{r Add numeric}
+dat <- dat %>% 
+  add_numeric_3(exclude = exclude_cols_numeric)
 
-covidcns_dat_id <- covidcns_dat_id %>%
-  mutate(
-    impact.employment_changed_due_to_covid_numeric = 
-      case_when(
-         impact.my_employment_status_has_not_changed_numeric == 1 ~ 0,
-         impact.become_unemployed_numeric == 1 ~ 1,
-         impact.become_employed_numeric == 1 ~ 2,
-         impact.reduction_in_hours_numeric == 1 ~ 3,
-         impact.increased_hours_numeric == 1 ~ 4,
-         impact.benefits_increased_numeric == 1 ~ 5,
-         impact.furloughed_or_paid_leave__numeric == 1 ~ 6,
-         impact.paid_leave_furloughed_numeric == 1 ~ 7,
-         impact.other_numeric == 1 ~ 8,
-         impact.changes_in_duties_or_responsibilities_numeric == 1 ~ 9,
-         impact.reduction_in_salary_numeric == 1 ~ 10,
-         impact.increased_salary_numeric == 1 ~ 11,
-         impact.benefits_decreased_numeric == 1 ~ 12,
-         impact.furloughed_or_paid_leave_.1_numeric == 1 ~ 13,
-         impact.taking_unpaid_leave_numeric == 1 ~ 14,
-         impact.prefer_not_to_say.1_numeric == 1 ~ -999,
-           (impact.my_employment_status_has_not_changed_numeric == -777 |
-            impact.become_unemployed_numeric == -777 |
-            impact.become_employed_numeric == -777 |
-            impact.reduction_in_hours_numeric == -777 |
-            impact.increased_hours_numeric == -777 |
-            impact.benefits_increased_numeric == -777 |
-            impact.furloughed_or_paid_leave__numeric == -777 |
-            impact.paid_leave_furloughed_numeric == -777 |
-            impact.other_numeric == -777 |
-            impact.changes_in_duties_or_responsibilities_numeric == -777 |
-            impact.reduction_in_salary_numeric == -777 |
-            impact.increased_salary_numeric == -777 |
-            impact.benefits_decreased_numeric == -777 |
-            impact.furloughed_or_paid_leave_.1_numeric == -777 |
-            impact.taking_unpaid_leave_numeric == -777 |
-            impact.prefer_not_to_say.1_numeric == -777) ~ -777
-      )
-)
-  
-
-covidcns_dat_id <- covidcns_dat_id %>%
-  mutate(
-    impact.employment_changed_due_to_covid =
-      recode_factor(impact.employment_changed_due_to_covid_numeric,
-                    "0" = "My employment status has not changed",
-                    "1" = "Become unemployed",
-                    "2" = "Become employed",
-                    "3" = "Reduction in hours",
-                    "4" = "Increased hours",
-                    "5" = "Benefits increased",
-                    "6" = "Furloughed or paid leave (Government funded)",
-                    "7" = "Furloughed or paid leave (Government funded with company supplement)",
-                    "8" = "Other",
-                    "9" = "Changes in duties or responsibilities",
-                    "10" = "Reduction in salary", 
-                    "11" = "Increased Salary", 
-                    "12" = "Benefits decreased",
-                    "13" = "Furloughed or paid leave (Company funded)", 
-                    "14" = "Taking unpaid leave", 
-                    "-777" = "Seen not to answered",
-                    "-999" = "Prefer not to say",
-                    missing = NA_character_
-      )
-  )
+# Inspect colnames
+dat %>%
+  colnames()
 ```
+
 
 # Save cleaned data
-Check colnames before exporting final dataset
-```{r check colnames}
-colnames(covidcns_dat_id)
-```
 
-# COVID-CNS
-```{r Write cleaned COVID-CNS variables to a .rds file}
-covidcns_dat_id %>% 
-  filter(sample == "COVID-CNS") %>%  # select only COVID-CNS participants
-  saveRDS(file = 
-            paste0(ilovecovidcns, "/data/latest_freeze/baseline/impact_covidcns_clean.rds")
+# COVIDCNS
+```{r Write cleaned COVIDCNS variables to a .rds file}
+dat %>%
+  saveRDS(
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/impact_covidcns_clean.rds")
     )
 ```

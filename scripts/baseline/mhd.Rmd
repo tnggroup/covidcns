@@ -1,0 +1,413 @@
+---
+title: "COVIDCNS Mental Health Diagnosis Cleaning Script"
+author: "Zain Ahmad"
+date: "18/05/2022"
+output: html_document
+---
+
+
+All arguments should be in their own row, including the first argument
+Closing bracket should have its own row
+Functions with a single argument can have this on the same line
+One argument can be hashed out per line for debugging errors
+
+Chunk names should be all lower case except:
+Study name (COVIDCNS) all caps
+Capitalised first word
+
+Ensure that you have deleted/untracked .DS_Store before your initial commit
+Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+Add the add_numeric function - used to convert character variables into numeric variables
+Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+Add the recode_check function - used to check for implausible values when recoding
+Add the imp_clean function - used to check variables for implausible values
+Add the cont_clean function - used to check continuous variables for implausible values
+```{r Read in functions}
+source(file = "scripts/functions/add_numeric_1.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/recode_check.R")
+source(file = "scripts/functions/imp_clean.R")
+source(file = "scripts/functions/cont_clean.R")
+```
+
+Use package_check to install and load dependencies
+Load tidyverse last
+```{r Install load dependencies}
+packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
+package_check(packages)
+```
+
+Read in file with path to ilovecovidcns channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "scripts/credentials/paths.R")
+```
+
+# Read in the data: New Look MHD Script
+Change this heading to the name of your questionnaire/demographic
+Load COVIDCNS data
+
+Do not change variable names from the NLP names that are produced by the extraction
+EXCEPT in exceptional circumstances
+Document ANY changes to variable names in the issues spreadsheet "https://docs.google.com/spreadsheets/d/1a2gL8c0eH2pZXNTbnPzkDYQGeeVXbLKU8BUpYM0moe8/edit?usp=sharing"
+
+- For variable names, use ONLY 'questionnaire.variable_name'
+- For dataset, only use snake_case naming
+- When using pipe operator '%>%', each function should begin on a new line
+- Do not add empty lines at the beginning or end of a chunk
+- Use only tidyverse functions wherever possible
+- When naming chunks, begin with the name of the dataset (COVIDCNS)
+
+## COVIDCNS data
+```{r COVIDCNS load data}
+covidcns_dat <- read_rds(
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/mhd_covid_cns.rds")
+  )
+  
+# Check variable names in dataframe
+covidcns_dat %>%
+  colnames()
+
+# Inspect dimensions of dataframe 
+covidcns_dat %>%
+  dim()
+```
+
+Select & rename relevant columns
+```{r COVIDCNS select}
+covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
+  drop_na(externalDataReference) %>% # Drop participants with no ID
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
+  add_column(sample = "COVIDCNS",
+             .after = "externalDataReference") %>%
+  dplyr::rename(
+    "ID" = "externalDataReference"
+  )
+
+# Inspect colnames
+covidcns_dat_id %>%
+  colnames()
+```
+
+Look at number of people excluded
+The number of people to be excluded should be negative
+```{r COVIDCNS number excluded}
+# Inspect dimensions of new data set
+covidcns_dat_id %>%
+  dim()
+
+# Inspect number of rows dropped
+covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
+covidcns_excluded
+```
+
+Check missingness by missmap
+```{r COVIDCNS inspect missingness}
+covidcns_miss_map <- covidcns_dat_id %>% 
+  missmap()
+
+covidcns_miss_map
+```
+
+Create dat as copy of covidcns_dat_id for brevity
+This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
+```{r Create dat}
+dat <- covidcns_dat_id 
+
+# Check
+dat %>% glimpse()
+```
+
+Create list of all labels and attributes
+```{r List labels attrs}
+lablst <- sapply(dat, function(x) attr(x, "labels"))
+lablst
+```
+
+Recode Non-answer values to 3 digits
+-555 'Not applicable' response from participant
+-777 Seen but not answered
+-888 Don't know
+-999 Prefer not to answer/Prefer not to say
+`NA` Were not shown the question (genuinely missing value)
+When we code someone as being 'not applicable' by deduction, we use `NA_real_`
+```{r Recode NA values}
+dat <- dat %>%
+  mutate(across(where(is.numeric),
+                ~case_when(
+                  . == -55 ~ -555,
+                  . == -77 ~ -777,
+                  . == -88 ~ -888,
+                  . == -99 ~ -999,
+                  TRUE ~ .)))
+```
+
+# Cleaning Continuous Variables
+
+Create vector of continuous variables
+```{r Create cont vars vector}
+variables_cont <- c(
+  "mhd.depression.1",
+  "mhd.depression_during_or_after_pregnancy",
+  "mhd.premenstrual_dysphoric_disorder",
+  "mhd.mania_hypomania_bipolar_or_manicdepression.1",
+  "mhd.social_anxiety_or_social_phobia.1",
+  "mhd.specific_phobia.1",
+  "mhd.agoraphobia.1",
+  "mhd.panic_attacks.1",
+  "mhd.panic_disorder.1",
+  "mhd.posttraumatic_stress_disorder",
+  "mhd.obsessivecompulsive_disorder",
+  "mhd.body_dysmorphic_disorder",
+  "mhd.other_obsessivecompulsive_related_disorders",
+  "mhd.anxiety_nerves_or_generalised_anxiety_disorder.1",
+  "mhd.schizophrenia.1",
+  "mhd.psychosis_type_psychotic_illness.1",
+  "mhd.autism_spectrum_disorder",
+  "mhd.attention_deficit_hyperactivity_disorder.1",
+  "mhd.other_qqid126489800choicetextentryvalue21", #needs changing
+  "mhd.anorexia_nervosa.1",
+  "mhd.atypical_anorexia_nervosa.1",
+  "mhd.bingeeating_disorder.1",
+  "mhd.atypical_bingeeating_disorder.1",
+  "mhd.bulimia_nervosa.1",
+  "mhd.atypical_bulimia_nervosa.1",
+  "mhd.purging_disorder.1",
+  "mhd.night_eating_disorder.1",
+  "mhd.pica.1",
+  "mhd.avoidantrestrictive_food_intake_disorder.1",
+  "mhd.rumination_disorder.1",
+  "mhd.other_eating_disorder.1"
+)
+length(variables_cont)
+```
+
+Inspect continuous variables
+Use the question labels to ascertain context at this point and check for obvious outliers
+The percentiles can be modified to exclude nonanswer values as appropriate to your data
+```{r Inspect cont vars}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
+```
+
+Check unique values in continuous variables
+If the fields contain text at this point, use the chunk below to clean manually
+```{r Cont vars unique}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  sapply(., unique)
+```
+
+Remove empty variables from variables_cont
+These all contain only NAs as verified by unique() and serve only to interfere with processing
+```{r Remove empty cont vars}
+rem_vars <- c(
+  "mhd.premenstrual_dysphoric_disorder",
+  "mhd.specific_phobia.1",
+  "mhd.autism_spectrum_disorder",
+  "mhd.attention_deficit_hyperactivity_disorder.1",
+  "mhd.atypical_anorexia_nervosa.1",
+  "mhd.atypical_bingeeating_disorder.1",
+  "mhd.atypical_bulimia_nervosa.1",
+  "mhd.purging_disorder.1",
+  "mhd.pica.1",
+  "mhd.avoidantrestrictive_food_intake_disorder.1",
+  "mhd.rumination_disorder.1"
+)
+
+variables_cont <- variables_cont[!variables_cont %in% rem_vars]
+variables_cont
+```
+
+Transform nonanswer values to 3 digit
+```{r Cont vars nonanswer}
+dat <- dat %>%
+  mutate(across(all_of(variables_cont),
+    ~case_when(. == -55 ~ -555,
+               . == -77 ~ -777,
+               . == -88 ~ -888,
+               . == -99 ~ -999,
+               TRUE ~ .)
+                )
+         )
+```
+
+Recheck continuous variables
+```{r Recheck cont vars}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
+```
+
+Create matrix of limits for continuous variables
+Matrix is series of vectors (lower, upper)
+Define limits for variable and list reasoning below
+Variable name: Age
+- Lower: 0
+- Upper: 117 (oldest person in the world)
+```{r Create matrix limits}
+limits_mat <- rbind(
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117),
+  c(0, 117)
+  )
+dim(limits_mat)
+```
+
+Set row and col names of limits_mat
+This allows your to easily refer back to limits_mat for a summary
+```{r Set lim_mat names}
+rownames(limits_mat) <- variables_cont
+colnames(limits_mat) <- c("Lower", "Upper")
+```
+
+Use cont_clean to check if any implausible values and provide replacement vectors
+Cont_clean will not proceed if variables are not numeric type, clean manually above if necessary
+```{r Cont_clean cont vars}
+cont_list <- cont_clean(
+  variables = variables_cont,
+  limits_mat = limits_mat,
+  dat = dat
+)
+for (i in 1:length(variables_cont)){
+  print(paste0("Implausibles in ", variables_cont[i], ": ", cont_list[[variables_cont[i]]]$Count))
+}
+```
+
+Re-inspect variables after cleaning
+```{r Inspect after cleaning}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})")
+  )
+```
+
+# Cleaning Textual Variables
+
+Create vector of text variables
+```{r Vector text vars}
+variables_text <- c(
+  "mhd.othertext.txt",
+  "mhd.othertext.txt.1",
+  "mhd.othertext.txt.2",
+  "mhd.other_eating_disordertext.txt"
+)
+```
+
+View text variables
+```{r View text vars}
+dat %>%
+  select(all_of(variables_text)) %>%
+  tbl_summary()
+```
+
+# Add numeric variables
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+```{r COVIDCNS specify excluded columns}
+exclude_cols_numeric <- c(
+  "ID",
+  "sample",
+  "startDate",
+  "endDate",
+  "mhd.depression.1",
+  "mhd.depression_during_or_after_pregnancy",
+  "mhd.premenstrual_dysphoric_disorder",
+  "mhd.mania_hypomania_bipolar_or_manicdepression.1",
+  "mhd.social_anxiety_or_social_phobia.1",
+  "mhd.specific_phobia.1",
+  "mhd.agoraphobia.1",
+  "mhd.panic_attacks.1",
+  "mhd.panic_disorder.1",
+  "mhd.posttraumatic_stress_disorder",
+  "mhd.obsessivecompulsive_disorder",
+  "mhd.body_dysmorphic_disorder",
+  "mhd.other_obsessivecompulsive_related_disorders",
+  "mhd.anxiety_nerves_or_generalised_anxiety_disorder.1",
+  "mhd.schizophrenia.1",
+  "mhd.psychosis_type_psychotic_illness.1",
+  "mhd.autism_spectrum_disorder",
+  "mhd.attention_deficit_hyperactivity_disorder.1",
+  "mhd.other_qqid126489800choicetextentryvalue21", #needs changing
+  "mhd.anorexia_nervosa.1",
+  "mhd.atypical_anorexia_nervosa.1",
+  "mhd.bingeeating_disorder.1",
+  "mhd.atypical_bingeeating_disorder.1",
+  "mhd.bulimia_nervosa.1",
+  "mhd.atypical_bulimia_nervosa.1",
+  "mhd.purging_disorder.1",
+  "mhd.night_eating_disorder.1",
+  "mhd.pica.1",
+  "mhd.avoidantrestrictive_food_intake_disorder.1",
+  "mhd.rumination_disorder.1",
+  "mhd.other_eating_disorder.1",
+  "mhd.othertext.txt",
+  "mhd.othertext.txt.1",
+  "mhd.othertext.txt.2",
+  "mhd.other_eating_disordertext.txt"
+  )
+```
+
+Select & rename relevant columns
+```{r COVIDCNS add numeric}
+dat <- dat %>% 
+  add_numeric_1(exclude = exclude_cols_numeric)
+
+# Inspect colnames
+dat %>%
+  colnames()
+```
+
+# Save cleaned data
+
+# COVIDCNS
+```{r Write cleaned COVIDCNS variables to a .rds file}
+dat %>%
+  saveRDS(
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/mhd_covidcns_clean.rds")
+    )
+```

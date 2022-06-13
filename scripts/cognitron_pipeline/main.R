@@ -16,11 +16,11 @@ source(file = "scripts/credentials/paths.R")
 source("scripts/cognitron_pipeline/utils.R")
 
 
-#  STEP 1: Cleaning of COVID CSN Data ---------------------------------------------------------------------
+#  STEP 1: Cleaning of COVID CNS Data ---------------------------------------------------------------------
 
 # Import data
 covid_matching <- readRDS(paste0(ilovecovidcns, "/data/joined/covidcns_matching.rds"))
-data_cognitron_raw <- read.table(file = paste0(ilovecovidcns, "/data_raw/cognitron/raw_cognitron/covidcns.cognitron.co.uk_1_2022-04-06.tsv"), sep = '\t', header = FALSE)
+data_cognitron_raw <- read.table(file = paste0(ilovecovidcns, "/data_raw/cognitron/raw_cognitron/Cognitron_data_30.05.2022.tsv"), sep = '\t', header = FALSE)
 headers <- read_excel(paste0(ilovecovidcns, "/data_raw/cognitron/headers/Cognitron_headers.xlsx"))
 
 # Remove not useful columns
@@ -69,7 +69,7 @@ covid_matching <- covid_matching %>% select(all_of(cols_to_keep))
 new_colnames = c('user_id', 'age', 'sex',  'language', 'education')
 colnames(covid_matching) <- new_colnames
 
-# Language: Set all values to either English or "Other" in ordeer to match with normative data models
+# Language: Set all values to either English or "Other" in order to match with normative data models
 covid_matching$language <- as.character(covid_matching$language)
 covid_matching$language[covid_matching$language != "Yes"] <- "other"
 covid_matching$language[covid_matching$language == "Yes"] <- "English"
@@ -168,6 +168,11 @@ scores_df_final <- dplyr::rename(scores_df_final, DEVICE = os)
 scores_df_final$sex <- as.character(scores_df_final$sex)
 scores_df_final$sex[(scores_df_final$sex != "Male" &
                        scores_df_final$sex != "Female")] <- "Other"
+
+# Object of problematic IDs
+#scores_df_copy <- scores_df_final
+#View(scores_df_copy[rowSums(is.na(scores_df_copy[,1:6]))>0 & rowSums(is.na(scores_df_copy[,7:20]))<3,])
+# cognitron_problem_ids <- sort(scores_df_copy[rowSums(is.na(scores_df_copy[,1:6]))>0 & rowSums(is.na(scores_df_copy[,7:20]))<3,]$user_id)
 
 # Remove rows with nan (run the analysis on complete dataset)
 # You should be able to run the analysis with incomplete data (best if max 1 or 2
@@ -575,8 +580,11 @@ dev_from_exp_t_test <- apply(deviation_from_expected, 2, t.test)
 print_serial_ttest_results(dev_from_exp_t_test)
 
 # Add user id
-deviation_from_expected_with_users = cbind(deviation_from_expected, scores_df_final$user_id)
-#write.csv(deviation_from_expected_with_users, "DfE_composite_scores.csv")
+deviation_from_expected_with_users <- as.tibble(deviation_from_expected)
+deviation_from_expected_with_users <- deviation_from_expected_with_users %>%
+  mutate(user_id = scores_df_final$user_id)
+
+# Save DfE composite scores
 write.csv(deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores.csv"))
 saveRDS(deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores.rds"))
 
@@ -624,7 +632,11 @@ st_dev_from_exp_t_test <- apply(st_deviation_from_expected, 2, t.test)
 print_serial_ttest_results(st_dev_from_exp_t_test)
 
 # Add user id
-st_deviation_from_expected_with_users = cbind(st_deviation_from_expected, scores_df_final$user_id)
+st_deviation_from_expected_with_users <- as.tibble(st_deviation_from_expected)
+st_deviation_from_expected_with_users <- st_deviation_from_expected_with_users %>%
+  mutate(user_id = scores_df_final$user_id)
+
+# Save DfE task scores
 write.csv(st_deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores.csv"))
 saveRDS(st_deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores.rds"))
 
@@ -866,7 +878,7 @@ DfE_plots = function(dev_exp, plot_fname) {
   dfe_means <- colMeans(dev_exp)
   dfe_sem <- apply(dev_exp, 2, function(col)
     sd(col, na.rm = TRUE) / sqrt(length(col)))
-
+  
   dfe_tbl <- tibble(
     task = names(dfe_means),
     mean_dfe = dfe_means,
@@ -874,7 +886,7 @@ DfE_plots = function(dev_exp, plot_fname) {
   ) %>%
     arrange(mean_dfe) %>%
     mutate(task = factor(task, levels = unique(.$task)))
-
+  
   p_diff_from_exp <- ggplot(dfe_tbl, aes(x = task, y = mean_dfe)) +
     geom_col(fill = "#0a9396") +
     geom_errorbar(aes(ymin = mean_dfe - sem_dfe,

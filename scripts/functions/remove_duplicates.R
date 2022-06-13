@@ -86,9 +86,12 @@ remove_duplicates <- function(data, ID_col, date_col = "endDate") {
   }
   
   # add labels to dataframe
-  for (i in 1:ncol(out)){
-    out[i] <- set_labels(out[i], labels = data_labels[i])
-    out[i] <- set_label(out[i], data_label[i])
+  for (i in 1:ncol(out)) {
+    labels <- data_labels[[i]]
+    if (!is.null(names(labels))) {
+      out[i] <- set_labels(out[i], labels = data_labels[[i]])
+      out[i] <- set_label(out[i], data_label[i])
+    }
   }
   
   # return de-duplicated dataframe

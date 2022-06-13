@@ -40,13 +40,13 @@ Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric_1.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check.R")
-source(file = "../functions/imp_check_1.R")
-source(file = "../functions/cont_clean.R")
+source(file = "scripts/functions/add_numeric_1.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check.R")
+source(file = "scripts/functions/imp_check_1.R")
+source(file = "scripts/functions/cont_clean.R")
 ```
 
 Use package_check to install and load dependencies
@@ -59,7 +59,7 @@ package_check(packages)
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: Neuro Case Report Form Admission Vital
@@ -307,7 +307,7 @@ values_cat_list <- list(
 ```
 
 Remove values vectors from environment
-```{r Remove value vectors}
+```{r Remove value vectors cat}
 rm(
   vals_cat_1,
   vals_cat_2,
@@ -337,7 +337,7 @@ variables_cat <- c(
 ```
 
 Set names of list to variable names
-```{r Set list names}
+```{r Set list names cat}
 names(values_cat_list) <- variables_cat
 ```
 
@@ -565,7 +565,7 @@ dat <- dat %>%
 ```
 
 Recheck date variables
-```{r COVIDCNS inspect dates}
+```{r COVIDCNS reinspect dates}
 dat %>%
   select(all_of(variables_date)) %>%
   tbl_summary(missing_text = "Missing")
@@ -637,7 +637,233 @@ dat %>%
     statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
 ```
 
-Mutate variables to numeric
+Check unique values in continuous variables
+If the fields contain text at this point, use the chunk below to clean manually
+```{r Cont vars unique}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  sapply(., unique)
+```
+
+Manually clean continuous variables to ensure parsing as numeric
+Use the output from the chunk above and clean the variable manually here until there are no 'rogue' values
+Case_when is type-specific so number must be specified as char and the variable mutated to numeric as below
+REMOVE THIS CHUNK IF NOT NECESSARY
+```{r Temperature manual clean}
+dat <- dat %>%
+  mutate(across(ncrf1_vital.vitals,
+                ~case_when(str_detect(ncrf1_vital.vitals, "36.") ~ "36.0",
+                           str_detect(ncrf1_vital.vitals, "36,5") ~ "36.5",
+                           str_detect(ncrf1_vital.vitals, "38/8") ~ "38.8",
+                           str_detect(ncrf1_vital.vitals, ">38") ~ "38.0",
+                           str_detect(ncrf1_vital.vitals, "unknown") ~ "-77",
+                           str_detect(ncrf1_vital.vitals, "37.3 - 37.4") ~ "37.4",
+                           str_detect(ncrf1_vital.vitals, "not known") ~ "-77",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r Heart rate manual clean}
+dat <- dat %>%
+  mutate(across(ncrf1_vital.vitals.1,
+                ~case_when(str_detect(ncrf1_vital.vitals.1, "82R") ~ "82",
+                           str_detect(ncrf1_vital.vitals.1, "72R") ~ "72",
+                           str_detect(ncrf1_vital.vitals.1, "unknown") ~ "-77",
+                           str_detect(ncrf1_vital.vitals.1, "60-80") ~ "70",
+                           str_detect(ncrf1_vital.vitals.1, "90-92") ~ "91",
+                           str_detect(ncrf1_vital.vitals.1, "not known") ~ "-77",
+                           str_detect(ncrf1_vital.vitals.1, "within target range") ~ "-77",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r Resp rate manual clean}
+dat <- dat %>%
+  mutate(across(ncrf1_vital.vitals.2,
+                ~case_when(str_detect(ncrf1_vital.vitals.2, "ventilated") ~ "14",
+                           str_detect(ncrf1_vital.vitals.2, ">30") ~ "30",
+                           str_detect(ncrf1_vital.vitals.2, "unknown") ~ "-77",
+                           str_detect(ncrf1_vital.vitals.2, "28-34") ~ "31",
+                           str_detect(ncrf1_vital.vitals.2, "not known") ~ "-77",
+                           str_detect(ncrf1_vital.vitals.2, "within target range") ~ "-77",
+                           str_detect(ncrf1_vital.vitals.2, "40+") ~ "40",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r Sys BP manual clean}
+dat <- dat %>%
+  mutate(across(ncrf1_vital.vitals.3,
+                ~case_when(str_detect(ncrf1_vital.vitals.3, "161/") ~ "161",
+                           str_detect(ncrf1_vital.vitals.3, "unknown") ~ "-77",
+                           str_detect(ncrf1_vital.vitals.3, "stable") ~ "-77",
+                           str_detect(ncrf1_vital.vitals.3, "not known") ~ "-77",
+                           TRUE ~ .)
+                )
+         )
+```
+
+Check for BP written in one box instead of 2
+```{r Check for BP mistake}
+dat %>%
+  dplyr::select(ncrf1_vital.vitals.3, ncrf1_vital.vitals.4) %>%
+  filter(str_detect(ncrf1_vital.vitals.3, "/"))
+```
+
+Split out BPs and sub back into df
+```{r Correct BP issue}
+bp_vec <- unlist(dat %>% dplyr::select(ncrf1_vital.vitals.3) %>% filter(str_detect(ncrf1_vital.vitals.3, "/")))
+
+names(bp_vec) <- c()
+
+bp_split <- strsplit(bp_vec, split = "/")
+
+
+bp_indices <- which(str_detect(dat$ncrf1_vital.vitals.3, "/"))
+
+
+for (i in 1:length(bp_split)){
+  bp_split[[i]][3] <- bp_indices[i]
+}
+
+for(i in 1:length(bp_split)){
+  dat[bp_split[[i]][3], "ncrf1_vital.vitals.3"] <- bp_split[[i]][1]
+  dat[bp_split[[i]][3], "ncrf1_vital.vitals.4"] <- bp_split[[i]][2]
+}
+
+dat %>%
+  dplyr::select(ncrf1_vital.vitals.3, ncrf1_vital.vitals.4) %>%
+  slice(as.numeric(bp_indices))
+```
+
+```{r Dias BP manual clean}
+dat <- dat %>%
+  mutate(across(ncrf1_vital.vitals.4,
+                ~case_when(str_detect(ncrf1_vital.vitals.4, "stable") ~ "-77",
+                           str_detect(ncrf1_vital.vitals.4, "unknown") ~ "-77",
+                           str_detect(ncrf1_vital.vitals.4, "not known") ~ "-77",
+                           str_detect(ncrf1_vital.vitals.4, "7135") ~ "135",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r Sats Room manual clean}
+dat <- dat %>%
+  mutate(across(ncrf1_vital.oxygen_saturation.txt,
+                ~case_when(str_detect(ncrf1_vital.oxygen_saturation.txt, "94-98") ~ "96",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt, "97% 15L O2") ~ "97",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt, "Yes") ~ "-77",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt, "96%") ~ "96",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt, "93-95") ~ "94",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt, "97%") ~ "97",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt, "90%") ~ "90",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt, "88%") ~ "88",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt, "95%") ~ "95",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt, "21%") ~ "21",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r Sats O2 manual clean}
+dat <- dat %>%
+  mutate(across(ncrf1_vital.oxygen_saturation.txt.1,
+                ~case_when(str_detect(ncrf1_vital.oxygen_saturation.txt.1, "98% on 60% venturi") ~ "98",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "85-90") ~ "88",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "98% on 2L") ~ "98",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "92 on 4L") ~ "92",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "L") ~ "-77",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "30% FiO2") ~ "-77",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "89-90") ~ "90",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "2 Litres") ~ "-77",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "3L") ~ "-77",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "91%") ~ "91",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "96%") ~ "96",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "94%") ~ "94",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "93%") ~ "93",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "95%") ~ "95",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "60%") ~ "60",
+                           str_detect(ncrf1_vital.oxygen_saturation.txt.1, "28%") ~ "28",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r GCS manual clean}
+dat <- dat %>%
+  mutate(across(ncrf1_vital.glasgow_coma_score.txt,
+                ~case_when(str_detect(ncrf1_vital.glasgow_coma_score.txt, "15/15") ~ "15",
+                           str_detect(ncrf1_vital.glasgow_coma_score.txt, "E4VtM6") ~ "15",
+                           str_detect(ncrf1_vital.glasgow_coma_score.txt, "sedated and intubated") ~ "3",
+                           str_detect(ncrf1_vital.glasgow_coma_score.txt, "11/15") ~ "11",
+                           str_detect(ncrf1_vital.glasgow_coma_score.txt, "N/A") ~ "-77",
+                           str_detect(ncrf1_vital.glasgow_coma_score.txt, "16") ~ "15",
+                           str_detect(ncrf1_vital.glasgow_coma_score.txt, "15139") ~ "-77",
+                           str_detect(ncrf1_vital.glasgow_coma_score.txt, "NK") ~ "-77",
+                           str_detect(ncrf1_vital.glasgow_coma_score.txt, "Unkown") ~ "-77",
+                           str_detect(ncrf1_vital.glasgow_coma_score.txt, "Not recorded") ~ "-77",
+                           str_detect(ncrf1_vital.glasgow_coma_score.txt, "N/K") ~ "-77",
+                           str_detect(ncrf1_vital.glasgow_coma_score.txt, "14/15") ~ "14",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r Height manual clean}
+dat <- dat %>%
+  mutate(across(ncrf1_vital.height.txt,
+                ~case_when(str_detect(ncrf1_vital.height.txt, "1.93") ~ "193",
+                           str_detect(ncrf1_vital.height.txt, "1.70") ~ "170",
+                           str_detect(ncrf1_vital.height.txt, "1.80") ~ "180",
+                           str_detect(ncrf1_vital.height.txt, "N/A") ~ "-77",
+                           str_detect(ncrf1_vital.height.txt, "1.53") ~ "153",
+                           str_detect(ncrf1_vital.height.txt, "17") ~ "-77",
+                           str_detect(ncrf1_vital.height.txt, "unknown") ~ "-77",
+                           . == "." ~ "-77",
+                           str_detect(ncrf1_vital.height.txt, "1.73") ~ "173",
+                           str_detect(ncrf1_vital.height.txt, "1.85") ~ "185",
+                           str_detect(ncrf1_vital.height.txt, "NK") ~ "-77",
+                           str_detect(ncrf1_vital.height.txt, "1.78") ~ "178",
+                           str_detect(ncrf1_vital.height.txt, "16") ~ "-77",
+                           . ==  "177 (April 2021)" ~ "177",
+                           str_detect(ncrf1_vital.height.txt, "1.68") ~ "168",
+                           str_detect(ncrf1_vital.height.txt, "Not recorded on PENS") ~ "-77",
+                           str_detect(ncrf1_vital.height.txt, "1905") ~ "190.5",
+                           str_detect(ncrf1_vital.height.txt, "Not recorded") ~ "-77",
+                           str_detect(ncrf1_vital.height.txt, "not available") ~ "-77",
+                           str_detect(ncrf1_vital.height.txt, "N/K") ~ "-77",
+                           str_detect(ncrf1_vital.height.txt, "not known") ~ "-77",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r Weight manual clean}
+dat <- dat %>%
+  mutate(across(ncrf1_vital.weight.txt,
+                ~case_when(. == "78.2 on Epic, 65 Estimated by dietician" ~ "78.2",
+                           str_detect(ncrf1_vital.weight.txt, "85kg") ~ "85",
+                           str_detect(ncrf1_vital.weight.txt, "unknown") ~ "-77",
+                           . == "." ~ "-77",
+                           str_detect(ncrf1_vital.weight.txt, "N") ~ "-77",
+                           . == "morbid obesity mentioned" ~ "-77",
+                           . == "120.5 (Estimate )" ~ "120.5",
+                           . == "124.3 (April 2021)" ~ "124.3",
+                           str_detect(ncrf1_vital.weight.txt, "N/A") ~ "-77",
+                           str_detect(ncrf1_vital.weight.txt, "Not recorded") ~ "-77",
+                           TRUE ~ .)
+                )
+         )
+```
+
+Mutate variables to numeric after cleaning manually
+This step is necessary to check for non-integer values
+Modify the all_of statement as required: DO NOT MUTATE TO NUMERIC UNNECESSARILY
+REMOVE THIS CHUNK IF NOT NECESSARY
 ```{r Cont vars to numeric}
 dat <- dat %>%
   mutate(across(all_of(variables_cont),
@@ -664,6 +890,10 @@ Recheck continuous variables
 ```{r Recheck cont vars}
 dat %>%
   select(all_of(variables_cont)) %>%
+  dplyr::mutate(across(all_of(variables_cont),
+                       ~na_if(., -777)
+                       )
+                ) %>%
   tbl_summary(
     missing_text = "Missing",
     statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
@@ -716,16 +946,6 @@ dat <- dat %>%
 
 dat <- dat %>%
   mutate(
-    ncrf1_vital.vitals.4 = cont_list$ncrf1_vital.vitals.4$Replacement
-  )
-
-dat <- dat %>%
-  mutate(
-    ncrf1_vital.glasgow_coma_score.txt = cont_list$ncrf1_vital.glasgow_coma_score.txt$Replacement
-  )
-
-dat <- dat %>%
-  mutate(
     ncrf1_vital.height.txt = cont_list$ncrf1_vital.height.txt$Replacement
   )
 ```
@@ -734,6 +954,10 @@ Re-inspect variables after cleaning
 ```{r Inspect after cleaning}
 dat %>%
   select(all_of(variables_cont)) %>%
+  dplyr::mutate(across(all_of(variables_cont),
+                       ~na_if(., -777),
+                       )
+                ) %>%
   tbl_summary(
     missing_text = "Missing",
     statistic = list(all_continuous() ~ "{median} ({p0}, {p100})")

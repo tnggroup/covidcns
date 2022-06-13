@@ -39,11 +39,11 @@ Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check_1.R")
+source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check_1.R")
 ```
 
 Use package_check to install and load dependencies
@@ -56,7 +56,7 @@ package_check(packages)
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: Neurological Impairment Survey (Outpatient)
@@ -412,7 +412,7 @@ variables_cat_domains <- c(
 ```
 
 Set names of list to variable names
-```{r Set list names}
+```{r Set list names cat domains}
 names(values_cat_domains_list) <- variables_cat_domains
 ```
 
@@ -783,7 +783,7 @@ variables_cat_impairms <- c(
 ```
 
 Set names of list to variable names
-```{r Set list names}
+```{r Set list names cat impairms}
 names(values_cat_impairms_list) <- variables_cat_impairms
 ```
 
@@ -1029,7 +1029,7 @@ variables_num <- c(
 ```
 
 Set names of list to variable names
-```{r Set list names}
+```{r Set list names num}
 names(values_num_list) <- variables_num
 ```
 

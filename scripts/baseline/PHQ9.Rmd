@@ -20,11 +20,11 @@ rm(list=ls())
 ```
 
 ```{r Read in functions}
-source(file = "../functions/add_numeric.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/imp_check.R")
+source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/imp_check.R")
 ```
 
 Note: always load tidyverse last
@@ -46,7 +46,7 @@ date
 ```
 
 ```{r Source the credentials file}
-source("../credentials/paths.R")
+source("scripts/credentials/paths.R")
 ```
 
 # Read in the data 

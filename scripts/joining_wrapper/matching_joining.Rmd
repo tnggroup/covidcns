@@ -1,0 +1,330 @@
+---
+title: "Matching Data Joining Script"
+author: "Zain Ahmad"
+date: "18/05/2022"
+output: html_document
+---
+
+This R markdown:
+1) Joins COVID-CNS questionnaires together
+2) Creates on rds file with matching variables
+
+# Set up
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+Add the package_check function - used to install and load dependencies
+```{r Read in functions}
+source(file = "scripts/functions/package_check.R")
+```
+
+Use package_check to install and load dependencies
+Load tidyverse last
+```{r Install load dependencies}
+packages <- c(
+  "summarytools",
+  "sjlabelled", 
+  "tidyverse"
+  )
+
+package_check(packages)
+```
+
+Read in file with path to ilovecovidcns channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "scripts/credentials/paths.R")
+```
+
+Exclude these variables
+```{r Exclude variables vector}
+exclude_variables <-
+  c(
+    "sample",
+    "startDate",
+    "endDate"
+  )
+```
+
+
+# Read in the data
+
+## Demographics
+
+### age_covidcns_clean
+Read in & variable names
+```{r age_covidcns_clean Read in data & variable names}
+age_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/age_covidcns_clean.rds")
+    )
+
+age_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r age_covidcns_clean Dimensions}
+age_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r age_covidcns_clean Select columns for joining}
+age_covidcns_clean_selected <-
+  age_covidcns_clean %>%
+  select(
+    "ID",
+    "dem.how_old_are_you_now.txt",
+    "dem.dob_age"
+  )
+
+age_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+### dem_highest_qualification_covidcns_clean
+Read in & variable names
+```{r dem_highest_qualification_covidcns_clean Read in data & variable names}
+dem_highest_qualification_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_highest_qualification_covidcns_clean.rds")
+  )
+
+dem_highest_qualification_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r dem_highest_qualification_covidcns_clean Dimensions}
+dem_highest_qualification_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r dem_highest_qualification_covidcns_clean Select columns for joining}
+dem_highest_qualification_covidcns_clean_selected <- dem_highest_qualification_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+dem_highest_qualification_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### dem_language_covidcns_clean
+Read in & variable names
+```{r dem_language_covidcns_clean Read in data & variable names}
+dem_language_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_language_covidcns_clean.rds")
+  )
+
+dem_language_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r dem_language_covidcns_clean Dimensions}
+dem_language_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r dem_language_covidcns_clean Select columns for joining}
+dem_language_covidcns_clean_selected <- dem_language_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+dem_language_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+### dem_sex_gender_sexuality_covidcns_clean
+Read in & variable names
+```{r dem_sex_gender_sexuality_covidcns_clean Read in data & variable names}
+dem_sex_gender_sexuality_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_sex_gender_sexuality_covidcns_clean.rds")
+  )
+
+dem_sex_gender_sexuality_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r dem_sex_gender_sexuality_covidcns_clean Dimensions}
+dem_sex_gender_sexuality_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r dem_sex_gender_sexuality_covidcns_clean Select columns for joining}
+dem_sex_gender_sexuality_covidcns_clean_selected <-
+  dem_sex_gender_sexuality_covidcns_clean %>%
+  select(
+    -c(
+    "sample",
+    "startDate",
+    "endDate...4") # that's odd
+  )
+
+dem_sex_gender_sexuality_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+### ncrf1_dem_covidcns_clean
+Read in & variable names
+```{r ncrf1_dem_covidcns_clean Read in data & variable names}
+ncrf1_dem_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_dem_covidcns_clean.rds")
+  )
+
+ncrf1_dem_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ncrf1_dem_covidcns_clean Dimensions}
+ncrf1_dem_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ncrf1_dem_covidcns_clean Select columns for joining}
+ncrf1_dem_covidcns_clean_selected <-
+  ncrf1_dem_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+ncrf1_dem_covidcns_clean_selected %>%
+  slice(1:50)
+```
+
+## List of tibbles to join, not including website data
+```{r List of tibbles to join}
+tibble_list <- 
+  list(
+    age_covidcns_clean_selected,
+    dem_sex_gender_sexuality_covidcns_clean_selected,
+    dem_highest_qualification_covidcns_clean_selected,
+    dem_language_covidcns_clean_selected,
+    ncrf1_dem_covidcns_clean_selected
+    )
+```
+
+Joining of demographics and questionnaires, not including website data
+```{r Joining of demographics and questionnaires}
+matching_joined <- 
+  plyr::join_all(
+    dfs =  tibble_list,
+    by = c("ID"),
+    type = "full"
+    )
+```
+
+Change Incorrect IDs from Qualtrics
+```{r change incorrect ids}
+# Read in excel sheet of IDs to change as data frame
+swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/data_raw/ids/Swapped IDs.xlsx"),
+                                 sheet = "Sheet1")
+
+# Set sensical column names
+colnames(swapped_ids) <- c("correct_ID", "incorrect_ID")
+
+# Initial empty vector of rows to change IDs for in matching_joined
+swapping_rows <- c()
+
+# Create vector of rows corresponding to IDs that need changing
+for (i in swapped_ids$incorrect_ID) {
+  swapping_rows <- append(x = swapping_rows, values = which(matching_joined$ID == i))
+}
+
+# Add row numbers to swapped_ids data frame
+swapped_ids <- cbind(swapped_ids, swapping_rows)
+
+# Swap IDs in matching_joined by row number
+for (i in 1:length(swapped_ids)) {
+  matching_joined[swapped_ids[i,3], 1] <- swapped_ids[i,1]
+}
+
+```
+
+Coalesce age sex demographic variables from baseline and ncrf dem
+```{r Coalesce age sex dem}
+matching_joined <- matching_joined %>%
+  mutate(
+    dem.dob_age = coalesce(
+      dem.dob_age,
+      ncrf1_dem.dob_age),
+    
+    dem.what_gender_do_you_identify_with = coalesce(
+      dem.what_gender_do_you_identify_with,
+      ncrf1_dem.sex_at_birth),
+    
+    dem.what_gender_do_you_identify_with_numeric = coalesce(
+      dem.what_gender_do_you_identify_with_numeric,
+      ncrf1_dem.sex_at_birth_numeric),
+  )
+```
+
+Select columns for data extraction
+```{r matching Select columns}
+data_export_matching <- matching_joined %>%
+  select(
+      "ID",
+      
+      # Age
+      "dem.dob_age",
+      "dem.how_old_are_you_now.txt",
+      
+      # Gender
+      "dem.what_gender_do_you_identify_with",
+      "dem.what_gender_do_you_identify_with_numeric",
+      
+      # Language
+      "dem.is_english_your_first_language",
+      "dem.what_is_your_first_language.txt",
+      "dem.what_is_your_first_language_numeric",
+      "dem.is_english_your_first_language_numeric",
+      
+      # Education
+      "dem.highest_education",
+      "dem.highest_education_numeric",
+      
+      )
+
+
+data_export_matching %>%
+  slice(1:5)
+```
+
+# Save joined data set
+```{r matching Save joint data set}
+saveRDS(
+  object = matching_joined, 
+  file = paste0(ilovecovidcns, "/data/joined/covidcns_matching.rds")
+)
+```

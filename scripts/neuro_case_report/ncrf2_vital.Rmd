@@ -1,11 +1,24 @@
 ---
-title: "ncrf2_vital"
-author: "Chelsea Mika Malouf"
-date: "04/03/2022"
+title: "COVIDCNS NCRF2 Vital Signs Cleaning Script"
+author: "Zain Ahmad"
+date: "17/05/2022"
 output: html_document
 ---
 
-# Set up
+
+All arguments should be in their own row, including the first argument
+Closing bracket should have its own row
+Functions with a single argument can have this on the same line
+One argument can be hashed out per line for debugging errors
+
+Chunk names should be all lower case except:
+Study name (COVIDCNS) all caps
+Capitalised first word
+
+Ensure that you have deleted/untracked .DS_Store before your initial commit
+Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+
+Configure global options for all chunks
 ```{r Setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
@@ -15,29 +28,55 @@ knitr::opts_chunk$set(
   )
 ```
 
+Clear global environment prior to initiation
 ```{r Clear global environment}
 remove(list = ls())
 ```
 
+Add the add_numeric function - used to convert character variables into numeric variables
+Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+Add the recode_check function - used to check for implausible values when recoding
+Add the imp_clean function - used to check variables for implausible values
+Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "../functions/add_numeric_1.R")
-source(file = "../functions/remove_duplicates.R")
-source(file = "../functions/sumscores.R")
-source(file = "../functions/package_check.R")
-source(file = "../functions/imp_check_1.R")
+source(file = "scripts/functions/add_numeric_1.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/recode_check.R")
+source(file = "scripts/functions/imp_clean.R")
+source(file = "scripts/functions/cont_clean.R")
 ```
 
+Use package_check to install and load dependencies
+Load tidyverse last
 ```{r Install load dependencies}
 packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
 package_check(packages)
 ```
 
+Read in file with path to ilovecovidcns channel on Teams
+Ensure that your credentials directory is correctly located
 ```{r Read in file with path to ilovecovidcns channel on teams}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
+# Read in the data: Neuro Case Report Form Module 2: Vital Signs
+Change this heading to the name of your questionnaire/demographic
+Load COVIDCNS data
 
-# Read in the data: NCRF2 Vital
+Do not change variable names from the NLP names that are produced by the extraction
+EXCEPT in exceptional circumstances
+Document ANY changes to variable names in the issues spreadsheet "https://docs.google.com/spreadsheets/d/1a2gL8c0eH2pZXNTbnPzkDYQGeeVXbLKU8BUpYM0moe8/edit?usp=sharing"
+
+- For variable names, use ONLY 'questionnaire.variable_name'
+- For dataset, only use snake_case naming
+- When using pipe operator '%>%', each function should begin on a new line
+- Do not add empty lines at the beginning or end of a chunk
+- Use only tidyverse functions wherever possible
+- When naming chunks, begin with the name of the dataset (COVIDCNS)
 
 ## COVIDCNS data
 ```{r COVIDCNS load data}
@@ -48,25 +87,39 @@ covidcns_dat <- read_rds(
 # Check variable names in dataframe
 covidcns_dat %>%
   colnames()
+
 # Inspect dimensions of dataframe 
 covidcns_dat %>%
   dim()
 ```
 
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
 ```{r COVIDCNS specify excluded columns}
 exclude_cols_numeric <- c(
   "ID",
   "sample",
   "startDate",
   "endDate",
-  "ncrf2_vital.lowest_gcs_during_admission.txt"
+  "ncrf2_vital.date.txt",
+  "ncrf2_vital.vitals",
+  "ncrf2_vital.vitals.1",
+  "ncrf2_vital.vitals.2",
+  "ncrf2_vital.vitals.3",
+  "ncrf2_vital.vitals.4",
+  "ncrf2_vital.room_airtext.txt",
+  "ncrf2_vital.oxygen_therapytext.txt",
+  "ncrf2_vital.glasgow_coma_score.txt",
+  "ncrf2_vital.lowest_gcs_during_admission.txt",
+  "ncrf2_vital.any_other_issue_of_significance_to_note.txt"
   )
 ```
 
+Select & rename relevant columns
 ```{r COVIDCNS select}
 covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
   drop_na(externalDataReference) %>% # Drop participants with no ID
-  distinct(externalDataReference, .keep_all = TRUE) %>% # Changed to distinct due to NA coercion
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
   add_column(sample = "COVIDCNS",
              .after = "externalDataReference") %>% # Create new sample column
   select(
@@ -74,35 +127,62 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          sample,
          startDate,
          endDate,
-         ncrf2_vital.lowest_gcs_during_admission.txt
-         ) 
+         ncrf2_vital.date.txt,
+         ncrf2_vital.vitals,
+         ncrf2_vital.vitals.1,
+         ncrf2_vital.vitals.2,
+         ncrf2_vital.vitals.3,
+         ncrf2_vital.vitals.4,
+         ncrf2_vital.severe_dehydration,
+         ncrf2_vital.room_air,
+         ncrf2_vital.room_airtext.txt,
+         ncrf2_vital.oxygen_therapy,
+         ncrf2_vital.oxygen_therapytext.txt,
+         ncrf2_vital.unknown,
+         ncrf2_vital.avpu,
+         ncrf2_vital.glasgow_coma_score.txt,
+         ncrf2_vital.lowest_gcs_during_admission.txt,
+         ncrf2_vital.any_other_issue_of_significance_to_note.txt,
+         ncrf2_vital.was_the_patient_intubated_and_ventilated,
+         ncrf2_vital.was_the_patient_under_sedation
+         ) %>%
+  add_numeric_1(exclude = exclude_cols_numeric)
+
 # Inspect colnames
 covidcns_dat_id %>%
   colnames()
 ```
 
+Look at number of people excluded
+The number of people to be excluded should be negative
 ```{r COVIDCNS number excluded}
 # Inspect dimensions of new data set
 covidcns_dat_id %>%
   dim()
+
 # Inspect number of rows dropped
 covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
 covidcns_excluded
 ```
 
+Check missingness by missmap
 ```{r COVIDCNS inspect missingness}
 covidcns_miss_map <- covidcns_dat_id %>% 
   missmap()
+
 covidcns_miss_map
 ```
 
+Create dat as copy of covidcns_dat_id for brevity
+This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
 ```{r Create dat}
 dat <- covidcns_dat_id 
+
 # Check
 dat %>% glimpse()
 ```
 
-# Recode Non-answer values to 3 digits
+Recode Non-answer values to 3 digits
 -555 'Not applicable' response from participant
 -777 Seen but not answered
 -888 Don't know
@@ -111,68 +191,700 @@ dat %>% glimpse()
 When we code someone as being 'not applicable' by deduction, we use `NA_real_`
 ```{r Recode NA values}
 dat <- dat %>%
-  mutate(across(ends_with("txt"),
+  mutate(across(ends_with("numeric"),
                 ~case_when(
-                  . == "-55" ~ "-555",
-                  . == "-77" ~ "-777",
-                  . == "-88" ~ "-888",
-                  . == "-99" ~ "-999",
+                  . == -55 ~ -555,
+                  . == -77 ~ -777,
+                  . == -88 ~ -888,
+                  . == -99 ~ -999,
                   TRUE ~ .)))
 ```
 
-```{r List unique values}
+Create lists of all unique values and levels
+Use the unique list as a reference for numeric variables
+Use the levels list as a reference for categorical variables
+```{r List unique values levels}
 ulst <- sapply(dat, unique)
+llst <- sapply(dat, levels)
 ```
 
-Create list of all unique values
-```{r List unique values}
-ulst <- sapply(dat, unique)
+
+# Cleaning Categorical Variables
+
+Name your vectors in line with the chunks below
+Number the vectors or name them intuitively if you have multiple vectors
+Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
+
+Create sequential vectors of categorical values
+```{r Vector categorical values}
+vals_cat_1 <- c(
+  "Yes",
+  "No",
+  "Seen but not answered",
+  "Unknown",
+  NA
+)
+
+vals_cat_2 <- c(
+  "Room air",
+  "Not Room air",
+  NA
+)
+
+vals_cat_3 <- c(
+  "Oxygen therapy",
+  "Not Oxygen therapy",
+  NA
+)
+
+vals_cat_4 <- c(
+  "Unknown",
+  "Not Unknown",
+  NA
+)
+
+vals_cat_5 <- c(
+  "Seen but not answered",
+  "Awake",
+  "Verbal",
+  "Pain",
+  "Unresponsive",
+  NA
+)
+
+vals_cat_6 <- c(
+  "Seen but not answered",
+  "Yes",
+  "No",
+  NA
+)
 ```
 
-# Cleaning
+Create list of categorical values vectors
+```{r List categorical values vectors}
+values_cat_list <- list(
+  vals_cat_1,
+  vals_cat_2,
+  vals_cat_3,
+  vals_cat_4,
+  vals_cat_5,
+  vals_cat_6,
+  vals_cat_6
+)
+```
 
-Inspect variables as they are all textual and require individual cleaning
-```{r COVIDCNS inspect variables}
+Remove values vectors from environment
+```{r Remove categorical values vectors}
+rm(
+  vals_cat_1,
+  vals_cat_2,
+  vals_cat_3,
+  vals_cat_4,
+  vals_cat_5,
+  vals_cat_6
+)
+```
+
+Set names of list to variable names
+```{r Set list names categorical}
+names(values_cat_list) <- c(
+  "ncrf2_vital.severe_dehydration",
+  "ncrf2_vital.room_air",
+  "ncrf2_vital.oxygen_therapy",
+  "ncrf2_vital.unknown",
+  "ncrf2_vital.avpu",
+  "ncrf2_vital.was_the_patient_intubated_and_ventilated",
+  "ncrf2_vital.was_the_patient_under_sedation"
+)
+```
+
+Use imp_clean to find if any implausible values
+```{r Imp_clean categorical variables}
+imp_clean(values_list = values_cat_list,
+          dat = dat)
+```
+
+Produce summary table of variables
+```{r Summary table categorical variables}
 dat %>%
-  tbl_summary(include = 
-                c(
-                  ncrf2_vital.lowest_gcs_during_admission.txt
-                  ),
-              missing_text = "Missing")
+  tbl_summary(
+    include = all_of(names(values_cat_list)),
+    missing_text = "Missing")
 ```
 
-# Recode incorrect variables
+
+# Cleaning Numeric Variables
+
+Name your vectors in line with the chunks below
+Number the vectors or name them intuitively if you have multiple vectors
+Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
+
+Create sequential vectors of numeric values
+```{r Vector numeric values}
+vals_num_1 <- c(
+  0,
+  1,
+  -777,
+  -888,
+  NA
+)
+
+vals_num_2 <- c(
+  0,
+  1,
+  -777,
+  NA
+)
+
+vals_num_3 <- c(
+  1,
+  2,
+  3,
+  4,
+  -777,
+  NA
+)
+```
+
+Create list of numeric values vectors
+```{r List numeric values vectors}
+values_num_list <- list(
+  vals_num_1,
+  vals_num_2,
+  vals_num_2,
+  vals_num_2,
+  vals_num_3,
+  vals_num_2,
+  vals_num_2
+)
+```
+
+Remove values vectors from environment
+```{r Remove numeric values vectors}
+rm(
+  vals_num_1,
+  vals_num_2,
+  vals_num_3
+)
+```
+
+Set names of list to variable names
+```{r Set list names numeric}
+names(values_num_list) <- c(
+  "ncrf2_vital.severe_dehydration_numeric",
+  "ncrf2_vital.room_air_numeric",
+  "ncrf2_vital.oxygen_therapy_numeric",
+  "ncrf2_vital.unknown_numeric",
+  "ncrf2_vital.avpu_numeric",
+  "ncrf2_vital.was_the_patient_intubated_and_ventilated_numeric",
+  "ncrf2_vital.was_the_patient_under_sedation_numeric"
+)
+```
+
+Use imp_clean to find if any implausible values
+```{r Imp_clean numeric variables}
+imp_clean(values_list = values_num_list,
+          dat = dat)
+```
+
+Produce summary table of variables
+```{r Summary table numeric variables}
+dat %>%
+  tbl_summary(
+    include = all_of(names(values_num_list)),
+    missing_text = "Missing")
+```
+
+# Cleaning Continuous Variables
+
+Create vector of continuous variables
+```{r Create cont vars vector}
+variables_cont <- c(
+  "ncrf2_vital.vitals", #temp
+  "ncrf2_vital.vitals.1", #HR
+  "ncrf2_vital.vitals.2", #RR
+  "ncrf2_vital.vitals.3", #BP sys
+  "ncrf2_vital.vitals.4", #BP dias
+  "ncrf2_vital.room_airtext.txt", #sats on room air
+  "ncrf2_vital.oxygen_therapytext.txt", #sats on O2 therapy
+  "ncrf2_vital.glasgow_coma_score.txt",
+  "ncrf2_vital.lowest_gcs_during_admission.txt"
+)
+```
+
+Inspect continuous variables
+Use the question labels to ascertain context at this point and check for obvious outliers
+The percentiles can be modified to exclude nonanswer values as appropriate to your data
+```{r Inspect cont vars}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
+```
+
+Check unique values in continuous variables
+If the fields contain text at this point, use the chunk below to clean manually
+```{r Cont vars unique}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  sapply(., unique) #%>%
+  #sort() %>%
+  #.[sapply(., function(x) nchar(x) != 2)]
+```
+
+Manually clean continuous variables to ensure parsing as numeric
+Use the output from the chunk above and clean the variable manually here until there are no 'rogue' values
+Case_when is type-specific so number must be specified as char and the variable mutated to numeric as below
+REMOVE THIS CHUNK IF NOT NECESSARY
+```{r Temperature manual clean}
+dat <- dat %>%
+  mutate(across(ncrf2_vital.vitals,
+                ~case_when(str_detect(ncrf2_vital.vitals, "A") ~ "-77",
+                           str_detect(ncrf2_vital.vitals, "N") ~ "-77",
+                           str_detect(ncrf2_vital.vitals, "a") ~ "-77",
+                           str_detect(ncrf2_vital.vitals, "n") ~ "-77",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r Heart rate manual clean}
+dat <- dat %>%
+  mutate(across(ncrf2_vital.vitals.1,
+                ~case_when(str_detect(ncrf2_vital.vitals.1, "n") ~ "-77",
+                           str_detect(ncrf2_vital.vitals.1, "r") ~ "-77",
+                           str_detect(ncrf2_vital.vitals.1, "N") ~ "-77",
+                           str_detect(ncrf2_vital.vitals.1, "-") ~ "90",
+                           . == "59R" ~ "59",
+                           . == "60R" ~ "60",
+                           . == "64R" ~ "64",
+                           . == "84R" ~ "84",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r Resp rate manual clean}
+dat <- dat %>%
+  mutate(across(ncrf2_vital.vitals.2,
+                ~case_when(str_detect(ncrf2_vital.vitals.2, "IV") ~ "20",
+                           str_detect(ncrf2_vital.vitals.2, "n") ~ "-77",
+                           str_detect(ncrf2_vital.vitals.2, "N") ~ "-77",
+                           . == "36.7" ~ "-77",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r Sys BP manual clean}
+dat <- dat %>%
+  mutate(across(ncrf2_vital.vitals.3,
+                ~case_when(. == "105/" ~ "105",
+                           . == "11*" ~ "118",
+                           . == "134`65" ~ "134/65",
+                           str_detect(ncrf2_vital.vitals.3, "n") ~ "-77",
+                           str_detect(ncrf2_vital.vitals.3, "N") ~ "-77",
+                           TRUE ~ .)
+                )
+         )
+```
+
+Check for BP written in one box instead of 2
+```{r Check for BP mistake}
+dat %>%
+  dplyr::select(ncrf2_vital.vitals.3, ncrf2_vital.vitals.4) %>%
+  filter(str_detect(ncrf2_vital.vitals.3, "/"))
+```
+
+Split out BPs and sub back into df
+```{r Correct BP issue}
+bp_vec <- unlist(dat %>% dplyr::select(ncrf2_vital.vitals.3) %>% filter(str_detect(ncrf2_vital.vitals.3, "/")))
+
+names(bp_vec) <- c()
+
+bp_split <- strsplit(bp_vec, split = "/")
 
 
-## Recode lowest GCS during admission variable
-```{r COVIDCNS Recode lowest GCS during admission variable}
-dat <- dat %>% 
+bp_indices <- which(str_detect(dat$ncrf2_vital.vitals.3, "/"))
+
+
+for (i in 1:length(bp_split)){
+  bp_split[[i]][3] <- bp_indices[i]
+}
+
+for(i in 1:length(bp_split)){
+  dat[bp_split[[i]][3], "ncrf2_vital.vitals.3"] <- bp_split[[i]][1]
+  dat[bp_split[[i]][3], "ncrf2_vital.vitals.4"] <- bp_split[[i]][2]
+}
+
+dat %>%
+  dplyr::select(ncrf2_vital.vitals.3, ncrf2_vital.vitals.4) %>%
+  slice(as.numeric(bp_indices))
+```
+
+```{r Dias BP manual clean}
+dat <- dat %>%
+  mutate(across(ncrf2_vital.vitals.4,
+                ~case_when(str_detect(ncrf2_vital.vitals.4, "n") ~ "-77",
+                           str_detect(ncrf2_vital.vitals.4, "N") ~ "-77",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r Sats room air manual clean}
+dat <- dat %>%
+  mutate(across(ncrf2_vital.room_airtext.txt,
+                ~case_when(. == "92-96" ~ "94",
+                           . == "<95" ~ "94",
+                           . == "97%" ~ "97",
+                           . == "95%" ~ "95",
+                           . == "21%" ~ "21",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r Sats O2 therapy manual clean}
+dat <- dat %>%
+  mutate(across(ncrf2_vital.oxygen_therapytext.txt,
+                ~case_when(. == "100%"  ~ "100",
+                           . == "15L NRB"  ~ "-77",
+                           . == "1L" ~ "-77",
+                           . == "3L" ~ "-77",
+                           . == "2" ~ "-77",
+                           . == "4" ~ "-77",
+                           . == "40%"  ~ "40",
+                           . == "45/l pm"  ~ "-77",
+                           . == "5LPM" ~ "-77",
+                           . == "6L" ~ "-77",
+                           . == "7Litres" ~ "-77",
+                           . == "90%" ~ "90",
+                           . == "90% on wall flow mask 6L" ~ "90",
+                           . == "91%" ~ "91",
+                           . == "92-93" ~ "93",
+                           . == "94%" ~ "94",
+                           . == "94% 2L" ~ "94",
+                           . == "94% on 35% venturi mask weaned from HFNO" ~ "94",
+                           . == "95 on 2L" ~ "95",
+                           . == "96% on 2L" ~ "96",
+                           . == "97%" ~ "97",
+                           . == "97% on 2 litres of oxygen" ~ "97",
+                           . == "97% on 4 L/min via Nasal Cannula" ~ "97",
+                           . == "99% saturations on 2L via nasal cannulae" ~ "99",
+                           . == "intubated" ~ "-77",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r GCS manual clean}
+dat <- dat %>%
+  mutate(across(ncrf2_vital.glasgow_coma_score.txt,
+                ~case_when(str_detect(ncrf2_vital.glasgow_coma_score.txt, "-") ~ "-77",
+                           str_detect(ncrf2_vital.glasgow_coma_score.txt, "n") ~ "-77",
+                           str_detect(ncrf2_vital.glasgow_coma_score.txt, "N") ~ "-77",
+                           str_detect(ncrf2_vital.glasgow_coma_score.txt, "I") ~ "-77",
+                           . == "04" ~ "4",
+                           . == "10 (tracheostomy)" ~ "10",
+                           . == "11 (E4, Vt, M6)" ~ "11",
+                           . == "11 (trachy)" ~ "11",
+                           . == "12/15" ~ "12",
+                           . == "13/15" ~ "13",
+                           . == "15/15" ~ "15",
+                           . == "3 (intubated)" ~ "3",
+                           . == "3 (sedated)" ~ "3",
+                           . == "6 (E4VtM1)" ~ "6",
+                           . == "E4 Vt M6" ~ "11",
+                           TRUE ~ .)
+                )
+         )
+```
+
+```{r Lowest GCS manual clean}
+dat <- dat %>%
   mutate(across(ncrf2_vital.lowest_gcs_during_admission.txt,
-                ~case_when(
-                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "unknown") |
-                    str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "N/K") ~  "Unknown",
-                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "N/A") ~ "-777", 
-                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "3 ") ~ "3",
-                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "04") | 
-                    str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "4 ") ~ "4",
-                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "/15") ~ "",
-                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "10") ~ "10",
-                  str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "13") ~ "13",
-                  TRUE ~ .)))
+                ~case_when(str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "-") ~ "-77",
+                           str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "k") ~ "-77",
+                           str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "K") ~ "-77",
+                           str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "A") ~ "-77",
+                           . == "04" ~ "4",
+                           . == "1" ~ "-77",
+                           . == "10 (when not sedated and ventilated)" ~ "10",
+                           . == "14/15" ~ "14",
+                           . == "15/15" ~ "15",
+                           . == "3 (E1, Vt, M1) when ventilated and deeply sedated" ~ "3",
+                           . == "3 (intubated)" ~ "3",
+                           . == "3 (sedated)" ~ "3",
+                           . == "4 (E2vtM1)" ~ "4",
+                           . == "5 (E4VTM1)" ~ "5",
+                           . == "8/15" ~ "8",
+                           . == "E Vt M6" ~ "-77",
+                           TRUE ~ .)
+                )
+         )
 ```
 
-### Re-check lowest GCS during admission variable coding
-```{r COVIDCNS recheck lowest GCS during admission variable coding}
+Mutate variables to numeric after cleaning manually
+This step is necessary to check for non-integer values
+Modify the all_of statement as required: DO NOT MUTATE TO NUMERIC UNNECESSARILY
+REMOVE THIS CHUNK IF NOT NECESSARY
+```{r Cont vars to numeric}
+dat <- dat %>%
+  mutate(across(all_of(variables_cont),
+                ~as.numeric(.)
+                )
+         )
+```
+
+Transform nonanswer values to 3 digit
+```{r Cont vars nonanswer}
+dat <- dat %>%
+  mutate(across(
+    all_of(variables_cont),
+    ~case_when(. == -55 ~ -555,
+               . == -77 ~ -777,
+               . == -88 ~ -888,
+               . == -99 ~ -999,
+               TRUE ~ .)
+                )
+         )
+```
+
+Recheck continuous variables
+```{r Recheck cont vars}
 dat %>%
-  select(all_of(starts_with("ncrf2_vital.lowest_gcs_during_admission.txt"))) %>%
+  select(all_of(variables_cont)) %>%
+  dplyr::mutate(across(all_of(variables_cont),
+                       ~na_if(., -777)
+                       )
+                ) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
+```
+
+Create matrix of limits for continuous variables
+Matrix is series of vectors (lower, upper)
+```{r Create matrix limits}
+limits_mat <- rbind(
+  c(11, 47),
+  c(0, 480),
+  c(0, 200),
+  c(0, 370),
+  c(0, 360),
+  c(0, 100),
+  c(0, 100),
+  c(3, 15),
+  c(3, 15)
+  )
+```
+
+Set row and col names of limits_mat
+This allows your to easily refer back to limits_mat for a summary
+```{r Set lim_mat names}
+rownames(limits_mat) <- variables_cont
+colnames(limits_mat) <- c("Lower", "Upper")
+```
+
+Use cont_clean to check if any implausible values and provide replacement vectors
+Cont_clean will not proceed if variables are not numeric type, clean manually above if necessary
+```{r Cont_clean cont vars}
+cont_list <- cont_clean(
+  variables = variables_cont,
+  limits_mat = limits_mat,
+  dat = dat
+)
+for (i in 1:length(variables_cont)){
+  print(paste0("Implausibles in ", variables_cont[i], ": ", cont_list[[variables_cont[i]]]$Count))
+}
+```
+
+Re-inspect variables after cleaning
+```{r Inspect after cleaning}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  dplyr::mutate(across(all_of(variables_cont),
+                       ~na_if(., -777),
+                       )
+                ) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p100})")
+  )
+```
+
+
+# Cleaning Dates
+
+Create vector of date variables
+```{r Vector date vars}
+variables_date <- c(
+  "ncrf2_vital.date.txt"
+)
+```
+
+Inspect date variables
+```{r Inspect date vars}
+dat %>%
+  select(all_of(variables_date)) %>%
+  tbl_summary()
+```
+
+Check unique values in date variables
+If the fields contain text at this point, use the chunk below to clean manually
+```{r Date vars unique}
+dat %>%
+  select(all_of(variables_date)) %>%
+  sapply(., unique) %>%
+  sort() #%>%
+  #.[sapply(., function(x) nchar(x) != 10)]
+  #.[sapply(., function(x) str_detect(x, ""))]
+```
+
+
+Manually clean date variables to ensure parsing as dttm
+Use the output from the chunk above and clean the variable manually here until there are no 'rogue' values
+Case_when is type-specific so number must be specified as char and the variable mutated to numeric as below
+REMOVE THIS CHUNK IF NOT NECESSARY
+```{r Date manual clean}
+dat <- dat %>%
+  mutate(across(ncrf2_vital.date.txt,
+                ~case_when(. == "01/06/20" ~ "01/06/2020",
+                           . == "06/03/20201" ~ "-77",
+                           . == "06/12/21" ~ "06/12/2021",
+                           . == "07/1/2021" ~ "07/01/2021",
+                           . == "08/03/21" ~ "08/03/2021",
+                           . == "12/04/21" ~ "12/04/2021",
+                           . == "14" ~ "-77",
+                           . == "149/03/2021" ~ "14/03/2021",
+                           . == "15/7/2020" ~ "15/07/2020",
+                           . == "17 Jan 2021" ~ "17/01/2021",
+                           . == "19/02/202" ~ "-77",
+                           . == "19/08/2021 (03:00)" ~ "19/08/2021",
+                           . == "20/03/2020 - same data as admission data (only one day of hospital admission)" ~ "20/03/2020",
+                           . == "20/11/20" ~ "20/11/2020",
+                           . == "20/3/2020" ~ "20/03/2020",
+                           . == "22/04/21" ~ "22/04/2021",
+                           . == "23/11/21" ~ "23/11/2021",
+                           . == "27/7/2021" ~ "27/07/2021",
+                           . == "29/01/2022 - discharged the day after admission" ~ "29/01/2022",
+                           . == "29/08/21" ~ "29/08/2021",
+                           . == "29/10/220" ~ "-77",
+                           . == "30/08/21" ~ "30/08/2021",
+                           . == "4/03/2021" ~ "04/03/2021",
+                           . == "4/12/2021" ~ "04/12/2021",
+                           . == "5/12/2021" ~ "05/12/2021",
+                           . == "6/11/2021" ~ "06/11/2021",
+                           . == "01/15/2021" ~ "-77",
+                           . == "30.01.2021" ~ "30/01/2021",
+                           . == "22.12.2020" ~ "22/12/2020",
+                           . == "08/30/2021" ~ "30/08/2021",
+                           TRUE ~ .)
+                )
+         )
+```
+
+Replace -77 values with NA: POSIX will reject -77 as a value when converting
+```{r Date vars recode -77 to NA}
+dat <- dat %>% 
+  mutate(across(all_of(variables_date),
+                ~na_if(., "-77")
+                )
+         )
+```
+
+Check dates for remaining unparsable values
+```{r Check unparsable}
+my_dates <- unlist(dat %>% select(ncrf2_vital.date.txt) %>% drop_na())
+names(my_dates) <- c()
+
+for(i in 1:length(my_dates)){
+   print(i)
+   stopifnot(!is.na(lubridate::dmy(my_dates[i])))
+}
+```
+
+Find unparsable value where for loop fails and add to case_when
+```{r Find unparsable value}
+my_dates[278]
+```
+
+Parse dates using lubridate
+```{r Parse date vars}
+dat <- dat %>% 
+  mutate(across(all_of(variables_date),
+                ~lubridate::parse_date_time(x = .,
+                                            orders = c("d/m/y"),
+                                            tz = "Europe/London")
+                )
+         )
+```
+
+Recheck date variables
+```{r Recheck parsed date vars}
+dat %>%
+  select(all_of(variables_date)) %>%
   tbl_summary(missing_text = "Missing")
+```
+
+Define limits for variable and list reasoning below
+Variable name:
+- Upper: latest data extraction, cannot have test in the future
+- Lower: 30/01/2020, first confirmed UK COVID cases 
+
+```{r Define limits}
+upper_limit <- as.POSIXct("2022-05-09")
+lower_limit <- as.POSIXct("2020-01-30")
+```
+
+Recode variable outliers to NA
+```{r Date vars recode outliers to NA}
+dat <- dat %>%
+    mutate(across(all_of(variables_date),
+                  ~ifelse(. > upper_limit | # bigger than the upper limit
+                          . < lower_limit, # smaller than the lower limit
+                          yes = NA,
+                          no = .)
+                  )
+           ) %>%
+  mutate(across(all_of(variables_date),
+                ~as.POSIXct(.,
+                            origin = lubridate::origin)
+                )
+         )
+```
+
+Re-check dates
+```{r Recheck cleaned date vars}
+dat %>%
+  select(all_of(variables_date)) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+
+# Cleaning Textual Variables
+
+Create vector of text variables
+```{r Vector text vars}
+variables_text <- c(
+  "ncrf2_vital.any_other_issue_of_significance_to_note.txt"
+)
+```
+
+View text variables
+```{r View text vars}
+dat %>%
+  select(all_of(variables_text)) %>%
+  tbl_summary()
 ```
 
 
 # Save cleaned data
 
 Check colnames before exporting final dataset
-```{r check colnames}
+```{r Check colnames}
 colnames(dat)
 ```
 
