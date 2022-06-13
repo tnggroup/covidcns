@@ -22,11 +22,11 @@ Clear global environment prior to initiation
 remove(list = ls())
 ```
 
-Add the add_numeric function - used to convert character variables into numeric variables.
+Add the add_labelled_numeric function - used to convert character variables into numeric variables.
 Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 ```{r Read in functions}
- source(file = "scripts/functions/add_numeric_1.R")
+ source(file = "scripts/functions/add_labelled_numeric.R")
  source(file = "scripts/functions/remove_duplicates.R")
  source(file = "scripts/functions/sumscores.R")
  source(file = "scripts/functions/package_check.R")
@@ -74,13 +74,9 @@ cns_data %>%
   dim()
 ```
 
-Specify columns to be excluded from add_numeric function
+Specify columns to be excluded from add_labelled_numeric function
 ```{r CNS specify excluded columns}
 exclude_cols_numeric <- c(
-  "ID",
-  "sample",
-  "startDate",
-  "endDate"
   )
 ```
 
@@ -89,11 +85,8 @@ Select & rename relevant columns
 cns_data_id <- cns_data %>% #new dataset with ID
   drop_na(externalDataReference) %>% # Drop participants with no ID
   distinct(externalDataReference, .keep_all = TRUE) %>% # Changed to distinct due to NA coercion
-  add_column(sample = "CNS", 
-             .after = "externalDataReference") %>% # Create new sample column
   select(
          ID = externalDataReference, # ID
-         sample,
          startDate,
          endDate,
          dem.medical_history_birth_relevant,
@@ -102,7 +95,7 @@ cns_data_id <- cns_data %>% #new dataset with ID
          dem.what_is_your_sexual_orientation,
          dem.have_you_ever_been_pregnant
          ) %>%
-  add_numeric_1(exclude = exclude_cols_numeric)
+  add_labelled_numeric(exclude = exclude_cols_numeric)
 
 # Inspect colnames
 cns_data_id %>%
@@ -429,8 +422,7 @@ cns_excluded
 # CNS
 ```{r Write cleaned CNS variables to a .rds file}
 dat %>% 
-  filter(sample == "CNS") %>%
   saveRDS(
-    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/sex_gender_sexuality_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_sex_gender_sexuality_covidcns_clean.rds")
     )
 ```

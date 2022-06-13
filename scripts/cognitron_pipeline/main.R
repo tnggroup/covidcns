@@ -160,7 +160,7 @@ scores_df_final <- as_tibble(inner_join(covid_matching,
 # Add additional age measures for prediction (based on data available in
 # normative data)
 scores_df_final$age2 = scores_df_final$age ^ 2
-scores_df_final$decade = factor(10 * (scores_df_final$age %/% 10))
+scores_df_final$decade = factor(ifelse(scores_df_final$age >= 90, 80, 10 * (scores_df_final$age %/% 10)))
 scores_df_final <- dplyr::rename(scores_df_final, age1 = age)
 scores_df_final <- dplyr::rename(scores_df_final, DEVICE = os)
 

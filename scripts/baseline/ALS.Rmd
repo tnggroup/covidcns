@@ -33,13 +33,13 @@ Clear global environment prior to initiation
 remove(list = ls())
 ```
 
-Add the add_numeric function - used to convert character variables into numeric variables
+Add the add_labelled_numeric function - used to convert character variables into numeric variables
 Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
 Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
 Add the imp_check function - used to check variables for implausible values
 ```{r Read in functions}
-source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/add_labelled_numeric.R")
 source(file = "scripts/functions/remove_duplicates.R")
 source(file = "scripts/functions/sumscores.R")
 source(file = "scripts/functions/package_check.R")
@@ -92,10 +92,6 @@ Specify columns to be excluded from add_numeric function
 Continuous variables should be excluded, as they are already numeric
 ```{r COVIDCNS specify excluded columns}
 exclude_cols_numeric <- c(
-  "ID",
-  "sample",
-  "startDate",
-  "endDate",
   "als.noticed_limb_weakness_list.txt"
   )
 ```
@@ -105,11 +101,8 @@ Select & rename relevant columns
 covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
   drop_na(externalDataReference) %>% # Drop participants with no ID
   remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
-  add_column(sample = "COVIDCNS",
-             .after = "externalDataReference") %>% # Create new sample column
   select(
          ID = externalDataReference, # ID
-         sample,
          startDate,
          endDate,
          "als.limb_weakness_past_month",
@@ -119,7 +112,7 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          "als.do_you_have_any_difficulty_climbing_stairs",
          "als.required_start_question_covid19"
          ) %>%
-  add_numeric(exclude = exclude_cols_numeric)
+  add_labelled_numeric(exclude = exclude_cols_numeric)
 # Inspect colnames
 covidcns_dat_id %>%
   colnames()
