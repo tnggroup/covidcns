@@ -23,7 +23,8 @@ knitr::opts_chunk$set(
   echo = TRUE,
   comment = '',
   prompt = FALSE,
-  cache = FALSE
+  cache = FALSE,
+  include = FALSE
   )
 ```
 
@@ -149,9 +150,9 @@ source(knitr::purl("scripts/baseline/GAD7.Rmd"))
 source(knitr::purl("scripts/baseline/impact.Rmd"))
 ```
 
-## mhd_numericonly
-```{r mhd_numericonly Cleaning the individual questionnaires, eval=FALSE, include=FALSE}
-source(knitr::purl("scripts/baseline/mhd_numericonly.Rmd"))
+## mhd
+```{r mhd Cleaning the individual questionnaires}
+source(knitr::purl("scripts/baseline/mhd.Rmd"))
 ```
 
 ## nonmotor

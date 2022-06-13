@@ -1085,37 +1085,6 @@ moca_outp_covidcns_clean_selected %>%
 
 ## ncrf
 
-### ncrf_clinical_frailty_clean
-Read in & variable names
-```{r ncrf_clinical_frailty_clean Read in data & variable names}
-ncrf_clinical_frailty_clean <-
-  read_rds(
-    file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf_clinical_frailty_clean.rds")
-  )
-
-ncrf_clinical_frailty_clean %>%
-  dim()
-```
-
-Dimensions
-```{r ncrf_clinical_frailty_clean Dimensions}
-ncrf_clinical_frailty_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r ncrf_clinical_frailty_clean Select columns for joining}
-ncrf_clinical_frailty_clean_selected <- 
-  ncrf_clinical_frailty_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-ncrf_clinical_frailty_clean_selected %>%
-  slice(1:5)
-```
-
 
 ### ncrf2_med_covidcns_clean
 Read in & variable names
@@ -1704,7 +1673,6 @@ tibble_list <-
     cognitron_outp_covidcns_clean_selected,
     moca_outp_covidcns_clean_selected,
     # neuro_case_report
-    ncrf_clinical_frailty_clean_selected,
     ncrf2_med_covidcns_clean_selected,
     # ncrf1
     ncrf1_admission_covidcns_clean_selected,
