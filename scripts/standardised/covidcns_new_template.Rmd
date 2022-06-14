@@ -156,8 +156,10 @@ chng <- rapply(sapply(answer_labels, names),
 #                how = "replace")
 
 # Substitute new value labels into answer_labels
-for (i in 5:length(chng)){
+for (i in 1:length(chng)){
+  if(!is.null(answer_labels[[i]])){
   names(answer_labels[[i]]) <- chng[[i]]
+  }
 }
 ```
 
@@ -240,9 +242,7 @@ dat %>%
 View <incorrect variable>
 <Note problem here and report on Teams>
 ```{r View <incorrect variable> values and labels}
-dat %>%
-  select(<incorrect variable>) %>%
-  attr(., "labels")
+attr(dat$<incorrect variable>, "labels")
 ```
 
 Recode incorrect variable
@@ -274,9 +274,7 @@ rm(new_levels_vec)
 
 Recheck variable coding
 ```{r Recheck <incorrect variable> values and labels}
-dat %>%
-  select(<incorrect variable>) %>%
-  attr(., "labels")
+attr(dat$<incorrect variable>, "labels")
 ```
 
 
