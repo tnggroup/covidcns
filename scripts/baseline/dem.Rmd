@@ -594,57 +594,39 @@ etc. to make your life easier when creating limits_mat)
 ```{r Create cont vars vector}
 variables_cont <- c(
   "dem.how_old_are_you_now.txt",
-  "dem.dob_age"
+  "dem.dob_age",
+  "dem.long_ago_diagnosed_years",
+  "dem.long_ago_diagnosed_months"
 )
 
 # Check length of vector (must match dim(limits_mat)[1])
 length(variables_cont)
 ```
 
-Inspect continuous variables
-Use the question labels to ascertain context at this point and check for obvious outliers
-The percentiles can be modified to exclude nonanswer values as appropriate to your data
-```{r Initial inspect cont vars}
-dat %>%
-  select(all_of(variables_cont)) %>%
-  tbl_summary(
-    missing_text = "Missing",
-    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
-```
-
-Check for text in continuous variables
-This chunk outputs only the columns and rows that contain text
-```{r Cont vars check text}
-# Function to check for any text or spaces
-check_for_string <- function(x){
-  sum(str_detect(x, "[a-zA-Z\\s]+"), na.rm = TRUE) > 0}
-
-dat %>%
-  # select all continuous
-  select(all_of(variables_cont)) %>%
-  # select only vars containing text
-  select(where(check_for_string)) %>%
-  # filter only rows containing text
-  filter(
-    if_any(where(check_for_string),
-           ~str_detect(., "[a-zA-Z\\s]+")
-           )
-    )
-```
-
 Create matrix of limits for continuous variables
 Matrix is series of vectors (lower, upper)
 Define limits for variable and list reasoning below
-Variable type 1: Age
+Variable: Age
 - Lower: 16 youngest allowed in study
-- Upper: 117 oldest person in the world
+- Upper: 117 oldest person in world
 
+Variable: Years ago diagnosed with COVID
+- Lower: 0 
+- Upper: 2 cannot be diagnosed before 2020
+
+Variable: Months ago diagnosed with COVID
+- Lower: 0
+- Upper: 12 months in a year
 ```{r Create matrix limits}
-# Create a vector of limits for each type of variable using rep
-limits_age <- rep(c(16, 117), 2)
+# Combine the vectors together
+limits_vec <- c(c(16, 117),
+                c(16, 117),
+                c(0, 2),
+                c(0, 12)
+                )
 
 # Create matrix, matrices are filled by columns, not rows, so must transpose
-limits_mat <- t(matrix(limits_age, # take values from your vector of limits
+limits_mat <- t(matrix(limits_vec, # take values from your vector of limits
                        nrow = 2, # upper and lower bounds
                        ncol = length(variables_cont) # number of variables total
                        ))
@@ -689,6 +671,19 @@ for (i in 1:length(variables_cont)){
 }
 ```
 
+Mutate variables with implausible values removed
+Repeat the mutate statements for as many variables as necessary
+```{r Mutate cont vars}
+dat <- dat %>%
+  mutate(
+    dem.long_ago_diagnosed_years = cont_list$dem.long_ago_diagnosed_years$Replacement
+  )
+
+dat <- dat %>%
+  mutate(
+    dem.long_ago_diagnosed_months = cont_list$dem.long_ago_diagnosed_months$Replacement
+  )
+```
 
 Re-inspect variables after cleaning
 ```{r Cont vars inspect after cleaning}
@@ -709,7 +704,37 @@ Text variables also need to be excluded
 Do not include ID and sample here
 ```{r Specify excluded columns}
 exclude_cols_numeric <- c(
-  # columns as required
+  "dem.day",
+  "dem.month",
+  "dem.year",
+  "dem.dob_age",
+  "dem.how_old_are_you_now.txt",
+  "dem.what_gender_do_you_identify_with.txt",
+  "dem.what_is_your_sexual_orientation.txt",
+  "dem.what_is_your_current_maritalrelationship_status.txt",
+  "dem.other_professional_qualifications_text.txt",
+  "dem.othertext.txt",
+  "dem.other_mixed_mixed_unspecifiedtext.txt",
+  "dem.other_asian_asian_unspecifiedtext.txt",
+  "dem.other_black_black_unspecifiedtext.txt",
+  "dem.any_other_grouptext.txt",
+  "dem.what_is_your_first_language.txt",
+  "dem.what_is_your_current_height",
+  "dem.what_is_your_current_height.1",
+  "dem.what_is_your_current_height.2",
+  "dem.current_weight",
+  "dem.current_weight.1",
+  "dem.current_weight.2",
+  "dem.highest_weight",
+  "dem.highest_weight.1",
+  "dem.highest_weight.2",
+  "dem.highest_weight_age",
+  "dem.lowest_weight_adult_height",
+  "dem.lowest_weight_adult_height.1",
+  "dem.lowest_weight_adult_height.2",
+  "dem.lowest_weight_age",
+  "dem.long_ago_diagnosed_years",
+  "dem.long_ago_diagnosed_months"
   )
 ```
 
@@ -731,6 +756,6 @@ dat %>%
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovecovidcns, <"/data/latest_freeze/location/questionnaire_covidcns_clean.rds">)
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_covidcns_clean.rds")
     )
 ```
