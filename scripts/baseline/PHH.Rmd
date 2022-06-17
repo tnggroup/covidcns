@@ -33,7 +33,7 @@ Clear global environment prior to initiation
 remove(list = ls())
 ```
 
-Add the add_numeric function - used to convert character variables into numeric variables
+Add the add_labelled_numeric function - used to convert character variables into numeric variables
 Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
 Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
@@ -41,7 +41,7 @@ Add the recode_check function - used to check for implausible values when recodi
 Add the imp_clean function - used to check variables for implausible values
 Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "scripts/functions/add_numeric_1.R")
+source(file = "scripts/functions/add_labelled_numeric.R")
 source(file = "scripts/functions/remove_duplicates.R")
 source(file = "scripts/functions/sumscores.R")
 source(file = "scripts/functions/package_check.R")
@@ -113,8 +113,6 @@ Select & rename relevant columns
 covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
   drop_na(externalDataReference) %>% # Drop participants with no ID
   remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
-  add_column(sample = "COVIDCNS",
-             .after = "externalDataReference") %>%
   dplyr::rename(
     "ID" = "externalDataReference"
   )
@@ -161,8 +159,10 @@ chng <- rapply(sapply(answer_labels, names),
 #                how = "replace")
 
 # Substitute new value labels into answer_labels
-for (i in 5:length(chng)){
+for (i in 1:length(chng)){
+  if(!is.null(answer_labels[[i]])){
   names(answer_labels[[i]]) <- chng[[i]]
+  }
 }
 ```
 
@@ -930,10 +930,6 @@ Specify columns to be excluded from add_numeric function
 Continuous variables should be excluded, as they are already numeric
 ```{r COVIDCNS specify excluded columns}
 exclude_cols_numeric <- c(
-  "ID",
-  "sample",
-  "startDate",
-  "endDate",
   "phh.nbsp",
   "phh.nbsp.1",
   "phh.",
@@ -1046,7 +1042,7 @@ exclude_cols_numeric <- c(
 Select & rename relevant columns
 ```{r COVIDCNS add numeric}
 dat <- dat %>% 
-  add_numeric_1(exclude = exclude_cols_numeric)
+  add_labelled_numeric(exclude = exclude_cols_numeric)
 
 # Inspect colnames
 dat %>%

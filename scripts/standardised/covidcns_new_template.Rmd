@@ -391,11 +391,11 @@ dat <- sjlabelled::set_labels(dat, labels = answer_labels)
 Create matrix of limits for continuous variables
 Matrix is series of vectors (lower, upper)
 Define limits for variable and list reasoning below
-Variable type 1: <name>
+<Variable type 1>: <any explanation required>
 - Lower: <limit> <justification>
 - Upper: <limit> <justification>
 
-Variable type 2: <name>
+<Variable type 2>: <any explanation required>
 - Lower: <limit> <justification>
 - Upper: <limit> <justification>
 ```{r Create matrix limits}

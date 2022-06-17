@@ -46,7 +46,8 @@ Load tidyverse last
 ```{r Install load dependencies}
 packages <- c(
   "summarytools",
-  "sjlabelled", 
+  "sjlabelled",
+  "gtsummary",
   "tidyverse"
   )
 
@@ -111,40 +112,6 @@ COVID_CNS_combined_website_data_clean_selected %>%
 
 
 ## Demographics
-
-### age_covidcns_clean
-Read in & variable names
-```{r age_covidcns_clean Read in data & variable names}
-age_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/baseline/age_covidcns_clean.rds")
-    )
-
-age_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r age_covidcns_clean Dimensions}
-age_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r age_covidcns_clean Select columns for joining}
-age_covidcns_clean_selected <-
-  age_covidcns_clean %>%
-  select(
-    "ID",
-    "dem.how_old_are_you_now.txt",
-    "dem.dob_age"
-  )
-
-age_covidcns_clean_selected %>%
-  slice(1:5)
-```
-
 
 
 ### als_covidcns_clean
@@ -278,130 +245,35 @@ cfs_covidcns_clean_selected %>%
 
 
 
-### dem_covidpositive_covidcns_clean
+### dem_covidcns_clean
 Read in & variable names
-```{r dem_covidpositive_covidcns_clean Read in data & variable names}
-dem_covidpositive_covidcns_clean <-
+```{r dem_covidcns_clean Read in data & variable names}
+dem_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_covidpositive_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_covidcns_clean.rds")
   )
 
-dem_covidpositive_covidcns_clean %>%
+dem_covidcns_clean %>%
   dim()
 ```
 
 Dimensions 
-```{r dem_covidpositive_covidcns_clean Dimensions}
-dem_covidpositive_covidcns_clean %>%
+```{r dem_covidcns_clean Dimensions}
+dem_covidcns_clean %>%
   colnames()
 ```
 
 Select columns for joining
-```{r dem_covidpositive_covidcns_clean Select columns for joining}
-dem_covidpositive_covidcns_clean_selected <-
-  dem_covidpositive_covidcns_clean %>%
+```{r dem_covidcns_clean Select columns for joining}
+dem_covidcns_clean_selected <-
+  dem_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
-dem_covidpositive_covidcns_clean_selected %>%
-  slice(1:5)
-```
-
-
-### dem_memory_covidcns_clean
-Read in & variable names
-```{r dem_memory_covidcns_clean Read in data & variable names}
-dem_memory_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_memory_covidcns_clean.rds")
-  )
-
-dem_memory_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r dem_memory_covidcns_clean Dimensions}
-dem_memory_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r dem_memory_covidcns_clean Select columns for joining}
-dem_memory_covidcns_clean_selected <-
-  dem_memory_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-dem_memory_covidcns_clean_selected %>%
-  slice(1:5)
-```
-
-
-### dem_quality_life_covidcns_clean
-Read in & variable names
-```{r dem_quality_life_covidcns_clean Read in data & variable names}
-dem_quality_life_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_quality_life_covidcns_clean.rds")
-  )
-
-dem_quality_life_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r dem_quality_life_covidcns_clean Dimensions}
-dem_quality_life_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r dem_quality_life_covidcns_clean Select columns for joining}
-dem_quality_life_covidcns_clean_selected <-
-  dem_quality_life_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-dem_quality_life_covidcns_clean_selected %>%
-  slice(1:5)
-```
-
-
-### dem_visionhearing_covidcns_clean
-Read in & variable names
-```{r dem_visionhearing_covidcns_clean Read in data & variable names}
-dem_visionhearing_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_visionhearing_covidcns_clean.rds")
-  )
-
-dem_visionhearing_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r dem_visionhearing_covidcns_clean Dimensions}
-dem_visionhearing_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r dem_visionhearing_covidcns_clean Select columns for joining}
-dem_visionhearing_covidcns_clean_selected <-
-  dem_visionhearing_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-dem_visionhearing_covidcns_clean_selected %>%
+dem_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
@@ -435,38 +307,6 @@ impact_covidcns_clean_selected <-
   )
 
 impact_covidcns_clean_selected %>%
-  slice(1:5)
-```
-
-
-### dem_ethnicity_covidcns_clean
-Read in & variable names
-```{r dem_ethnicity_covidcns_clean Read in data & variable names}
-dem_ethnicity_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_ethnicity_covidcns_clean.rds")
-  )
-
-dem_ethnicity_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r dem_ethnicity_covidcns_clean Dimensions}
-dem_ethnicity_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r dem_ethnicity_covidcns_clean Select columns for joining}
-dem_ethnicity_covidcns_clean_selected <-
-  dem_ethnicity_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-dem_ethnicity_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
@@ -534,66 +374,6 @@ gad7_covidcns_clean_selected %>%
 ```
 
 
-### dem_highest_qualification_covidcns_clean
-Read in & variable names
-```{r dem_highest_qualification_covidcns_clean Read in data & variable names}
-dem_highest_qualification_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_highest_qualification_covidcns_clean.rds")
-  )
-
-dem_highest_qualification_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r dem_highest_qualification_covidcns_clean Dimensions}
-dem_highest_qualification_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r dem_highest_qualification_covidcns_clean Select columns for joining}
-dem_highest_qualification_covidcns_clean_selected <- dem_highest_qualification_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-dem_highest_qualification_covidcns_clean_selected %>%
-  slice(1:5)
-```
-
-
-### dem_language_covidcns_clean
-Read in & variable names
-```{r dem_language_covidcns_clean Read in data & variable names}
-dem_language_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_language_covidcns_clean.rds")
-  )
-
-dem_language_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r dem_language_covidcns_clean Dimensions}
-dem_language_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r dem_language_covidcns_clean Select columns for joining}
-dem_language_covidcns_clean_selected <- dem_language_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-dem_language_covidcns_clean_selected %>%
-  slice(1:5)
-```
 
 ### nis_outp_covidcns_clean
 Read in & variable names
@@ -686,7 +466,8 @@ Select columns for joining
 ```{r mhd Select columns for joining}
 mhd_selected <- mhd %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 mhd_selected %>%
@@ -786,40 +567,6 @@ phq9_covidcns_clean_selected <- phq9_covidcns_clean %>%
 
 
 phq9_covidcns_clean_selected %>%
-  slice(1:5)
-```
-
-
-### dem_sex_gender_sexuality_covidcns_clean
-Read in & variable names
-```{r dem_sex_gender_sexuality_covidcns_clean Read in data & variable names}
-dem_sex_gender_sexuality_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_sex_gender_sexuality_covidcns_clean.rds")
-  )
-
-dem_sex_gender_sexuality_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r dem_sex_gender_sexuality_covidcns_clean Dimensions}
-dem_sex_gender_sexuality_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r dem_sex_gender_sexuality_covidcns_clean Select columns for joining}
-dem_sex_gender_sexuality_covidcns_clean_selected <-
-  dem_sex_gender_sexuality_covidcns_clean %>%
-  select(
-    -c(
-    "startDate",
-    "endDate")
-  )
-
-dem_sex_gender_sexuality_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
@@ -1174,7 +921,8 @@ Select columns for joining
 ncrf1_care_covidcns_clean_selected <-
   ncrf1_care_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 ncrf1_care_covidcns_clean_selected %>%
@@ -1206,7 +954,8 @@ Select columns for joining
 ncrf1_cic_covidcns_clean_selected <-
   ncrf1_cic_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 ncrf1_cic_covidcns_clean_selected %>%
@@ -1238,7 +987,8 @@ Select columns for joining
 ncrf1_comorbid_covidcns_clean_selected <-
   ncrf1_comorbid_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 ncrf1_comorbid_covidcns_clean_selected %>%
@@ -1639,34 +1389,26 @@ DfE_task_scores_selected %>%
 ```{r List of tibbles to join}
 tibble_list <- 
   list(
-    age_covidcns_clean_selected,
     als_covidcns_clean_selected,
     cage_covidcns_clean_selected,
     catatonia_covidcns_clean_selected,
     cfs_covidcns_clean_selected,
-    dem_covidpositive_covidcns_clean_selected,
-    dem_memory_covidcns_clean_selected,
-    dem_quality_life_covidcns_clean_selected,
-    dem_visionhearing_covidcns_clean,
+    dem_covidcns_clean_selected,
     impact_covidcns_clean_selected,
-    dem_ethnicity_covidcns_clean_selected,
     facial_covidcns_clean_selected,
     gad7_covidcns_clean_selected,
-    dem_highest_qualification_covidcns_clean_selected,
-    dem_language_covidcns_clean_selected,
-    nis_outp_covidcns_clean_selected,
     nonmotor_covidcns_clean_selected,
     mhd_selected,
     phh_selected,
     pcl5_covidcns_clean_selected,
     phq9_covidcns_clean_selected,
-    dem_sex_gender_sexuality_covidcns_clean_selected,
     smelltaste_covidcns_clean_selected,
     trauma_covidcns_clean_selected,
     updrs_covidcns_clean_selected,
     vaccine_covidcns_clean_selected,
     # core_neuro
     fourat_outp_covidcns_clean_selected,
+    nis_outp_covidcns_clean_selected,
    # mh_case_report
     moca_inp_covidcns_clean_selected,
     # moca
@@ -1699,7 +1441,7 @@ tibble_list <-
 
 Joining of demographics and questionnaires, not including website data
 ```{r Joining of demographics and questionnaires}
-data_joined <- 
+qualtrics_data_joined <- 
   plyr::join_all(
     dfs =  tibble_list,
     by = c("ID"),
@@ -1707,53 +1449,25 @@ data_joined <-
     )
 ```
 
-
-
-
-Check for duplicated participants
-```{r eval=FALSE, include=FALSE}
-data_joined %>%
-  mutate(
-    ID_duplicated = duplicated(ID)
-  ) %>%
-  filter(
-    ID_duplicated == TRUE
-  )
-```
-
 Check dimensions of joined tibble
 ```{r Check dimensions of joined tibble}
-data_joined %>%
+qualtrics_data_joined %>%
   dim()
 ```
 
 Check for duplicated columns
-
 ```{r Check for duplicated columns}
-data_joined %>%
+qualtrics_data_joined %>%
   colnames() %>%
   duplicated() %>%
   summary()
 ```
 
 
-```{r eval=FALSE, include=FALSE}
-duplicated_cols <- data_frame(
-    Variable = colnames(data_joined),
-    Duplicate = data_joined %>% colnames() %>% duplicated()
-    )
-    
-duplicated_cols %>%
-  filter(Duplicate == TRUE)
-```
+# Change Incorrect IDs from Qualtrics
 
-```{r eval=FALSE, include=FALSE}
-data_joined %>% 
-  colnames()
-```
-
-Change Incorrect IDs from Qualtrics
-```{r change incorrect ids}
+Import swapping IDs excel sheet
+```{r Import swapping ids}
 # Read in excel sheet of IDs to change as data frame
 swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/data_raw/ids/Swapped IDs.xlsx"),
                                  sheet = "Sheet1")
@@ -1761,41 +1475,67 @@ swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/data_raw/ids/Swa
 # Set sensical column names
 colnames(swapped_ids) <- c("correct_ID", "incorrect_ID")
 
-# Initial empty vector of rows to change IDs for in data_joined
+swapped_ids
+```
+
+Find rows to swap in order to check after swapping
+```{r Find swapping rows}
+# Initial empty vector of rows to change IDs for in qualtrics_data_joined
 swapping_rows <- c()
 
 # Create vector of rows corresponding to IDs that need changing
 for (i in swapped_ids$incorrect_ID) {
-  swapping_rows <- append(x = swapping_rows, values = which(data_joined$ID == i))
+  swapping_rows <- append(x = swapping_rows, values = which(qualtrics_data_joined$ID == i))
 }
 
-# Add row numbers to swapped_ids data frame
-swapped_ids <- cbind(swapped_ids, swapping_rows)
-
-# Swap IDs in data_joined by row number
-for (i in 1:length(swapped_ids)) {
-  data_joined[swapped_ids[i,3], 1] <- swapped_ids[i,1]
-}
-
+swapping_rows
 ```
 
+Use gsub to replace in df
+```{r Replace IDs}
+for (i in 1:nrow(swapped_ids)){
+  qualtrics_data_joined$ID <- gsub(pattern = swapped_ids$incorrect_ID[i],
+                                   replacement = swapped_ids$correct_ID[i],
+                                   x = qualtrics_data_joined$ID
+                                   )
+}
+```
+
+Test data frame IDs against correct IDs from sheet
+```{r Test ID swap}
+qualtrics_data_joined %>%
+  select(ID) %>%
+  slice(swapping_rows) == swapped_ids$correct_ID
+```
 
 Coalesce age and sex demographic variables from baseline and ncrf dem
 ```{r Coalesce age sex dem}
-data_joined <- data_joined %>%
+qualtrics_data_joined <- qualtrics_data_joined %>%
   mutate(
     dem.dob_age = coalesce(
       dem.dob_age,
       ncrf1_dem.dob_age),
     
-    dem.medical_history_birth_relevant = coalesce(
-      dem.medical_history_birth_relevant,
+    dem.sex_at_birth = coalesce(
+      dem.sex_at_birth,
       ncrf1_dem.sex_at_birth),
     
-    dem.medical_history_birth_relevant_numeric = coalesce(
-      dem.medical_history_birth_relevant_numeric,
+    dem.sex_at_birth_numeric = coalesce(
+      dem.sex_at_birth_numeric,
       ncrf1_dem.sex_at_birth_numeric)
   )
+```
+
+Summary tables to check missingness before joining to website data
+```{r Summary table qualtrics data only}
+tbl_summary(qualtrics_data_joined,
+            include = c(dem.dob_age,
+                        dem.sex_at_birth,
+                        ncrf1_vital.admission_severity_worst_covid19,
+                        ncrf1_comorbid.clinical_frailty_scale,
+                        ncrf1_admission.date_of_inpatient_admission.txt),
+            missing_text = "Missing"
+            )
 ```
 
 
@@ -1803,12 +1543,53 @@ Joining of website data
 ```{r Joining of website data}
 data_joined <- 
   plyr::join_all(
-    dfs =  list(COVID_CNS_combined_website_data_clean_selected, data_joined),
+    dfs =  list(COVID_CNS_combined_website_data_clean_selected, qualtrics_data_joined),
     by = c("ID"),
     type = "full"
     )
 ```
 
+
+Summary tables to check missingness before joining to website data
+```{r Summary table qualtrics website}
+covidcns_sumtable <- data_joined %>%
+  
+  # Coalesce controls into single category
+  mutate(across(case_control_vaccine,
+                ~case_when(str_detect(case_control_vaccine, "Control") ~ "Control",
+                           TRUE ~ .)
+                )
+         ) %>%
+  
+  # Convert NAs to explicit factor to show in table per category
+  dplyr::mutate(dem.sex_at_birth = factor(dem.sex_at_birth) %>%
+                  forcats::fct_explicit_na()) %>%
+  
+  dplyr::mutate(ncrf1_vital.admission_severity_worst_covid19 = factor(ncrf1_vital.admission_severity_worst_covid19) %>%
+                  forcats::fct_explicit_na()) %>%
+  
+  dplyr::mutate(ncrf1_comorbid.clinical_frailty_scale = factor(ncrf1_comorbid.clinical_frailty_scale) %>%
+                  forcats::fct_explicit_na()) %>%
+
+  # Create summary table with stats to match Kuha's table
+  tbl_summary(by = case_control_vaccine,
+              include = c(dem.dob_age,
+                          dem.sex_at_birth,
+                          ncrf1_vital.admission_severity_worst_covid19,
+                          ncrf1_comorbid.clinical_frailty_scale,
+                          ncrf1_admission.date_of_inpatient_admission.txt),
+              type = all_continuous() ~ "continuous2",
+              missing = "no",
+              statistic = list(all_continuous() ~ c("{median} ({p25}, {p75})", "{N_miss} ({p_miss}%)"))
+              ) %>%
+  modify_table_body(dplyr::mutate,
+                    label = ifelse(label == "N missing (% missing)", "Missing", label)
+                    )
+
+# Save table
+#gt::gtsave(as_gt(covidcns_sumtable), file = "covidcns_sumtable.png")
+covidcns_sumtable
+```
 
 Select columns for data extraction
 ```{r matching Select columns}
@@ -1821,8 +1602,8 @@ data_export_matching <- data_joined %>%
       "dem.how_old_are_you_now.txt",
       
       # Sex
-      "dem.medical_history_birth_relevant",
-      "dem.medical_history_birth_relevant_numeric",
+      "dem.sex_at_birth",
+      "dem.sex_at_birth_numeric",
       
       # Language
       "dem.is_english_your_first_language",

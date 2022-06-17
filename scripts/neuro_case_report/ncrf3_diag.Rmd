@@ -1,11 +1,24 @@
 ---
-title: "ncrf3_diag"
-author: "Chelsea Mika Malouf"
-date: "04/03/2022"
+title: "COVIDCNS NCRF3 Diagnosis Cleaning Script"
+author: "Zain Ahmad"
+date: "14/06/2022"
 output: html_document
 ---
 
-# Set up
+
+All arguments should be in their own row, including the first argument
+Closing bracket should have its own row
+Functions with a single argument can have this on the same line
+One argument can be hashed out per line for debugging errors
+
+Chunk names should be all lower case except capitalised first word
+Chunk names MUST be unique
+Points requiring user input are enclosed thus <>
+
+Ensure that you have deleted/untracked .DS_Store before your initial commit
+Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+
+Configure global options for all chunks
 ```{r Setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
@@ -15,31 +28,56 @@ knitr::opts_chunk$set(
   )
 ```
 
+Clear global environment prior to initiation
 ```{r Clear global environment}
 remove(list = ls())
 ```
 
+Add the add_labelled_numeric function - used to convert character variables into numeric variables
+Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+Add the recode_check function - used to check for implausible values when recoding
+Add the imp_clean function - used to check variables for implausible values
+Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/add_labelled_numeric.R")
 source(file = "scripts/functions/remove_duplicates.R")
 source(file = "scripts/functions/sumscores.R")
 source(file = "scripts/functions/package_check.R")
-source(file = "scripts/functions/imp_check_1.R")
+source(file = "scripts/functions/recode_check.R")
+source(file = "scripts/functions/cont_clean.R")
 ```
 
+Use package_check to install and load dependencies
+Load tidyverse last
 ```{r Install load dependencies}
-packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
+packages <- c("sjlabelled",
+              "Amelia",
+              "gtsummary",
+              "tidyverse")
+
 package_check(packages)
 ```
 
-```{r Read in file with path to ilovecovidcns channel on teams}
+Read in file with path to ilovecovidcns channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Source filepath to ilovecovidcns OneDrive}
 source(file = "scripts/credentials/paths.R")
 ```
 
+# Read in the data: COVIDCNS Neuro Case Report Form Module 3 Diagnosis
 
-# Read in the data: NCRF2 Vital
+Do not change variable names from the NLP names that are produced by the extraction
+EXCEPT in exceptional circumstances
+Document ANY changes to variable names in the Teams Data Issues Tracker
 
-## COVIDCNS data
+- For variable names, use ONLY 'questionnaire.variable_name' syntax
+- When using pipe operator '%>%', each function should begin on a new line for clarity
+- Do not add empty lines at the beginning or end of a chunk to keep the markdown as short as possible
+- Use only tidyverse functions wherever possible, they run faster than base R
+
+COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
   file = paste0(ilovecovidcns, "/data_raw/latest_freeze/neuro_case_report/ncrf3_diag_covid_cns.rds")
@@ -48,64 +86,82 @@ covidcns_dat <- read_rds(
 # Check variable names in dataframe
 covidcns_dat %>%
   colnames()
+
 # Inspect dimensions of dataframe 
 covidcns_dat %>%
   dim()
-```
 
-```{r COVIDCNS specify excluded columns}
-exclude_cols_numeric <- c(
-  "ID",
-  "sample",
-  "startDate",
-  "endDate",
-  "ncrf3_diag.number_of_days_in_itu.txt",
-  "ncrf3_diag.continuous_number_of_days_in_any_hospital.txt",
-  "ncrf3_diag.any_other_issue_of_significance_to_note.txt"
-  )
-```
+# Report counts of duplicates in ID column
+covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(., externalDataReference)
 
-```{r COVIDCNS select}
-covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
-  drop_na(externalDataReference) %>% # Drop participants with no ID
-  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
-  add_column(sample = "COVIDCNS",
-             .after = "externalDataReference") %>% # Create new sample column
-  select(
-         ID = externalDataReference, # ID
-         sample,
-         startDate,
-         endDate,
-         ncrf3_diag.number_of_days_in_itu.txt,
-         ncrf3_diag.continuous_number_of_days_in_any_hospital.txt,
-         ncrf3_diag.any_other_issue_of_significance_to_note.txt
-         ) 
-# Inspect colnames
-covidcns_dat_id %>%
-  colnames()
-```
+# Report number of IDs to be dropped
+covidcns_excluded <- covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(., externalDataReference) %>%
+  select("Dropped IDs" = "n") %>%
+  colSums() + 1
 
-```{r COVIDCNS number excluded}
-# Inspect dimensions of new data set
-covidcns_dat_id %>%
-  dim()
-# Inspect number of rows dropped
-covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
 covidcns_excluded
 ```
 
-```{r COVIDCNS inspect missingness}
-covidcns_miss_map <- covidcns_dat_id %>% 
-  missmap()
-covidcns_miss_map
+Create new df with renamed and de-duplicated/NA-removed ID column
+```{r COVIDCNS select}
+covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
+  dplyr::rename(
+    "ID" = "externalDataReference"
+  )
+
+# Inspect colnames
+covidcns_dat_id %>%
+  colnames()
+
+# Inspect dimensions of new data set
+covidcns_dat_id %>%
+  dim()
 ```
 
+Check missingness by missmap
+```{r COVIDCNS missmap}
+covidcns_dat_id %>% 
+  missmap()
+```
+
+Create dat as copy of covidcns_dat_id for brevity
+This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
 ```{r Create dat}
 dat <- covidcns_dat_id 
-# Check
-dat %>% glimpse()
 ```
 
+Extract and save labels
+```{r Extract save labels}
+# Save variable labels
+question_labels <- sjlabelled::get_label(dat)
+
+# Save value labels
+answer_labels <- sjlabelled::get_labels(dat, values = "as.name")
+
+# Change -77 to -777 in value labels names
+chng <- rapply(sapply(answer_labels, names),
+               function(x) ifelse(x==-77, -777, x),
+               how = "replace")
+
+# Add multiple lines here as necessary to change other nonanswer values in labels
+chng <- rapply(chng,
+               function(x) ifelse(x==-88, -888, x),
+               how = "replace")
+
+# Substitute new value labels into answer_labels
+for (i in 1:length(chng)){
+  if(!is.null(answer_labels[[i]])){
+  names(answer_labels[[i]]) <- chng[[i]]
+  }
+}
+```
 
 Recode Non-answer values to 3 digits
 -555 'Not applicable' response from participant
@@ -116,121 +172,239 @@ Recode Non-answer values to 3 digits
 When we code someone as being 'not applicable' by deduction, we use `NA_real_`
 ```{r Recode NA values}
 dat <- dat %>%
-  mutate(across(ends_with("txt"),
+  mutate(across(where(is.numeric),
                 ~case_when(
-                  . == "-55" ~ "-555",
-                  . == "-77" ~ "-777",
-                  . == "-88" ~ "-888",
-                  . == "-99" ~ "-999",
-                  TRUE ~ .)))
+                  . == -55 ~ -555,
+                  . == -77 ~ -777,
+                  . == -88 ~ -888,
+                  . == -99 ~ -999,
+                  TRUE ~ .)
+                )
+         )
+
+# Re-add labels after mutate
+dat <- sjlabelled::set_label(dat, question_labels)
+dat <- sjlabelled::set_labels(dat, labels = answer_labels)
+```
+
+Create list of all labels and attributes
+This chunk supersedes all categorical/numeric cleaning
+It gives you an output of c(the question label, all value-label pairs)
+for each variable
+Check for errors in the output of this chunk, including:
+- Label spelling errors (for questions and answers)
+- Incorrect values
+- Mismatches between labels and values
+- Scale errors
+- Variable naming issues from the data extraction
+- Any other issues you can see
+All issues/changes need to be logged as a to-do on Teams
+At this point, you also need to pick out any continuous, date or text variables 
+to be cleaned in the later chunks
+```{r List labels attrs}
+label_list <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
+label_list
 ```
 
 
-Create list of all unique values
-```{r List unique values}
-ulst <- sapply(dat, unique)
+# Cleaning Continuous Variables
+
+Create vector of continuous variables
+(I suggest adding variable names sorted by type e.g. all ages then all years
+etc. to make your life easier when creating limits_mat)
+```{r Create cont vars vector}
+variables_cont <- c(
+  "ncrf3_diag.number_of_days_in_itu.txt",
+  "ncrf3_diag.number_of_days_on_ventilator.txt",
+  "ncrf3_diag.continuous_number_of_days_in_any_hospital.txt",
+  "ncrf3_diag.numbers_of_days_in_rehabilitation.txt",
+  "ncrf3_diag.modified_rankin_score.txt"
+)
+
+# Check length of vector (must match dim(limits_mat)[1])
+length(variables_cont)
 ```
 
-# Cleaning
-
-Inspect variables as they are all textual and require individual cleaning
-```{r COVIDCNS inspect variables}
+Inspect continuous variables
+Use the question labels to ascertain context at this point and check for obvious outliers
+The percentiles can be modified to exclude nonanswer values as appropriate to your data
+```{r Initial inspect cont vars}
 dat %>%
-  tbl_summary(include = c(
-    ncrf3_diag.any_other_issue_of_significance_to_note.txt,
-    ncrf3_diag.continuous_number_of_days_in_any_hospital.txt,
-    ncrf3_diag.number_of_days_in_itu.txt
-                          ),
-              missing_text = "Missing")
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
 ```
 
-# Recode incorrect variables
-Can be removed after data recoded in qualtrics and after data export
-If variables are found to be incorrect:
-Report the error in the qualtrics issues spreadsheet
-Add as action point on teams with yourself and Molly tagged
-Recode the variable yourself using `case_when` as below
-Continue cleaning your script with the recoded variable until fixed from source
+Check for text in continuous variables
+This chunk outputs only the columns and rows that contain text
+```{r Cont vars check text}
+# Function to check for any text or spaces
+check_for_string <- function(x){
+  sum(str_detect(x, "[a-zA-Z\\s\\(\\)\\/\\']+"), na.rm = TRUE) > 0}
 
-## Number of days in ITU
-```{r COVIDCNS recode number of days in ITU variable}
-dat <- dat %>% 
+dat %>%
+  # select all continuous
+  select(all_of(variables_cont)) %>%
+  # select only vars containing text
+  select(where(check_for_string)) %>%
+  # filter only rows containing text
+  filter(
+    if_any(where(check_for_string),
+           ~str_detect(., "[a-zA-Z\\s\\(\\)\\/\\']+")
+           )
+    )
+```
+
+Manually clean continuous variables if necessary
+IF the text data contains useful info that can be converted to numeric, clean manually
+REMOVE THIS CHUNK IF NOT NECESSARY
+```{r Cont vars manual clean}
+dat <- dat %>%
   mutate(across(ncrf3_diag.number_of_days_in_itu.txt,
-                ~case_when(
-                  str_detect(ncrf3_diag.number_of_days_in_itu.txt, "none") |
-                    str_detect(ncrf3_diag.number_of_days_in_itu.txt, "None") ~ "0",
-                  str_detect(ncrf3_diag.number_of_days_in_itu.txt, " days") |
-                    str_detect(ncrf3_diag.number_of_days_in_itu.txt, " Days") ~ "",
-                  str_detect(ncrf3_diag.number_of_days_in_itu.txt, "n/a") |
-                    str_detect(ncrf3_diag.number_of_days_in_itu.txt, "N/A") ~ "-555",
-                  str_detect(ncrf3_diag.number_of_days_in_itu.txt, "n/k") |
-                    str_detect(ncrf3_diag.number_of_days_in_itu.txt, "N/K") | 
-                  str_detect(ncrf3_diag.number_of_days_in_itu.txt, "/") ~ "-888",
-                  TRUE ~ .)))
-```
+                ~case_when(str_detect(ncrf3_diag.number_of_days_in_itu.txt, "13 days \\(11\\/08\\/21 - 23\\/08\\/21\\)") ~ "13",
+                           str_detect(ncrf3_diag.number_of_days_in_itu.txt, "3 weeks") ~ "3",
+                           TRUE ~ .)
+                )
+         )
 
-### Recheck Number of days in ITU coding
-```{r recheck coding for number of days in ITU coding}
-dat %>%
-  select(all_of(starts_with("ncrf3_diag.number_of_days_in_itu.txt"))) %>%
-  tbl_summary(missing_text = "Missing")
-```
+dat <- dat %>%
+  mutate(across(ncrf3_diag.number_of_days_on_ventilator.txt,
+                ~case_when(str_detect(ncrf3_diag.number_of_days_on_ventilator.txt, "~ 25-30 days") ~ "28",
+                           str_detect(ncrf3_diag.number_of_days_on_ventilator.txt, "1 month") ~ "30",
+                           str_detect(ncrf3_diag.number_of_days_on_ventilator.txt, "11 days \\(13\\/8\\/21 - 23\\/8\\/21\\)") ~ "11",
+                           str_detect(ncrf3_diag.number_of_days_on_ventilator.txt, "2 weeks") ~ "14",
+                           str_detect(ncrf3_diag.number_of_days_on_ventilator.txt, "1-2") ~ "2",
+                           TRUE ~ .)
+                )
+         )
 
-
-
-## Number of Continuous Days in the Hospital
-```{r COVIDCNS recode number of days in the hospital}
-dat <- dat %>% 
+dat <- dat %>%
   mutate(across(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt,
-                ~case_when(
-                  str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, " days") |
-                    str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, " day") |
-                    str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, " day ") |
-                    str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, " days ") |
-                    str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, " Days") ~ "",
-                  str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, "11 ") ~ "11",
-                  str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, "110 ") ~ "110",
-                  str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, "18 ") ~ "18",
-                  str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, "03") ~ "3",
-                  str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, "38 ") ~ "38",
-                  TRUE ~ .)))
+                ~case_when(str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, "Admission 2 - 23/03/2020 > 29/05/2020") ~ "54",
+                           str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, "8 days 13\\/08\\/2021-20\\/08\\/2021") ~ "8",
+                           str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, "11 \\(16\\/08\\/21 - 26\\/08\\/21\\)") ~ "11",
+                           str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, "38 \\(not including time in rehab unit\\)") ~ "38",
+                           str_detect(ncrf3_diag.continuous_number_of_days_in_any_hospital.txt, ">126") ~ "126",
+                           TRUE ~ .)
+                )
+         )
+
+dat <- dat %>%
+  mutate(across(ncrf3_diag.numbers_of_days_in_rehabilitation.txt,
+                ~case_when(str_detect(ncrf3_diag.numbers_of_days_in_rehabilitation.txt, "8 days in Addenbrooke\\'s \\- patient repatriated to DGH for ongoing rehabilitation") ~ "54",
+                           TRUE ~ .)
+                )
+         )
 ```
 
-### Recheck number of Continuous Days in the Hospital
-```{r recheck recode number of days in the hospital}
+
+
+
+Remove text from numeric variables automatically
+ONLY use this chunk if there is no information to be gained from the text
+```{r Cont vars remove text}
+dat <- dat %>%
+  mutate(across(all_of(variables_cont),
+                ~str_remove(., "[a-zA-Z\\s\\(\\)\\/\\']+")
+                )
+         )
+```
+
+Remove empty variables from variables_cont
+These all contain only NAs and serve only to interfere with processing
+```{r Cont vars remove empty}
+variables_empty <- dat %>%
+  select(all_of(variables_cont)) %>%
+  select(where(~all(is.na(.))
+               )
+         ) %>%
+  colnames()
+
+variables_cont <- variables_cont[!variables_cont %in% variables_empty]
+length(variables_cont)
+```
+
+Mutate variables to numeric after cleaning out text
+This step is necessary to check for non-integer values
+If you have correctly cleaned them above, this chunk should not have any failures to parse
+```{r Cont vars to numeric}
+dat <- dat %>%
+  mutate(across(all_of(variables_cont),
+                ~as.numeric(.)
+                )
+         )
+```
+
+```{r}
+
+```
+
+
+Transform nonanswer values to 3 digit
+```{r Cont vars nonanswer}
+dat <- dat %>%
+  mutate(across(where(is.numeric),
+                ~case_when(
+                  . == -55 ~ -555,
+                  . == -77 ~ -777,
+                  . == -88 ~ -888,
+                  . == -99 ~ -999,
+                  TRUE ~ .)
+                )
+         )
+
+
+# Re-add labels after mutate
+dat <- sjlabelled::set_label(dat, question_labels)
+```
+
+# Cleaning Textual Variables
+
+Create vector of text variables
+```{r Vector text vars}
+variables_text <- c(
+  "ncrf3_diag.othertext.txt",
+  "ncrf3_diag.other_pathogen_of_public_interest_detected.txt",
+  "ncrf3_diag.box_provide_report_additional.txt",
+  "ncrf3_diag.any_other_issue_of_significance_to_note.txt"
+)
+```
+
+View text variables
+```{r Check text vars}
 dat %>%
-  select(all_of(starts_with("ncrf3_diag.continuous_number_of_days_in_any_hospital.txt"))) %>%
+  select(all_of(variables_text)) %>%
   tbl_summary(missing_text = "Missing")
 ```
 
 
-## Any other issue
-```{r COVIDCNS recode any other issues}
+# Add Numeric Variables
+
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+Text variables also need to be excluded
+Do not include ID and sample here
+```{r Specify excluded columns}
+exclude_cols_numeric <- c(
+  variables_cont,
+  variables_text
+  )
+```
+
+Add labelled/numeric columns
+Modify the leaders argument if necessary
+```{r Add columns}
 dat <- dat %>% 
-  mutate(across(ncrf3_diag.any_other_issue_of_significance_to_note.txt,
-                ~case_when(
-                  str_detect(ncrf3_diag.any_other_issue_of_significance_to_note.txt, "NA") |
-                    str_detect(ncrf3_diag.any_other_issue_of_significance_to_note.txt, "na") |
-                    str_detect(ncrf3_diag.any_other_issue_of_significance_to_note.txt, "N/A") |
-                    str_detect(ncrf3_diag.any_other_issue_of_significance_to_note.txt, "n/a") ~ "-555",
-                  str_detect(ncrf3_diag.any_other_issue_of_significance_to_note.txt, "aatient") ~ "Patient",
-                  str_detect(ncrf3_diag.any_other_issue_of_significance_to_note.txt, "No ") ~ "No",
-                    TRUE ~ .)))
+  add_labelled_numeric(exclude = exclude_cols_numeric)
+
+# Inspect colnames
+dat %>%
+  colnames()
 ```
 
-### Recheck Any other issue
-```{r recheck recode any other issues}
-dat %>%
-  select(all_of(starts_with("ncrf3_diag.any_other_issue_of_significance_to_note.txt"))) %>%
-  tbl_summary(missing_text = "Missing")
-```
 
 # Save cleaned data
-
-Check colnames before exporting final dataset
-```{r check colnames}
-colnames(dat)
-```
 
 # COVIDCNS
 ```{r Write cleaned COVIDCNS variables to a .rds file}

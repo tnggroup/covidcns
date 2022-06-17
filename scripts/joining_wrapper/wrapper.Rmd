@@ -65,11 +65,6 @@ source(knitr::purl("scripts/assessment_status/combined_website_data.Rmd"))
 
 # baseline
 
-## Age
-```{r Age Cleaning the individual questionnaires}
-source(knitr::purl("scripts/baseline/Age.Rmd"))
-```
-
 ## ALS
 ```{r ALS Cleaning the individual questionnaires}
 source(knitr::purl("scripts/baseline/ALS.Rmd"))
@@ -95,44 +90,9 @@ source(knitr::purl("scripts/baseline/CFS.Rmd"))
 source(knitr::purl("scripts/baseline/Covid19.Rmd"))
 ```
 
-## dem_covidpositive
-```{r dem_covidpositive Cleaning the individual questionnaires}
-source(knitr::purl("scripts/baseline/dem_covidpositive.Rmd"))
-```
-
-## dem_ethnicity
-```{r dem_ethnicity Cleaning the individual questionnaires}
-source(knitr::purl("scripts/baseline/dem_ethnicity.Rmd"))
-```
-
-## dem_highest_qualification
-```{r dem_highest_qualification Cleaning the individual questionnaires}
-source(knitr::purl("scripts/baseline/dem_highest_qualification.Rmd"))
-```
-
-## dem_language
-```{r dem_language Cleaning the individual questionnaires}
-source(knitr::purl("scripts/baseline/dem_language.Rmd"))
-```
-
-## dem_memory
-```{r dem_memory Cleaning the individual questionnaires}
-source(knitr::purl("scripts/baseline/dem_memory.Rmd"))
-```
-
-## dem_quality_life
-```{r dem_quality_life Cleaning the individual questionnaires}
-source(knitr::purl("scripts/baseline/dem_quality_life.Rmd"))
-```
-
-## dem_sex_gender_sexuality
-```{r dem_sex_gender_sexuality Cleaning the individual questionnaires}
-source(knitr::purl("scripts/baseline/dem_sex_gender_sexuality.Rmd"))
-```
-
-## dem_visionhearing
-```{r dem_visionhearing Cleaning the individual questionnaires}
-source(knitr::purl("scripts/baseline/dem_visionhearing.Rmd"))
+## dem
+```{r dem Cleaning the individual questionnaires}
+source(knitr::purl("scripts/baseline/dem.Rmd"))
 ```
 
 ## facial
