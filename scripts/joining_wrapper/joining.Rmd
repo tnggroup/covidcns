@@ -857,7 +857,8 @@ Select columns for joining
 ncrf2_med_covidcns_clean_selected <-
   ncrf2_med_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 ncrf2_med_covidcns_clean_selected %>%
@@ -1248,7 +1249,8 @@ Select columns for joining
 ncrf3_compli_covidcns_clean_selected <-
   ncrf3_compli_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 ncrf3_compli_covidcns_clean_selected %>%
@@ -1280,7 +1282,8 @@ Select columns for joining
 ncrf3_diag_covidcns_clean_selected <-
   ncrf3_diag_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 ncrf3_diag_covidcns_clean_selected %>%
@@ -1554,12 +1557,47 @@ Summary tables to check missingness before joining to website data
 ```{r Summary table qualtrics website}
 covidcns_sumtable <- data_joined %>%
   
-  # Coalesce controls into single category
+  # Remove vaccine and noncovid controls
   mutate(across(case_control_vaccine,
-                ~case_when(str_detect(case_control_vaccine, "Control") ~ "Control",
+                ~case_when(str_detect(case_control_vaccine, "Vaccine") ~ NA_character_,
+                           . == "Control" ~ NA_character_,
+                           . == "Control: COVID-19 negative (e.g. pneumonia, sepsis)" ~ NA_character_,
                            TRUE ~ .)
                 )
          ) %>%
+
+  # Remove pts missing cognitron
+  filter(!is.na(Component_global)) %>%
+  
+  # Window date of inpatient admission
+  mutate(
+    ncrf1_admission_windowed =
+      case_when(ncrf1_admission.date_of_inpatient_admission.txt >= as.POSIXct("2020-03-01") & ncrf1_admission.date_of_inpatient_admission.txt <= as.POSIXct("2020-09-01")  ~ "March 2020 to August 2020",
+                
+                ncrf1_admission.date_of_inpatient_admission.txt >= as.POSIXct("2020-09-01") & ncrf1_admission.date_of_inpatient_admission.txt < as.POSIXct("2021-03-01")  ~ "September 2020 to February 2021",
+                
+                ncrf1_admission.date_of_inpatient_admission.txt >= as.POSIXct("2021-03-01") & ncrf1_admission.date_of_inpatient_admission.txt < as.POSIXct("2021-09-01")  ~ "March 2021 to August 2021",
+                
+                ncrf1_admission.date_of_inpatient_admission.txt >= as.POSIXct("2021-09-01") & ncrf1_admission.date_of_inpatient_admission.txt < as.POSIXct("2022-03-01")  ~ "September 2021 to February 2022",
+                is.na(ncrf1_admission.date_of_inpatient_admission.txt) ~ "Missing",
+                ncrf1_admission.date_of_inpatient_admission.txt < as.POSIXct("2020-03-01") | ncrf1_admission.date_of_inpatient_admission.txt >= as.POSIXct("2022-03-01")  ~ "Other"
+                )
+    ) %>%
+  
+  # Mutate to ordered factor
+  mutate(
+    ncrf1_admission_windowed = 
+      factor(
+        ncrf1_admission_windowed,
+        levels = c("March 2020 to August 2020",
+                   "September 2020 to February 2021",
+                   "March 2021 to August 2021",
+                   "September 2021 to February 2022",
+                   "Other",
+                   "Missing"),
+        ordered = TRUE
+        )
+    ) %>%
   
   # Convert NAs to explicit factor to show in table per category
   dplyr::mutate(dem.sex_at_birth = factor(dem.sex_at_birth) %>%
@@ -1577,19 +1615,81 @@ covidcns_sumtable <- data_joined %>%
                           dem.sex_at_birth,
                           ncrf1_vital.admission_severity_worst_covid19,
                           ncrf1_comorbid.clinical_frailty_scale,
-                          ncrf1_admission.date_of_inpatient_admission.txt),
+                          ncrf1_admission_windowed,
+                          Component_global,
+                          Component_accuracy,
+                          Component_rt),
               type = all_continuous() ~ "continuous2",
               missing = "no",
-              statistic = list(all_continuous() ~ c("{median} ({p25}, {p75})", "{N_miss} ({p_miss}%)"))
+              statistic = list(all_continuous() ~ c("{median} ({p25}, {p75})", "{N_miss} ({p_miss}%)")),
+              label = list(dem.dob_age ~ "Age",
+                           dem.sex_at_birth ~ "Sex",
+                           ncrf1_vital.admission_severity_worst_covid19 ~ "COVID19 Severity",
+                           ncrf1_comorbid.clinical_frailty_scale ~ "Clinical Frailty Score",
+                           ncrf1_admission_windowed ~ "Date of Inpatient Admission",
+                           Component_global ~ "Cognitron Global Score",
+                           Component_accuracy ~ "Cognitron Accuracy Score",
+                           Component_rt ~ "Cognitron RT Score")
               ) %>%
   modify_table_body(dplyr::mutate,
                     label = ifelse(label == "N missing (% missing)", "Missing", label)
-                    )
+                    ) %>%
+  bold_labels()
 
 # Save table
-#gt::gtsave(as_gt(covidcns_sumtable), file = "covidcns_sumtable.png")
+gt::gtsave(as_gt(covidcns_sumtable), file = "covidcns_sumtable.png")
 covidcns_sumtable
 ```
+
+Univariate regression table
+```{r}
+data_joined %>%
+  
+  # Remove vaccine and noncovid controls
+  mutate(across(case_control_vaccine,
+                ~case_when(str_detect(case_control_vaccine, "Vaccine") ~ NA_character_,
+                           . == "Control" ~ NA_character_,
+                           . == "Control: COVID-19 negative (e.g. pneumonia, sepsis)" ~ NA_character_,
+                           TRUE ~ .)
+                )
+         ) %>%
+
+  # Remove pts missing cognitron
+  filter(!is.na(Component_global)) %>%
+  
+  # Window date of inpatient admission
+  mutate(
+    ncrf1_admission_windowed =
+      case_when(ncrf1_admission.date_of_inpatient_admission.txt >= as.POSIXct("2020-03-01") & ncrf1_admission.date_of_inpatient_admission.txt <= as.POSIXct("2020-09-01")  ~ "March 2020 to September 2020",
+                
+                ncrf1_admission.date_of_inpatient_admission.txt >= as.POSIXct("2020-09-01") & ncrf1_admission.date_of_inpatient_admission.txt < as.POSIXct("2021-03-01")  ~ "September 2020 to March 2021",
+                
+                ncrf1_admission.date_of_inpatient_admission.txt >= as.POSIXct("2021-03-01") & ncrf1_admission.date_of_inpatient_admission.txt < as.POSIXct("2021-09-01")  ~ "March 2021 to September 2021",
+                
+                ncrf1_admission.date_of_inpatient_admission.txt >= as.POSIXct("2021-09-01") & ncrf1_admission.date_of_inpatient_admission.txt < as.POSIXct("2022-03-01")  ~ "September 2021 to March 2022",
+                #is.na(ncrf1_admission.date_of_inpatient_admission.txt) ~ "Missing",
+                #ncrf1_admission.date_of_inpatient_admission.txt < as.POSIXct("2020-03-01") | ncrf1_admission.date_of_inpatient_admission.txt >= as.POSIXct("2022-03-01")  ~ "Other"
+                )
+    ) %>%
+  select(Component_global,
+         dem.dob_age,
+         dem.sex_at_birth,
+         ncrf1_vital.admission_severity_worst_covid19,
+         ncrf1_admission_windowed,
+         ncrf1_comorbid.clinical_frailty_scale
+         ) %>%
+  tbl_uvregression(
+    method = lm,
+    y = Component_global,
+    label = list(dem.dob_age ~ "Age",
+                 dem.sex_at_birth ~ "Sex",
+                 ncrf1_vital.admission_severity_worst_covid19 ~ "COVID19 Severity",
+                 ncrf1_comorbid.clinical_frailty_scale ~ "Clinical Frailty Score",
+                 ncrf1_admission_windowed ~ "Date of Inpatient Admission")
+  ) %>%
+  bold_labels()
+```
+
 
 Select columns for data extraction
 ```{r matching Select columns}
