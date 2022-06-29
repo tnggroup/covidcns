@@ -1,5 +1,5 @@
 ---
-title: "COVIDCNS GCS Outpatient Cleaning Script"
+title: "COVIDCNS GCS Inpatient Cleaning Script"
 author: "Zain Ahmad"
 date: "29/06/2022"
 output: html_document
@@ -66,7 +66,7 @@ Ensure that your credentials directory is correctly located
 source(file = "scripts/credentials/paths.R")
 ```
 
-# Read in the data: COVIDCNS Glasgow Coma Scale Outpatient
+# Read in the data: COVIDCNS Glasgow Coma Scale Inpatient
 
 Do not change variable names from the NLP names that are produced by the extraction
 EXCEPT in exceptional circumstances
@@ -80,7 +80,7 @@ Document ANY changes to variable names in the Teams Data Issues Tracker
 COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/core_neuro/gcs_outp_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/core_neuro/gcs_inp_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -238,9 +238,9 @@ keys <- c(
   1
   )
 sum_vars <- c(
-  "gcs_outp.eyes",
-  "gcs_outp.movements",
-  "gcs_outp.verbal"
+  "gcs_inp.eyes",
+  "gcs_inp.movements",
+  "gcs_inp.verbal"
   )
 ```
 
@@ -269,7 +269,7 @@ sum_out <- sumscores(input = dat,
 Add sumscores as new column
 ```{r Add sumscores}
 dat <- dat %>% 
-  mutate(gcs_outp.gcs_score = sum_out$scores)
+  mutate(gcs_inp.gcs_score = sum_out$scores)
 ```
 
 
@@ -303,6 +303,6 @@ dat %>%
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/gcs_outp_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/gcs_inp_covidcns_clean.rds")
     )
 ```
