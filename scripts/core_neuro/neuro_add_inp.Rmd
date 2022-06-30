@@ -1,0 +1,242 @@
+---
+title: "COVIDCNS Neuro Additional Inpatient Cleaning Script"
+author: "Zain Ahmad"
+date: "30/06/2022"
+output: html_document
+---
+
+
+All arguments should be in their own row, including the first argument
+Closing bracket should have its own row
+Functions with a single argument can have this on the same line
+One argument can be hashed out per line for debugging errors
+
+Chunk names should be all lower case except capitalised first word
+Chunk names MUST be unique
+Points requiring user input are enclosed thus <>
+
+Ensure that you have deleted/untracked .DS_Store before your initial commit
+Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+Add the add_labelled_numeric function - used to convert character variables into numeric variables
+Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+Add the recode_check function - used to check for implausible values when recoding
+Add the imp_clean function - used to check variables for implausible values
+Add the cont_clean function - used to check continuous variables for implausible values
+```{r Read in functions}
+source(file = "scripts/functions/add_labelled_numeric.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/recode_check.R")
+source(file = "scripts/functions/cont_clean.R")
+```
+
+Use package_check to install and load dependencies
+Load tidyverse last
+```{r Install load dependencies}
+packages <- c("sjlabelled",
+              "Amelia",
+              "gtsummary",
+              "tidyverse")
+
+package_check(packages)
+```
+
+Read in file with path to ilovecovidcns channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Source filepath to ilovecovidcns OneDrive}
+source(file = "scripts/credentials/paths.R")
+```
+
+# Read in the data: Neuro Additional Questions (Inpatient)
+
+Do not change variable names from the NLP names that are produced by the extraction
+EXCEPT in exceptional circumstances
+Document ANY changes to variable names in the Teams Data Issues Tracker
+
+- For variable names, use ONLY 'questionnaire.variable_name' syntax
+- When using pipe operator '%>%', each function should begin on a new line for clarity
+- Do not add empty lines at the beginning or end of a chunk to keep the markdown as short as possible
+- Use only tidyverse functions wherever possible, they run faster than base R
+
+COVIDCNS data
+```{r COVIDCNS load data}
+covidcns_dat <- read_rds(
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/core_neuro/neuro_add_inp_covid_cns.rds")
+  )
+  
+# Check variable names in dataframe
+covidcns_dat %>%
+  colnames()
+
+# Inspect dimensions of dataframe 
+covidcns_dat %>%
+  dim()
+
+# Report counts of duplicates in ID column
+covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(., externalDataReference)
+
+# Report number of IDs to be dropped
+covidcns_excluded <- covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(., externalDataReference) %>%
+  select("Dropped IDs" = "n") %>%
+  colSums() + 1
+
+covidcns_excluded
+```
+
+Create new df with renamed and de-duplicated/NA-removed ID column
+```{r COVIDCNS select}
+covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
+  dplyr::rename(
+    "ID" = "externalDataReference"
+  )
+
+# Inspect colnames
+covidcns_dat_id %>%
+  colnames()
+
+# Inspect dimensions of new data set
+covidcns_dat_id %>%
+  dim()
+```
+
+Check missingness by missmap
+```{r COVIDCNS missmap}
+covidcns_dat_id %>% 
+  missmap()
+```
+
+Create dat as copy of covidcns_dat_id for brevity
+This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
+```{r Create dat}
+dat <- covidcns_dat_id 
+```
+
+Extract and save labels
+```{r Extract save labels}
+# Save variable labels
+question_labels <- sjlabelled::get_label(dat)
+
+# Save value labels
+answer_labels <- sjlabelled::get_labels(dat, values = "as.name")
+
+# Change -77 to -777 in value labels names
+chng <- rapply(sapply(answer_labels, names),
+               function(x) ifelse(x==-77, -777, x),
+               how = "replace")
+
+# Add multiple lines here as necessary to change other nonanswer values in labels
+# chng <- rapply(chng,
+#                function(x) ifelse(x==-88, -888, x),
+#                how = "replace")
+
+# Substitute new value labels into answer_labels
+for (i in 1:length(chng)){
+  if(!is.null(answer_labels[[i]])){
+  names(answer_labels[[i]]) <- chng[[i]]
+  }
+}
+```
+
+Recode Non-answer values to 3 digits
+-555 'Not applicable' response from participant
+-777 Seen but not answered
+-888 Don't know
+-999 Prefer not to answer/Prefer not to say
+`NA` Were not shown the question (genuinely missing value)
+When we code someone as being 'not applicable' by deduction, we use `NA_real_`
+```{r Recode NA values}
+dat <- dat %>%
+  mutate(across(where(is.numeric),
+                ~case_when(
+                  . == -55 ~ -555,
+                  . == -77 ~ -777,
+                  . == -88 ~ -888,
+                  . == -99 ~ -999,
+                  TRUE ~ .)
+                )
+         )
+
+# Re-add labels after mutate
+dat <- sjlabelled::set_label(dat, question_labels)
+dat <- sjlabelled::set_labels(dat, labels = answer_labels)
+```
+
+Create list of all labels and attributes
+This chunk supersedes all categorical/numeric cleaning
+It gives you an output of c(the question label, all value-label pairs)
+for each variable
+Check for errors in the output of this chunk, including:
+- Label spelling errors (for questions and answers)
+- Incorrect values
+- Mismatches between labels and values
+- Scale errors
+- Variable naming issues from the data extraction
+- Any other issues you can see
+All issues/changes need to be logged as a to-do on Teams
+At this point, you also need to pick out any continuous, date or text variables 
+to be cleaned in the later chunks
+```{r List labels attrs}
+label_list <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
+label_list
+```
+
+
+# Add Numeric Variables
+
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+Text variables also need to be excluded
+Do not include ID and sample here
+```{r Specify excluded columns}
+exclude_cols_numeric <- c(
+  "neuro_add_inp.if_abnormal.txt"
+  )
+```
+
+Add labelled/numeric columns
+Modify the leaders argument if necessary
+```{r Add columns}
+dat <- dat %>% 
+  add_labelled_numeric(exclude = exclude_cols_numeric)
+
+# Inspect colnames
+dat %>%
+  colnames()
+```
+
+
+# Save cleaned data
+
+# COVIDCNS
+```{r Write cleaned COVIDCNS variables to a .rds file}
+dat %>%
+  saveRDS(
+    file = paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/neuro_add_inp_covidcns_clean.rds")
+    )
+```
