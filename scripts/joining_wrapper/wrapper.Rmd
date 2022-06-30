@@ -63,6 +63,8 @@ source(file = "scripts/credentials/paths.R")
 source(knitr::purl("scripts/assessment_status/combined_website_data.Rmd"))
 ```
 
+
+
 # baseline
 
 ## ALS
@@ -155,6 +157,22 @@ source(knitr::purl("scripts/baseline/UPDRS.Rmd"))
 source(knitr::purl("scripts/baseline/vaccine.Rmd"))
 ```
 
+
+
+# clin_neuro
+
+## clinical_na_inp
+```{r clinical_na_inp Cleaning the individual questionnaires}
+source(knitr::purl("scripts/clin_neuro/clinical_na_inp.Rmd"))
+```
+
+## clinical_na_outp
+```{r clinical_na_outp Cleaning the individual questionnaires}
+source(knitr::purl("scripts/clin_neuro/clinical_na_outp.Rmd"))
+```
+
+
+
 # cognitron_pipeline
 
 ## main
@@ -162,10 +180,23 @@ source(knitr::purl("scripts/baseline/vaccine.Rmd"))
 source(knitr::purl("scripts/cognitron_pipeline/main.R"))
 ```
 
+
+
 # core_neuro
-## fourAT_outpatient
-```{r fourAT_outpatient Cleaning the individual questionnaires}
-source(knitr::purl("scripts/core_neuro/fourAT_outpatient.Rmd"))
+
+## fourat_inp
+```{r fourat_inp Cleaning the individual questionnaires}
+source(knitr::purl("scripts/core_neuro/fourat_inp.Rmd"))
+```
+
+## fourat_outp
+```{r fourat_outp Cleaning the individual questionnaires}
+source(knitr::purl("scripts/core_neuro/fourat_outp.Rmd"))
+```
+
+## gcs_inp
+```{r gcs_inp Cleaning the individual questionnaires}
+source(knitr::purl("scripts/core_neuro/gcs_inp.Rmd"))
 ```
 
 ## gcs_outp
@@ -173,10 +204,27 @@ source(knitr::purl("scripts/core_neuro/fourAT_outpatient.Rmd"))
 source(knitr::purl("scripts/core_neuro/gcs_outp.Rmd"))
 ```
 
-## NIS_outpatient
-```{r NIS_outpatient Cleaning the individual questionnaires}
-source(knitr::purl("scripts/core_neuro/NIS_outpatient.Rmd"))
+## neuro_add_inp
+```{r neuro_add_inp Cleaning the individual questionnaires}
+source(knitr::purl("scripts/core_neuro/neuro_add_inp.Rmd"))
 ```
+
+## neuro_add_outp
+```{r neuro_add_outp Cleaning the individual questionnaires}
+source(knitr::purl("scripts/core_neuro/neuro_add_outp.Rmd"))
+```
+
+## nis_outp
+```{r nis_outp Cleaning the individual questionnaires}
+source(knitr::purl("scripts/core_neuro/nis_outp.Rmd"))
+```
+
+## nis_inp
+```{r nis_inp Cleaning the individual questionnaires}
+source(knitr::purl("scripts/core_neuro/nis_inp.Rmd"))
+```
+
+
 
 # mh_case_report
 
@@ -184,6 +232,8 @@ source(knitr::purl("scripts/core_neuro/NIS_outpatient.Rmd"))
 ```{r MoCA_inpatient Cleaning the individual questionnaires}
 source(knitr::purl("scripts/mh_case_report/MoCA_inpatient.Rmd"))
 ```
+
+
 
 # moca
 
@@ -196,6 +246,8 @@ source(knitr::purl("scripts/moca/cognitron_outp_info.Rmd"))
 ```{r MoCA_outpatient Cleaning the individual questionnaires}
 source(knitr::purl("scripts/moca/MoCA_outpatient.Rmd"))
 ```
+
+
 
 # neuro_case_report
 
@@ -258,6 +310,8 @@ source(knitr::purl("scripts/neuro_case_report/ncrf3_compli.Rmd"))
 ```{r ncrf3_diag Cleaning the individual questionnaires}
 source(knitr::purl("scripts/neuro_case_report/ncrf3_diag.Rmd"))
 ```
+
+
 
 # Delete all .R files created
 ```{bash Delete .R files}
