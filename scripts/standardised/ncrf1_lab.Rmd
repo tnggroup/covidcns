@@ -1,5 +1,5 @@
 ---
-title: "COVIDCNS Insert Title Here"
+title: "COVIDCNS NCRF1 Lab Results Cleaning Script"
 author: "Insert Your Full Name Here"
 date: "DD/MM/YYYY"
 output: html_document
@@ -66,7 +66,7 @@ Ensure that your credentials directory is correctly located
 source(file = "scripts/credentials/paths.R")
 ```
 
-# Read in the data: <Full Name of Questionnaire/Demographic>
+# Read in the data: Neuro Case Report Form Module 1 Lab Results
 
 Do not change variable names from the NLP names that are produced by the extraction
 EXCEPT in exceptional circumstances
@@ -80,7 +80,7 @@ Document ANY changes to variable names in the Teams Data Issues Tracker
 COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovecovidcns, <"/data_raw/latest_freeze/location/questionnaire_covid_cns.rds">)
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/neuro_case_report/ncrf1_lab_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -207,77 +207,6 @@ label_list
 ```
 
 
-# Rectifying Incorrect Variable Labelling
-
-Check <incorrect variable> labels
-<Note problem here and report on Teams>
-```{r Check <incorrect variable> labelling}
-dat %>%
-  select(<incorrect variable>) %>%
-  str()
-```
-
-Rename value labels of <incorrect variable>
-```{r Rename <incorrect variable> value labels}
-# Named vector of correct labels
-new_levels_vec <- c("<correct label>" = <value>, "<correct label>" = <value>)
-
-# Assign new labels
-dat$<incorrect variable> <- set_labels(dat$<incorrect variable>, labels = new_levels_vec)
-
-# Remove labels vector
-rm(new_levels_vec)
-```
-
-Recheck <incorrect variable> labelling
-```{r Recheck <incorrect variable> labelling}
-dat %>%
-  select(<incorrect variable>) %>%
-  str()
-```
-
-
-# Recoding Incorrect Variables
-
-View <incorrect variable>
-<Note problem here and report on Teams>
-```{r View <incorrect variable> values and labels}
-attr(dat$<incorrect variable>, "labels")
-```
-
-Recode incorrect variable
-Can be removed after data recoded in qualtrics and after data export
-If variables are found to be incorrect:
-Report the error on Teams
-Recode the variable yourself using `case_when` as below
-Continue cleaning your script with the recoded variable until fixed from source
-DO NOT run this chunk multiple times: it will mess up the variable coding, requiring you to run the script again from the beginning
-```{r Recode <incorrect variable>}
-dat <- dat %>% 
-  mutate(across(<incorrect variable>,
-                ~case_when(
-                  . == <incorrect value> ~ <correct value>,
-                  TRUE ~ .)))
-```
-
-Rename value labels of <incorrect variable>
-```{r Relabel <incorrect variable>}
-# Named vector of correct labels
-new_levels_vec <- c("<correct label>" = <value>, "<correct label>" = <value>)
-
-# Assign new labels
-dat$<incorrect variable> <- set_labels(dat$<incorrect variable>, labels = new_levels_vec)
-
-# Remove labels vector
-rm(new_levels_vec)
-```
-
-Recheck variable coding
-```{r Recheck <incorrect variable> values and labels}
-attr(dat$<incorrect variable>, "labels")
-```
-
-
 # Cleaning Continuous Variables
 
 Create vector of continuous variables
@@ -285,7 +214,37 @@ Create vector of continuous variables
 etc. to make your life easier when creating limits_mat)
 ```{r Create cont vars vector}
 variables_cont <- c(
-  "<questionnaire.variable_name>"
+  "ncrf1_lab.hemoglobin",
+  "ncrf1_lab.wbc_count",
+  "ncrf1_lab.hematocrit",
+  "ncrf1_lab.platelets",
+  "ncrf1_lab.apttaptr",
+  "ncrf1_lab.pt",
+  "ncrf1_lab.inr",
+  "ncrf1_lab.astsgot",
+  "ncrf1_lab.total_bilirubin",
+  "ncrf1_lab.urea",
+  "ncrf1_lab.lactate",
+  "ncrf1_lab.po2",
+  "ncrf1_lab.lowest_po2",
+  "ncrf1_lab.pco2",
+  "ncrf1_lab.csf_wcc",
+  "ncrf1_lab.csf_protein",
+  "ncrf1_lab.creatinine",
+  "ncrf1_lab.sodium",
+  "ncrf1_lab.potassium",
+  "ncrf1_lab.procalcitonin",
+  "ncrf1_lab.crp",
+  "ncrf1_lab.ldh",
+  "ncrf1_lab.creatine_kinase",
+  "ncrf1_lab.troponin",
+  "ncrf1_lab.esr",
+  "ncrf1_lab.ddimer",
+  "ncrf1_lab.ferritin",
+  "ncrf1_lab.ph",
+  "ncrf1_lab.bicarbonate",
+  "ncrf1_lab.csf_rcc",
+  "ncrf1_lab.csfserum_glucose"
 )
 
 # Check length of vector (must match dim(limits_mat)[1])
@@ -297,10 +256,50 @@ Use the question labels to ascertain context at this point and check for obvious
 The percentiles can be modified to exclude nonanswer values as appropriate to your data
 ```{r Initial inspect cont vars}
 dat %>%
-  select(all_of(variables_cont)) %>%
+  select(all_of("ncrf1_lab.apttaptr")) %>%
   tbl_summary(
     missing_text = "Missing",
     statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
+```
+
+Detangle APTT and APTR and separate into 2 variables
+```{r Detangle APTT APTR}
+dat <- dat %>%
+  separate(ncrf1_lab.apttaptr, c("ncrf1_lab.aptt", "ncrf1_lab.aptr"), "/") %>%
+  mutate(across(ncrf1_lab.aptr,
+                ~case_when(str_detect(ncrf1_lab.aptt, "^0.") ~ ncrf1_lab.aptt,
+                           str_detect(ncrf1_lab.aptt, "^1.") ~ ncrf1_lab.aptt,
+                           TRUE ~ .)
+                )
+         ) %>%
+  mutate(across(ncrf1_lab.aptt,
+                ~case_when(str_detect(ncrf1_lab.aptt, "^0.") ~ NA_character_,
+                           str_detect(ncrf1_lab.aptt, "^1.") ~ NA_character_,
+                           TRUE ~ .)
+                )
+         )
+
+```
+
+Manually clean APTT
+```{r APTT manual clean}
+dat <- dat %>%
+  mutate(across(ncrf1_lab.aptt,
+                ~case_when(str_detect(ncrf1_lab.aptt, "-36.0") ~ "28.3",
+                           TRUE ~ .)
+                )
+         )
+```
+
+Subset variables_cont for manual cleaning
+```{r Subset variables_cont}
+variables_cont_man <- c(
+  "ncrf1_lab.wbc_count",
+  "ncrf1_lab.platelets",
+  "ncrf1_lab.pt",
+  "ncrf1_lab.total_bilirubin",
+  "ncrf1_lab.ddimer"
+)
 ```
 
 Check for text in continuous variables
@@ -312,7 +311,7 @@ check_for_string <- function(x){
 
 dat %>%
   # select all continuous
-  select(all_of(variables_cont)) %>%
+  select(all_of(variables_cont_man)) %>%
   # select only vars containing text
   select(where(check_for_string)) %>%
   # filter only rows containing text
@@ -328,9 +327,89 @@ IF the text data contains useful info that can be converted to numeric, clean ma
 REMOVE THIS CHUNK IF NOT NECESSARY
 ```{r Cont vars manual clean}
 dat <- dat %>%
-  mutate(across(<questionnaire.variable_name>,
-                ~case_when(str_detect(<questionnaire.variable_name>, "<pattern>") ~ "<1>",
+  mutate(across(ncrf1_lab.pt,
+                ~case_when(str_detect(ncrf1_lab.pt, "H") ~ "13.5",
                            TRUE ~ .)
+                )
+         )
+
+dat <- dat %>%
+  mutate(across(ncrf1_lab.total_bilirubin,
+                ~case_when(str_detect(ncrf1_lab.total_bilirubin, "6 ") ~ "6",
+                           str_detect(ncrf1_lab.total_bilirubin, "15 ") ~ "15",
+                           TRUE ~ .)
+                )
+         )
+
+dat <- dat %>%
+  mutate(across(ncrf1_lab.ddimer,
+                ~case_when(str_detect(ncrf1_lab.ddimer, ">18000 ug/L H <500") ~ "18000",
+                           TRUE ~ .)
+                )
+         )
+
+dat <- dat %>%
+  mutate(across(all_of(variables_cont_man),
+                ~str_remove(., "x10\\^9\\/L")
+                )
+         )
+
+dat <- dat %>%
+  mutate(across(all_of(variables_cont_man),
+                ~str_remove(., "[xX]10\\(9\\)")
+                )
+         )
+```
+
+Add aptt and aptr to variables_cont
+```{r Reset variables_cont}
+variables_cont <- c(
+  "ncrf1_lab.hemoglobin",
+  "ncrf1_lab.wbc_count",
+  "ncrf1_lab.hematocrit",
+  "ncrf1_lab.platelets",
+  "ncrf1_lab.aptt",
+  "ncrf1_lab.aptr",
+  "ncrf1_lab.pt",
+  "ncrf1_lab.inr",
+  "ncrf1_lab.astsgot",
+  "ncrf1_lab.total_bilirubin",
+  "ncrf1_lab.urea",
+  "ncrf1_lab.lactate",
+  "ncrf1_lab.po2",
+  "ncrf1_lab.lowest_po2",
+  "ncrf1_lab.pco2",
+  "ncrf1_lab.csf_wcc",
+  "ncrf1_lab.csf_protein",
+  "ncrf1_lab.creatinine",
+  "ncrf1_lab.sodium",
+  "ncrf1_lab.potassium",
+  "ncrf1_lab.procalcitonin",
+  "ncrf1_lab.crp",
+  "ncrf1_lab.ldh",
+  "ncrf1_lab.creatine_kinase",
+  "ncrf1_lab.troponin",
+  "ncrf1_lab.esr",
+  "ncrf1_lab.ddimer",
+  "ncrf1_lab.ferritin",
+  "ncrf1_lab.ph",
+  "ncrf1_lab.bicarbonate",
+  "ncrf1_lab.csf_rcc",
+  "ncrf1_lab.csfserum_glucose"
+)
+
+# Check length of vector (must match dim(limits_mat)[1])
+length(variables_cont)
+```
+
+Remove all responses of '-' and '/'
+```{r Remove incorrect negative responses}
+dat <- dat %>%
+  mutate(across(all_of(variables_cont),
+                ~case_when(
+                  . == "-" ~ "-77",
+                  . == "/" ~ "-77",
+                  TRUE ~ .)
                 )
          )
 ```
@@ -340,23 +419,9 @@ ONLY use this chunk if there is no information to be gained from the text
 ```{r Cont vars remove text}
 dat <- dat %>%
   mutate(across(all_of(variables_cont),
-                ~str_remove(., "[a-zA-Z\\s]+")
+                ~str_remove(., "[a-zA-Z\\s\\/\\<\\>]+")
                 )
          )
-```
-
-Remove empty variables from variables_cont
-These all contain only NAs and serve only to interfere with processing
-```{r Cont vars remove empty}
-variables_empty <- dat %>%
-  select(all_of(variables_cont)) %>%
-  select(where(~all(is.na(.))
-               )
-         ) %>%
-  colnames()
-
-variables_cont <- variables_cont[!variables_cont %in% variables_empty]
-length(variables_cont)
 ```
 
 Mutate variables to numeric after cleaning out text
@@ -388,34 +453,19 @@ dat <- sjlabelled::set_label(dat, question_labels)
 dat <- sjlabelled::set_labels(dat, labels = answer_labels)
 ```
 
+```{r}
+read_tsv("lab_results_rr.txt")
+```
+
+
 Create matrix of limits for continuous variables
-Matrix is series of vectors (lower, upper)
-Define limits for variable and list reasoning below
-<Variable type 1>: <any explanation required>
-- Lower: <limit> <justification>
-- Upper: <limit> <justification>
-
-<Variable type 2>: <any explanation required>
-- Lower: <limit> <justification>
-- Upper: <limit> <justification>
+Reference ranges for all blood values above have been obtained from Liverpool University Hospital NHS Trust
 ```{r Create matrix limits}
-# Create a vector of limits for each type of variable using rep
-limits_<variable type 1> <- rep(c(<lower>, <upper>), <number of vars>) 
-limits_<variable type 2> <- rep(c(<lower>, <upper>), <number of vars>) # make sure the number of variables add up!!
-# add more as necessary
-# limits_age <- rep(c(0, 117), <number of vars>)
+# Read in tsv of reference ranges
+lab_results_rr <- read_tsv("lab_results_rr.txt")
 
-# Combine the vectors together
-limits_vec <- c(limits_<variable type 1>,
-                limits_<variable type 2>
-                # add more as necessary
-                )
-
-# Create matrix, matrices are filled by columns, not rows, so must transpose
-limits_mat <- t(matrix(limits_vec, # take values from your vector of limits
-                       nrow = 2, # upper and lower bounds
-                       ncol = length(variables_cont) # number of variables total
-                       ))
+# Create limits matrix
+limits_mat <- as.matrix(lab_results_rr[,4:5])
 
 # Check dimensions
 dim(limits_mat)
@@ -505,8 +555,16 @@ dat %>%
 Create vector of text variables
 ```{r Vector text vars}
 variables_text <- c(
-  "<questionnaire.variable_name>"
-)
+  "ncrf1_lab.csf_autoantibodies",
+  "ncrf1_lab.csf_pcr",
+  "ncrf1_lab.serum_autoantibodies",
+  "ncrf1_lab.csf_antiviral_antibodies",
+  "ncrf1_lab.csf_autoantibodies_.txt",
+  "ncrf1_lab.csf_pcr_.txt",
+  "ncrf1_lab.serum_autoantibodies_.txt",
+  "ncrf1_lab.csf_antiviral_antibodies_.txt",
+  "ncrf1_lab.any_other_issue_of_significance_to_note.txt"
+  )
 ```
 
 View text variables

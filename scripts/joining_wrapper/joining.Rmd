@@ -375,38 +375,6 @@ gad7_covidcns_clean_selected %>%
 
 
 
-### nis_outp_covidcns_clean
-Read in & variable names
-```{r nis_outp_covidcns_clean Read in data & variable names}
-nis_outp_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/nis_outp_covidcns_clean.rds")
-  )
-
-nis_outp_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r nis_outp_covidcns_clean Dimensions}
-nis_outp_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r nis_outp_covidcns_clean Select columns for joining}
-nis_outp_covidcns_clean_selected <-
-  nis_outp_covidcns_clean %>%
-  select(
-    -all_of(exclude_variables)
-  )
-
-nis_outp_covidcns_clean_selected %>%
-  slice(1:5)
-```
-
-
 ### nonmotor_covidcns_clean
 Read in & variable names
 ```{r nonmotor_covidcns_clean Read in data & variable names}
@@ -696,7 +664,109 @@ vaccine_covidcns_clean_selected %>%
 ```
 
 
+
+## Clin Neuro
+
+
+### clinical_na_inp_covidcns_clean
+Read in & variable names
+```{r clinical_na_inp_covidcns_clean Read in data & variable names}
+clinical_na_inp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/clin_neuro/clinical_na_inp_covidcns_clean.rds")
+  )
+
+clinical_na_inp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r clinical_na_inp_covidcns_clean Dimensions}
+clinical_na_inp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r clinical_na_inp_covidcns_clean Select columns for joining}
+clinical_na_inp_covidcns_clean_selected <-
+  clinical_na_inp_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+clinical_na_inp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### clinical_na_outp_covidcns_clean
+Read in & variable names
+```{r clinical_na_outp_covidcns_clean Read in data & variable names}
+clinical_na_outp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/clin_neuro/clinical_na_outp_covidcns_clean.rds")
+  )
+
+clinical_na_outp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r clinical_na_outp_covidcns_clean Dimensions}
+clinical_na_outp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r clinical_na_outp_covidcns_clean Select columns for joining}
+clinical_na_outp_covidcns_clean_selected <-
+  clinical_na_outp_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+clinical_na_outp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+
 ## Core Neuro
+
+
+### fourat_inp_covidcns_clean
+Read in & variable names
+```{r fourat_inp_covidcns_clean Read in data & variable names}
+fourat_inp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/fourat_inp_covidcns_clean.rds")
+  )
+
+fourat_inp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r fourat_inp_covidcns_clean Dimensions}
+fourat_inp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r fourat_inp_covidcns_clean Select columns for joining}
+fourat_inp_covidcns_clean_selected <-
+  fourat_inp_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+fourat_inp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
 
 ### fourat_outp_covidcns_clean
 Read in & variable names
@@ -730,7 +800,234 @@ fourat_outp_covidcns_clean_selected %>%
 ```
 
 
+### gcs_inp_covidcns_clean
+Read in & variable names
+```{r gcs_inp_covidcns_clean Read in data & variable names}
+gcs_inp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/gcs_inp_covidcns_clean.rds")
+  )
+
+gcs_inp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r gcs_inp_covidcns_clean Dimensions}
+gcs_inp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r gcs_inp_covidcns_clean Select columns for joining}
+gcs_inp_covidcns_clean_selected <-
+  gcs_inp_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+gcs_inp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### gcs_outp_covidcns_clean
+Read in & variable names
+```{r gcs_outp_covidcns_clean Read in data & variable names}
+gcs_outp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/gcs_outp_covidcns_clean.rds")
+  )
+
+gcs_outp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r gcs_outp_covidcns_clean Dimensions}
+gcs_outp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r gcs_outp_covidcns_clean Select columns for joining}
+gcs_outp_covidcns_clean_selected <-
+  gcs_outp_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+gcs_outp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### neuro_add_inp_covidcns_clean
+Read in & variable names
+```{r neuro_add_inp_covidcns_clean Read in data & variable names}
+neuro_add_inp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/neuro_add_inp_covidcns_clean.rds")
+  )
+
+neuro_add_inp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r neuro_add_inp_covidcns_clean Dimensions}
+neuro_add_inp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r neuro_add_inp_covidcns_clean Select columns for joining}
+neuro_add_inp_covidcns_clean_selected <-
+  neuro_add_inp_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+neuro_add_inp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### neuro_add_outp_covidcns_clean
+Read in & variable names
+```{r neuro_add_outp_covidcns_clean Read in data & variable names}
+neuro_add_outp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/neuro_add_outp_covidcns_clean.rds")
+  )
+
+neuro_add_outp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r neuro_add_outp_covidcns_clean Dimensions}
+neuro_add_outp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r neuro_add_outp_covidcns_clean Select columns for joining}
+neuro_add_outp_covidcns_clean_selected <-
+  neuro_add_outp_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+neuro_add_outp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### nis_inp_covidcns_clean
+Read in & variable names
+```{r nis_inp_covidcns_clean Read in data & variable names}
+nis_inp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/nis_inp_covidcns_clean.rds")
+  )
+
+nis_inp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r nis_inp_covidcns_clean Dimensions}
+nis_inp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r nis_inp_covidcns_clean Select columns for joining}
+nis_inp_covidcns_clean_selected <-
+  nis_inp_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+nis_inp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+
+### nis_outp_covidcns_clean
+Read in & variable names
+```{r nis_outp_covidcns_clean Read in data & variable names}
+nis_outp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/nis_outp_covidcns_clean.rds")
+  )
+
+nis_outp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r nis_outp_covidcns_clean Dimensions}
+nis_outp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r nis_outp_covidcns_clean Select columns for joining}
+nis_outp_covidcns_clean_selected <-
+  nis_outp_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+nis_outp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+
 ## mh_case_report
+
+
+### mh_case_report_covidcns_clean
+Read in & variable names
+```{r mh_case_report_covidcns_clean Read in data & variable names}
+mh_case_report_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/mh_case_report/mh_case_report_covidcns_clean.rds")
+  )
+
+mh_case_report_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r mh_case_report_covidcns_clean Dimensions}
+mh_case_report_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r mh_case_report_covidcns_clean Select columns for joining}
+mh_case_report_covidcns_clean_selected <-
+  mh_case_report_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+mh_case_report_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
 
 ### moca_inp_covidcns_clean
 Read in & variable names
@@ -1409,10 +1706,20 @@ tibble_list <-
     trauma_covidcns_clean_selected,
     updrs_covidcns_clean_selected,
     vaccine_covidcns_clean_selected,
+    # clin_neuro
+    clinical_na_inp_covidcns_clean_selected,
+    clinical_na_outp_covidcns_clean_selected,
     # core_neuro
+    fourat_inp_covidcns_clean_selected,
     fourat_outp_covidcns_clean_selected,
+    gcs_inp_covidcns_clean_selected,
+    gcs_outp_covidcns_clean_selected,
+    neuro_add_inp_covidcns_clean_selected,
+    neuro_add_outp_covidcns_clean_selected,
+    nis_inp_covidcns_clean_selected,
     nis_outp_covidcns_clean_selected,
-   # mh_case_report
+    # mh_case_report
+    mh_case_report_covidcns_clean_selected,
     moca_inp_covidcns_clean_selected,
     # moca
     cognitron_outp_covidcns_clean_selected,
@@ -1466,49 +1773,66 @@ qualtrics_data_joined %>%
   summary()
 ```
 
+## List of tibbles to join, neuro data only
+```{r List of tibbles to join}
+neuro_tibble_list <- 
+  list(
+    # clin_neuro
+    clinical_na_inp_covidcns_clean_selected,
+    clinical_na_outp_covidcns_clean_selected,
+    # core_neuro
+    fourat_inp_covidcns_clean_selected,
+    fourat_outp_covidcns_clean_selected,
+    gcs_inp_covidcns_clean_selected,
+    gcs_outp_covidcns_clean_selected,
+    neuro_add_inp_covidcns_clean_selected,
+    neuro_add_outp_covidcns_clean_selected,
+    nis_inp_covidcns_clean_selected,
+    nis_outp_covidcns_clean_selected
+    )
+```
+
+Joining of demographics and questionnaires, not including website data
+```{r Joining of demographics and questionnaires}
+neuro_data_joined <- 
+  plyr::join_all(
+    dfs =  neuro_tibble_list,
+    by = c("ID"),
+    type = "full"
+    )
+```
+
+Check dimensions of joined tibble
+```{r Check dimensions of joined tibble}
+neuro_data_joined %>%
+  dim()
+```
+
+Check for duplicated columns
+```{r Check for duplicated columns}
+neuro_data_joined %>%
+  colnames() %>%
+  duplicated() %>%
+  summary()
+```
+
 
 # Change Incorrect IDs from Qualtrics
 
 Import swapping IDs excel sheet
 ```{r Import swapping ids}
 # Read in excel sheet of IDs to change as data frame
-swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/data_raw/ids/Swapped IDs.xlsx"),
+swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/data_raw/ids/incorrect_ids.xlsx"),
                                  sheet = "Sheet1")
 
-# Set sensical column names
-colnames(swapped_ids) <- c("correct_ID", "incorrect_ID")
+# Remove ids with issues
+qualtrics_data_joined <- qualtrics_data_joined %>%
+  filter(!ID %in% swapped_ids$incorrect_ID)
 
-swapped_ids
-```
+# Remove ids with issues
+neuro_data_joined <- neuro_data_joined %>%
+  filter(!ID %in% swapped_ids$incorrect_ID)
 
-Find rows to swap in order to check after swapping
-```{r Find swapping rows}
-# Initial empty vector of rows to change IDs for in qualtrics_data_joined
-swapping_rows <- c()
-
-# Create vector of rows corresponding to IDs that need changing
-for (i in swapped_ids$incorrect_ID) {
-  swapping_rows <- append(x = swapping_rows, values = which(qualtrics_data_joined$ID == i))
-}
-
-swapping_rows
-```
-
-Use gsub to replace in df
-```{r Replace IDs}
-for (i in 1:nrow(swapped_ids)){
-  qualtrics_data_joined$ID <- gsub(pattern = swapped_ids$incorrect_ID[i],
-                                   replacement = swapped_ids$correct_ID[i],
-                                   x = qualtrics_data_joined$ID
-                                   )
-}
-```
-
-Test data frame IDs against correct IDs from sheet
-```{r Test ID swap}
-qualtrics_data_joined %>%
-  select(ID) %>%
-  slice(swapping_rows) == swapped_ids$correct_ID
 ```
 
 Coalesce age and sex demographic variables from baseline and ncrf dem
@@ -1619,6 +1943,14 @@ data_export_matching <- data_joined %>%
 
 data_export_matching %>%
   slice(1:5)
+```
+
+# Save neuro data set
+```{r matching Save neuro data set sharing}
+saveRDS(
+  object = neuro_data_joined, 
+  file = paste0(ilovecovidcns, "/data_sharing/glynn/covidcns_neuro_data.rds")
+)
 ```
 
 # Save joined data set

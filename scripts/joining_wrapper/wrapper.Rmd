@@ -228,6 +228,11 @@ source(knitr::purl("scripts/core_neuro/nis_inp.Rmd"))
 
 # mh_case_report
 
+## psy_neuro_scr
+```{r psy_neuro_scr Cleaning the individual questionnaires}
+source(knitr::purl("scripts/mh_case_report/psy_neuro_scr.Rmd"))
+```
+
 ## MoCA_inpatient
 ```{r MoCA_inpatient Cleaning the individual questionnaires}
 source(knitr::purl("scripts/mh_case_report/MoCA_inpatient.Rmd"))
