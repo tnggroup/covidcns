@@ -1130,37 +1130,7 @@ moca_outp_covidcns_clean_selected %>%
 ## ncrf
 
 
-### ncrf2_med_covidcns_clean
-Read in & variable names
-```{r ncrf2_med_covidcns_clean Read in data & variable names}
-ncrf2_med_covidcns_clean <-
-  read_rds(
-    file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf2_med_covidcns_clean.rds")
-  )
-
-ncrf2_med_covidcns_clean %>%
-  dim()
-```
-
-Dimensions
-```{r ncrf2_med_covidcns_clean Dimensions}
-ncrf2_med_covidcns_clean %>%
-  colnames()
-```
-
-Select columns for joining
-```{r ncrf2_med_covidcns_clean Select columns for joining}
-ncrf2_med_covidcns_clean_selected <-
-  ncrf2_med_covidcns_clean %>%
-  select(
-    -startDate,
-    -endDate
-  )
-
-ncrf2_med_covidcns_clean_selected %>%
-  slice(1:5)
-```
+## Module 1
 
 
 ### ncrf1_admission_covidcns_clean
@@ -1359,6 +1329,39 @@ ncrf1_lab_covidcns_clean_selected %>%
 ```
 
 
+### ncrf1_newsymp_covidcns_clean
+Read in & variable names
+```{r ncrf1_newsymp_covidcns_clean Read in data & variable names}
+ncrf1_newsymp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_newsymp_covidcns_clean.rds")
+  )
+
+ncrf1_newsymp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ncrf1_newsymp_covidcns_clean Dimensions}
+ncrf1_newsymp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ncrf1_newsymp_covidcns_clean Select columns for joining}
+ncrf1_newsymp_covidcns_clean_selected <-
+  ncrf1_newsymp_covidcns_clean %>%
+  select(
+    -startDate,
+    -endDate
+  )
+
+ncrf1_newsymp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
 ### ncrf1_pre_med_covidcns_clean
 Read in & variable names
 ```{r ncrf1_pre_med_covidcns_clean Read in data & variable names}
@@ -1423,6 +1426,8 @@ ncrf1_vital_covidcns_clean_selected %>%
 ```
 
 
+
+## Module 2
 
   
 
@@ -1490,6 +1495,72 @@ ncrf2_lab_covidcns_clean_selected %>%
 ```
 
 
+### ncrf2_med_covidcns_clean
+Read in & variable names
+```{r ncrf2_med_covidcns_clean Read in data & variable names}
+ncrf2_med_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf2_med_covidcns_clean.rds")
+  )
+
+ncrf2_med_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ncrf2_med_covidcns_clean Dimensions}
+ncrf2_med_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ncrf2_med_covidcns_clean Select columns for joining}
+ncrf2_med_covidcns_clean_selected <-
+  ncrf2_med_covidcns_clean %>%
+  select(
+    -startDate,
+    -endDate
+  )
+
+ncrf2_med_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### ncrf2_newsymp_covidcns_clean
+Read in & variable names
+```{r ncrf2_newsymp_covidcns_clean Read in data & variable names}
+ncrf2_newsymp_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf2_newsymp_covidcns_clean.rds")
+  )
+
+ncrf2_newsymp_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ncrf2_newsymp_covidcns_clean Dimensions}
+ncrf2_newsymp_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ncrf2_newsymp_covidcns_clean Select columns for joining}
+ncrf2_newsymp_covidcns_clean_selected <-
+  ncrf2_newsymp_covidcns_clean %>%
+  select(
+    -startDate,
+    -endDate
+  )
+
+ncrf2_newsymp_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
 ### ncrf2_vital_covidcns_clean
 Read in & variable names
 ```{r ncrf2_vital_covidcns_clean Read in data & variable names}
@@ -1520,6 +1591,11 @@ ncrf2_vital_covidcns_clean_selected <-
 ncrf2_vital_covidcns_clean_selected %>%
   slice(1:5)
 ```
+
+
+
+## Module 3
+
 
 
 ### ncrf3_compli_covidcns_clean
@@ -1733,16 +1809,19 @@ tibble_list <-
     ncrf1_comorbid_covidcns_clean_selected,
     ncrf1_dem_covidcns_clean_selected,
     ncrf1_lab_covidcns_clean_selected,
+    ncrf1_newsymp_covidcns_clean_selected,
     ncrf1_pre_med_covidcns_clean_selected,
     ncrf1_vital_covidcns_clean_selected,
     # ncrf2
     ncrf2_care_covidcns_clean_selected,
     ncrf2_lab_covidcns_clean_selected,
+    ncrf2_med_covidcns_clean_selected,
+    ncrf2_newsymp_covidcns_clean_selected,
     ncrf2_vital_covidcns_clean_selected,
     # ncrf3    
     ncrf3_compli_covidcns_clean_selected,
     ncrf3_diag_covidcns_clean_selected,
-   # cognitron
+    # cognitron
     cognitron_scores_and_demographics_selected,
     DfE_composite_scores_selected,
     DfE_task_scores_selected
