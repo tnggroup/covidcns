@@ -256,6 +256,8 @@ source(knitr::purl("scripts/moca/MoCA_outpatient.Rmd"))
 
 # neuro_case_report
 
+# Module 1
+
 ## ncrf1_admission
 ```{r ncrf1_admission Cleaning the individual questionnaires}
 source(knitr::purl("scripts/neuro_case_report/ncrf1_admission.Rmd"))
@@ -276,9 +278,14 @@ source(knitr::purl("scripts/neuro_case_report/ncrf1_cic.Rmd"))
 source(knitr::purl("scripts/neuro_case_report/ncrf1_comorbid.Rmd"))
 ```
 
-## ncrf1_labresults
-```{r ncrf1_labresults Cleaning the individual questionnaires, eval=FALSE, include=FALSE}
-source(knitr::purl("scripts/neuro_case_report/ncrf1_labresults.Rmd"))
+## ncrf1_lab
+```{r ncrf1_lab Cleaning the individual questionnaires}
+source(knitr::purl("scripts/neuro_case_report/ncrf1_lab.Rmd"))
+```
+
+## ncrf1_newsymp
+```{r ncrf1_newsymp Cleaning the individual questionnaires}
+source(knitr::purl("scripts/neuro_case_report/ncrf1_newsymp.Rmd"))
 ```
 
 ## ncrf1_pre_med
@@ -291,9 +298,18 @@ source(knitr::purl("scripts/neuro_case_report/ncrf1_pre_med.Rmd"))
 source(knitr::purl("scripts/neuro_case_report/ncrf1_vital.Rmd"))
 ```
 
-## ncrf2_labresults
-```{r ncrf2_labresults Cleaning the individual questionnaires, eval=FALSE, include=FALSE}
-source(knitr::purl("scripts/neuro_case_report/ncrf2_labresults.Rmd"))
+
+# Module 2
+
+
+## ncrf2_care
+```{r ncrf2_care Cleaning the individual questionnaires}
+source(knitr::purl("scripts/neuro_case_report/ncrf2_care.Rmd"))
+```
+
+## ncrf2_lab
+```{r ncrf2_lab Cleaning the individual questionnaires}
+source(knitr::purl("scripts/neuro_case_report/ncrf2_lab.Rmd"))
 ```
 
 ## ncrf2_med
@@ -301,10 +317,19 @@ source(knitr::purl("scripts/neuro_case_report/ncrf2_labresults.Rmd"))
 source(knitr::purl("scripts/neuro_case_report/ncrf2_med.Rmd"))
 ```
 
+## ncrf2_newsymp
+```{r ncrf2_newsymp Cleaning the individual questionnaires}
+source(knitr::purl("scripts/neuro_case_report/ncrf2_newsymp.Rmd"))
+```
+
 ## ncrf2_vital
 ```{r ncrf2_vital Cleaning the individual questionnaires}
 source(knitr::purl("scripts/neuro_case_report/ncrf2_vital.Rmd"))
 ```
+
+
+# Module 3
+
 
 ## ncrf3_compli
 ```{r ncrf3_compli Cleaning the individual questionnaires}

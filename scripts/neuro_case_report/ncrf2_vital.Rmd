@@ -796,7 +796,7 @@ dat <- dat %>%
 ```
 
 Check dates for remaining unparsable values
-```{r Check unparsable}
+```{r Check unparsable, eval=FALSE, include=FALSE}
 my_dates <- unlist(dat %>% select(ncrf2_vital.date.txt) %>% drop_na())
 names(my_dates) <- c()
 
