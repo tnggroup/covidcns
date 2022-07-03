@@ -1,0 +1,17 @@
+Variable,Label,Units,Lower,Upper
+"fbc.red_cell_count","Red Cell Count","10^12/L",3.8,5.8
+"fbc.hemoglobin" ,"Hb","g/L",115,155
+"fbc.hematocrit","Hematocrit","L/L",0.390,0.440
+"fbc.mean_cell_volume","Mean Cell Volume","fL",77.0,100.0
+"fbc.mch","Mean Corpuscular Hb","pg",25,34
+"fbc.mchc","Mean Corpuscular Hb Concentration","g/L",304,360
+"fbc.rdw","Red Cell Distribution Width","percent",11.0,15.0
+"fbc.platelets","Platelets","10^9/L",150,450
+"fbc.mean_platelet_volume","Mean Platelet Volume","fL",9.1,12.8
+"fbc.neutrophils","Neutrophil Count","10^9/L",1.50,6.30
+"fbc.lymphocytes","Lymphocyte Count","10^9/L",1.30,4.00
+"fbc.monocytes","Monocyte Count","10^9/L",0.2,1.0
+"fbc.eosinophils","Eosinophil Count","10^9/L",0,0.4
+"fbc.basophils","Basophils","10^9/L",0,0.1
+"fbc.nucleated_rbcs","Nucleated RBCs","10^9/L",0,0.1
+"fbc.hypochromic_rbcs","Hypochromic RBCs (%)","percent",0,2.5

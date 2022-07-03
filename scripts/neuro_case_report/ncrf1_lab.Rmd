@@ -453,7 +453,7 @@ Create matrix of limits for continuous variables
 Reference ranges for all blood values above have been obtained from Liverpool University Hospital NHS Trust
 ```{r Create matrix limits}
 # Read in tsv of reference ranges
-lab_results_rr <- read_tsv("lab_results_rr_1.txt")
+lab_results_rr <- read_tsv("scripts/ref_ranges/lab_results_rr_1.txt")
 
 # Create limits matrix
 limits_mat <- as.matrix(lab_results_rr[,4:5])
