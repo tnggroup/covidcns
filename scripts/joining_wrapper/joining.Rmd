@@ -692,7 +692,8 @@ Select columns for joining
 clinical_na_inp_covidcns_clean_selected <-
   clinical_na_inp_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 clinical_na_inp_covidcns_clean_selected %>%
@@ -724,7 +725,8 @@ Select columns for joining
 clinical_na_outp_covidcns_clean_selected <-
   clinical_na_outp_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 clinical_na_outp_covidcns_clean_selected %>%
@@ -760,7 +762,8 @@ Select columns for joining
 fourat_inp_covidcns_clean_selected <-
   fourat_inp_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 fourat_inp_covidcns_clean_selected %>%
@@ -792,7 +795,8 @@ Select columns for joining
 fourat_outp_covidcns_clean_selected <-
   fourat_outp_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 fourat_outp_covidcns_clean_selected %>%
@@ -824,7 +828,8 @@ Select columns for joining
 gcs_inp_covidcns_clean_selected <-
   gcs_inp_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 gcs_inp_covidcns_clean_selected %>%
@@ -856,7 +861,8 @@ Select columns for joining
 gcs_outp_covidcns_clean_selected <-
   gcs_outp_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 gcs_outp_covidcns_clean_selected %>%
@@ -888,7 +894,8 @@ Select columns for joining
 neuro_add_inp_covidcns_clean_selected <-
   neuro_add_inp_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 neuro_add_inp_covidcns_clean_selected %>%
@@ -920,7 +927,8 @@ Select columns for joining
 neuro_add_outp_covidcns_clean_selected <-
   neuro_add_outp_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 neuro_add_outp_covidcns_clean_selected %>%
@@ -952,7 +960,8 @@ Select columns for joining
 nis_inp_covidcns_clean_selected <-
   nis_inp_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 nis_inp_covidcns_clean_selected %>%
@@ -985,7 +994,8 @@ Select columns for joining
 nis_outp_covidcns_clean_selected <-
   nis_outp_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 nis_outp_covidcns_clean_selected %>%
@@ -1021,7 +1031,8 @@ Select columns for joining
 mh_case_report_covidcns_clean_selected <-
   mh_case_report_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 mh_case_report_covidcns_clean_selected %>%
@@ -1053,7 +1064,8 @@ Select columns for joining
 moca_inp_covidcns_clean_selected <-
   moca_inp_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 moca_inp_covidcns_clean_selected %>%
@@ -1321,7 +1333,8 @@ Select columns for joining
 ncrf1_lab_covidcns_clean_selected <-
   ncrf1_lab_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 ncrf1_lab_covidcns_clean_selected %>%
@@ -1455,7 +1468,8 @@ Select columns for joining
 ncrf2_care_covidcns_clean_selected <-
   ncrf2_care_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 ncrf2_care_covidcns_clean_selected %>%
@@ -1487,7 +1501,8 @@ Select columns for joining
 ncrf2_lab_covidcns_clean_selected <-
   ncrf2_lab_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 ncrf2_lab_covidcns_clean_selected %>%
@@ -2067,6 +2082,13 @@ saveRDS(
 saveRDS(
   object = data_export_greta, 
   file = paste0(ilovecovidcns, "/data_sharing/liverpool/covidcns_greta.rds")
+)
+```
+
+```{r greta Save joint data set sharing}
+saveRDS(
+  object = data_export_greta, 
+  file = paste0(ilovecovidcns, "/data_sharing/liverpool/covidcns-cog-analysis/data_raw/covidcns_greta.rds")
 )
 ```
 
