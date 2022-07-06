@@ -1775,6 +1775,7 @@ DfE_task_scores_selected %>%
 
 
 
+# Joining process
 
 ## List of tibbles to join, not including website data
 ```{r List of tibbles to join}
@@ -1835,11 +1836,7 @@ tibble_list <-
     ncrf2_vital_covidcns_clean_selected,
     # ncrf3    
     ncrf3_compli_covidcns_clean_selected,
-    ncrf3_diag_covidcns_clean_selected,
-    # cognitron
-    cognitron_scores_and_demographics_selected,
-    DfE_composite_scores_selected,
-    DfE_task_scores_selected
+    ncrf3_diag_covidcns_clean_selected
     )
 ```
 
@@ -1853,68 +1850,31 @@ qualtrics_data_joined <-
     )
 ```
 
-Check dimensions of joined tibble
-```{r Check dimensions of joined tibble}
-qualtrics_data_joined %>%
-  dim()
+
+# Change/remove Incorrect IDs from Qualtrics
+
+Change IDs with newline char
+```{r}
+qualtrics_data_joined$ID[qualtrics_data_joined$ID == "\nCNS02002"] <- "CNS02002"
+qualtrics_data_joined$ID[qualtrics_data_joined$ID == "\nCNS01004"] <- "CNS01004"
 ```
 
-Check for duplicated columns
-```{r Check for duplicated columns}
-qualtrics_data_joined %>%
-  colnames() %>%
-  duplicated() %>%
-  summary()
-```
 
-## List of tibbles to join, neuro data only
-```{r List of tibbles to join}
-neuro_tibble_list <- 
-  list(
-    # clin_neuro
-    clinical_na_inp_covidcns_clean_selected,
-    clinical_na_outp_covidcns_clean_selected,
-    # core_neuro
-    fourat_inp_covidcns_clean_selected,
-    fourat_outp_covidcns_clean_selected,
-    gcs_inp_covidcns_clean_selected,
-    gcs_outp_covidcns_clean_selected,
-    neuro_add_inp_covidcns_clean_selected,
-    neuro_add_outp_covidcns_clean_selected,
-    nis_inp_covidcns_clean_selected,
-    nis_outp_covidcns_clean_selected
-    )
-```
-
-Joining of demographics and questionnaires, not including website data
-```{r Joining of demographics and questionnaires}
-neuro_data_joined <- 
+Joining of qualtrics and cognitron, not including website data
+```{r Joining of qualtrics and cognitron}
+qualtrics_data_joined <- 
   plyr::join_all(
-    dfs =  neuro_tibble_list,
+    dfs = list(qualtrics_data_joined,
+               cognitron_scores_and_demographics_selected,
+               DfE_composite_scores_selected,
+               DfE_task_scores_selected),
     by = c("ID"),
     type = "full"
     )
 ```
 
-Check dimensions of joined tibble
-```{r Check dimensions of joined tibble}
-neuro_data_joined %>%
-  dim()
-```
-
-Check for duplicated columns
-```{r Check for duplicated columns}
-neuro_data_joined %>%
-  colnames() %>%
-  duplicated() %>%
-  summary()
-```
-
-
-# Change Incorrect IDs from Qualtrics
-
-Import swapping IDs excel sheet
-```{r Import swapping ids}
+Import swapping IDs excel sheet and remove problem IDs
+```{r Remove swapping ids}
 # Read in excel sheet of IDs to change as data frame
 swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/data_raw/ids/incorrect_ids.xlsx"),
                                  sheet = "Sheet1")
@@ -1922,12 +1882,10 @@ swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/data_raw/ids/inc
 # Remove ids with issues
 qualtrics_data_joined <- qualtrics_data_joined %>%
   filter(!ID %in% swapped_ids$incorrect_ID)
-
-# Remove ids with issues
-neuro_data_joined <- neuro_data_joined %>%
-  filter(!ID %in% swapped_ids$incorrect_ID)
-
 ```
+
+
+# Coalesce demographics
 
 Coalesce age and sex demographic variables from baseline and ncrf dem
 ```{r Coalesce age sex dem}
@@ -1947,28 +1905,21 @@ qualtrics_data_joined <- qualtrics_data_joined %>%
   )
 ```
 
-Summary tables to check missingness before joining to website data
-```{r Summary table qualtrics data only}
-tbl_summary(qualtrics_data_joined,
-            include = c(dem.dob_age,
-                        dem.sex_at_birth,
-                        ncrf1_vital.admission_severity_worst_covid19,
-                        ncrf1_comorbid.clinical_frailty_scale,
-                        ncrf1_admission.date_of_inpatient_admission.txt),
-            missing_text = "Missing"
-            )
-```
 
+# Add website data
 
 Joining of website data
 ```{r Joining of website data}
-data_joined <- 
+data_joined_1 <- 
   plyr::join_all(
     dfs =  list(COVID_CNS_combined_website_data_clean_selected, qualtrics_data_joined),
     by = c("ID"),
     type = "full"
     )
 ```
+
+
+# Add case definitions
 
 Import case definitions data
 ```{r Import case defs}
@@ -1988,11 +1939,28 @@ Joining of case definitions data
 ```{r Joining of case defs}
 data_joined <- 
   plyr::join_all(
-    dfs =  list(data_joined, case_def_dat),
+    dfs =  list(data_joined_1, case_def_dat),
     by = c("ID"),
     type = "full"
     )
 ```
+
+Check dimensions of joined tibble
+```{r Check dimensions of joined tibble}
+data_joined %>%
+  dim()
+```
+
+Check for duplicated columns
+```{r Check for duplicated columns}
+data_joined %>%
+  colnames() %>%
+  duplicated() %>%
+  summary()
+```
+
+
+# Select Columns
 
 Select columns for data extraction
 ```{r matching Select columns}
@@ -2039,14 +2007,6 @@ data_export_matching %>%
   slice(1:5)
 ```
 
-# Save neuro data set
-```{r matching Save neuro data set sharing}
-saveRDS(
-  object = neuro_data_joined, 
-  file = paste0(ilovecovidcns, "/data_sharing/glynn/covidcns_neuro_data.rds")
-)
-```
-
 # Save joined data set
 ```{r matching Save joint data set}
 saveRDS(
@@ -2062,49 +2022,17 @@ saveRDS(
 )
 ```
 
-Select columns for data extraction
-```{r greta Select columns}
-data_export_greta <- data_joined #%>%
-#  select(
-#    
-#  )
-```
-
 # Save joined data set
 ```{r greta Save joint data set}
 saveRDS(
-  object = data_export_greta, 
+  object = data_joined, 
   file = paste0(ilovecovidcns, "/data/joined/covidcns_greta.rds")
 )
 ```
 
 ```{r greta Save joint data set sharing}
 saveRDS(
-  object = data_export_greta, 
-  file = paste0(ilovecovidcns, "/data_sharing/liverpool/covidcns_greta.rds")
-)
-```
-
-```{r greta Save joint data set sharing}
-saveRDS(
-  object = data_export_greta, 
+  object = data_joined, 
   file = paste0(ilovecovidcns, "/data_sharing/liverpool/covidcns-cog-analysis/data_raw/covidcns_greta.rds")
-)
-```
-
-
-Select columns for data extraction
-```{r yun Select columns, eval=FALSE, include=FALSE}
-data_export_yun <- data_joined %>%
-  select(
-    
-  )
-```
-
-# Save joined data set
-```{r yun Save joint data set, eval=FALSE, include=FALSE}
-saveRDS(
-  object = data_export_yun, 
-  file = paste0(ilovecovidcns, "/data/joined/covidcns_yun.rds")
 )
 ```
