@@ -80,7 +80,7 @@ Document ANY changes to variable names in the Teams Data Issues Tracker
 COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/dem_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/2022-05-28/baseline/dem_covid_cns.rds")
   )
   
 # Check variable names in dataframe

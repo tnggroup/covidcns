@@ -143,8 +143,8 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          ncrf2_vital.glasgow_coma_score.txt,
          ncrf2_vital.lowest_gcs_during_admission.txt,
          ncrf2_vital.any_other_issue_of_significance_to_note.txt,
-         ncrf2_vital.was_the_patient_intubated_and_ventilated,
-         ncrf2_vital.was_the_patient_under_sedation
+         ncrf2_vital.vitals__at_the_point_of_these_observations.was_the_patient_intubated_and_ventilated,
+         ncrf2_vital.vitals__at_the_point_of_these_observations.was_the_patient_under_sedation
          ) %>%
   add_numeric_1(exclude = exclude_cols_numeric)
 
@@ -293,8 +293,8 @@ names(values_cat_list) <- c(
   "ncrf2_vital.oxygen_therapy",
   "ncrf2_vital.unknown",
   "ncrf2_vital.avpu",
-  "ncrf2_vital.was_the_patient_intubated_and_ventilated",
-  "ncrf2_vital.was_the_patient_under_sedation"
+  "ncrf2_vital.vitals__at_the_point_of_these_observations.was_the_patient_intubated_and_ventilated",
+  "ncrf2_vital.vitals__at_the_point_of_these_observations.was_the_patient_under_sedation"
 )
 ```
 
@@ -376,8 +376,8 @@ names(values_num_list) <- c(
   "ncrf2_vital.oxygen_therapy_numeric",
   "ncrf2_vital.unknown_numeric",
   "ncrf2_vital.avpu_numeric",
-  "ncrf2_vital.was_the_patient_intubated_and_ventilated_numeric",
-  "ncrf2_vital.was_the_patient_under_sedation_numeric"
+  "ncrf2_vital.vitals__at_the_point_of_these_observations.was_the_patient_intubated_and_ventilated_numeric",
+  "ncrf2_vital.vitals__at_the_point_of_these_observations.was_the_patient_under_sedation_numeric"
 )
 ```
 
@@ -798,12 +798,12 @@ dat <- dat %>%
 Check dates for remaining unparsable values
 ```{r Check unparsable, eval=FALSE, include=FALSE}
 my_dates <- unlist(dat %>% select(ncrf2_vital.date.txt) %>% drop_na())
-names(my_dates) <- c()
-
-for(i in 1:length(my_dates)){
-   print(i)
-   stopifnot(!is.na(lubridate::dmy(my_dates[i])))
-}
+# names(my_dates) <- c()
+# 
+# for(i in 1:length(my_dates)){
+#    print(i)
+#    stopifnot(!is.na(lubridate::dmy(my_dates[i])))
+# }
 ```
 
 Find unparsable value where for loop fails and add to case_when

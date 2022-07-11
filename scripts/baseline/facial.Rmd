@@ -111,11 +111,11 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          sample,
          startDate,
          endDate,
-         facial.face_difficulty_move_find,
+         facial.difficulty_face_move_find,
          facial.smile_mouth_affected_side,
          facial.eyebrows_raise_affected_side,
          facial.mouth_moves_lips_pucker,
-         facial.experience_required_start_question
+         facial.required_start_experience_question
          ) %>%
   add_numeric(exclude = exclude_cols_numeric)
 # Inspect colnames
@@ -224,11 +224,11 @@ values_cat_list <- list(
 Create vector of categorical domains variables 
 ```{r Vector categorical variables}
 variables_cat <- c(
-  "facial.face_difficulty_move_find",
+  "facial.difficulty_face_move_find",
   "facial.smile_mouth_affected_side",
   "facial.eyebrows_raise_affected_side",
   "facial.mouth_moves_lips_pucker",
-  "facial.experience_required_start_question"
+  "facial.required_start_experience_question"
 )
 ```
 
@@ -312,11 +312,11 @@ values_num_list <- list(
 Create vector of categorical domains variables 
 ```{r Vector numeric variables}
 variables_num <- c(
-  "facial.face_difficulty_move_find_numeric",
+  "facial.difficulty_face_move_find_numeric",
   "facial.smile_mouth_affected_side_numeric",
   "facial.eyebrows_raise_affected_side_numeric",
   "facial.mouth_moves_lips_pucker_numeric",
-  "facial.experience_required_start_question_numeric"
+  "facial.required_start_experience_question_numeric"
 )
 ```
 

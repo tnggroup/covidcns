@@ -112,18 +112,18 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          sample,
          startDate,
          endDate,
-         catatonia.interact_world_move_harder,
-         catatonia.it_was_harder_than_usual_to_talk,
-         catatonia.body_staying_find_unusual,
-         catatonia.peoples_words_copy_movements,
-         catatonia.interact_world_move_harder.1,
-         catatonia.it_was_harder_than_usual_to_talk.1,
-         catatonia.body_staying_find_unusual.1,
-         catatonia.peoples_words_copy_movements.1,
-         catatonia.interact_world_move_harder.2,
-         catatonia.it_was_harder_than_usual_to_talk.2,
-         catatonia.body_staying_find_unusual.2,
-         catatonia.peoples_words_copy_movements.2
+         catatonia.before_you_had_covid19.it_was_harder_than_usual_to_move_and_interact_with_the_world_around_me.,
+         catatonia.before_you_had_covid19.it_was_harder_than_usual_to_talk.,
+         catatonia.before_you_had_covid19.i_would_find_my_body_staying_in_unusual_positions.,
+         catatonia.before_you_had_covid19.i_would_copy_other_peoples_words_or_movements.,
+         catatonia.when_you_had_covid19.it_was_harder_than_usual_to_move_and_interact_with_the_world_around_me.,
+         catatonia.when_you_had_covid19.it_was_harder_than_usual_to_talk.,
+         catatonia.when_you_had_covid19.i_would_find_my_body_staying_in_unusual_positions.,
+         catatonia.when_you_had_covid19.i_would_copy_other_peoples_words_or_movements.,
+         catatonia.recovered_covid19_infection.it_was_harder_than_usual_to_move_and_interact_with_the_world_around_me.,
+         catatonia.recovered_covid19_infection.it_was_harder_than_usual_to_talk.,
+         catatonia.recovered_covid19_infection.i_would_find_my_body_staying_in_unusual_positions.,
+         catatonia.recovered_covid19_infection.i_would_copy_other_peoples_words_or_movements.
          ) %>%
   add_numeric(exclude = exclude_cols_numeric)
 # Inspect colnames
@@ -206,18 +206,18 @@ values_cat <- c(
 Create vector of categorical domains variables 
 ```{r Vector categorical variables}
 variables_cat <- c(
-  "catatonia.interact_world_move_harder",
-  "catatonia.it_was_harder_than_usual_to_talk",
-  "catatonia.body_staying_find_unusual",
-  "catatonia.peoples_words_copy_movements",
-  "catatonia.interact_world_move_harder.1",
-  "catatonia.it_was_harder_than_usual_to_talk.1",
-  "catatonia.body_staying_find_unusual.1",
-  "catatonia.peoples_words_copy_movements.1",
-  "catatonia.interact_world_move_harder.2",
-  "catatonia.it_was_harder_than_usual_to_talk.2",
-  "catatonia.body_staying_find_unusual.2",
-  "catatonia.peoples_words_copy_movements.2"
+  "catatonia.before_you_had_covid19.it_was_harder_than_usual_to_move_and_interact_with_the_world_around_me.",
+  "catatonia.before_you_had_covid19.it_was_harder_than_usual_to_talk.",
+  "catatonia.before_you_had_covid19.i_would_find_my_body_staying_in_unusual_positions.",
+  "catatonia.before_you_had_covid19.i_would_copy_other_peoples_words_or_movements.",
+  "catatonia.when_you_had_covid19.it_was_harder_than_usual_to_move_and_interact_with_the_world_around_me.",
+  "catatonia.when_you_had_covid19.it_was_harder_than_usual_to_talk.",
+  "catatonia.when_you_had_covid19.i_would_find_my_body_staying_in_unusual_positions.",
+  "catatonia.when_you_had_covid19.i_would_copy_other_peoples_words_or_movements.",
+  "catatonia.recovered_covid19_infection.it_was_harder_than_usual_to_move_and_interact_with_the_world_around_me.",
+  "catatonia.recovered_covid19_infection.it_was_harder_than_usual_to_talk.",
+  "catatonia.recovered_covid19_infection.i_would_find_my_body_staying_in_unusual_positions.",
+  "catatonia.recovered_covid19_infection.i_would_copy_other_peoples_words_or_movements."
 )
 ```
 
@@ -253,18 +253,18 @@ values_num <- c(
 Create vector of categorical domains variables 
 ```{r Vector numeric variables}
 variables_num <- c(
-  "catatonia.interact_world_move_harder_numeric",
-  "catatonia.it_was_harder_than_usual_to_talk_numeric",
-  "catatonia.body_staying_find_unusual_numeric",
-  "catatonia.peoples_words_copy_movements_numeric",
-  "catatonia.interact_world_move_harder.1_numeric",
-  "catatonia.it_was_harder_than_usual_to_talk.1_numeric",
-  "catatonia.body_staying_find_unusual.1_numeric",
-  "catatonia.peoples_words_copy_movements.1_numeric",
-  "catatonia.interact_world_move_harder.2_numeric",
-  "catatonia.it_was_harder_than_usual_to_talk.2_numeric",
-  "catatonia.body_staying_find_unusual.2_numeric",
-  "catatonia.peoples_words_copy_movements.2_numeric"
+  "catatonia.before_you_had_covid19.it_was_harder_than_usual_to_move_and_interact_with_the_world_around_me._numeric",
+  "catatonia.before_you_had_covid19.it_was_harder_than_usual_to_talk._numeric",
+  "catatonia.before_you_had_covid19.i_would_find_my_body_staying_in_unusual_positions._numeric",
+  "catatonia.before_you_had_covid19.i_would_copy_other_peoples_words_or_movements._numeric",
+  "catatonia.when_you_had_covid19.it_was_harder_than_usual_to_move_and_interact_with_the_world_around_me._numeric",
+  "catatonia.when_you_had_covid19.it_was_harder_than_usual_to_talk._numeric",
+  "catatonia.when_you_had_covid19.i_would_find_my_body_staying_in_unusual_positions._numeric",
+  "catatonia.when_you_had_covid19.i_would_copy_other_peoples_words_or_movements._numeric",
+  "catatonia.recovered_covid19_infection.it_was_harder_than_usual_to_move_and_interact_with_the_world_around_me._numeric",
+  "catatonia.recovered_covid19_infection.it_was_harder_than_usual_to_talk._numeric",
+  "catatonia.recovered_covid19_infection.i_would_find_my_body_staying_in_unusual_positions._numeric",
+  "catatonia.recovered_covid19_infection.i_would_copy_other_peoples_words_or_movements._numeric"
 )
 ```
 

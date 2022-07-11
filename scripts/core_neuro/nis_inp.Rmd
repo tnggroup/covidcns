@@ -245,11 +245,11 @@ Create required variables for sumscore arguments
 keys <- seq(1, 1, length.out = 17)
 
 sum_vars <- c(
-  "nis_inp.left_upper_limb",
-  "nis_inp.right_upper_limb",
-  "nis_inp.left_lower_limb",
-  "nis_inp.right_lower_limb",
-  "nis_inp.trunk",
+  "nis_inp.motor.left_upper_limb",
+  "nis_inp.motor.right_upper_limb",
+  "nis_inp.motor.left_lower_limb",
+  "nis_inp.motor.right_lower_limb",
+  "nis_inp.motor.trunk",
   "nis_inp.tonejoint_range",
   "nis_inp.sensation",
   "nis_inp.perceptual_function",

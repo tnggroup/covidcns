@@ -112,10 +112,10 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          sample,
          startDate,
          endDate,
-         cage.drinking_cut_felt,
-         cage.criticising_people_annoyed_drinking,
-         cage.guilty_felt_bad_drinking,
-         cage.hangover_morning_steady_rid
+         cage..have_you_ever_felt_you_should_cut_down_on_your_drinking,
+         cage..have_people_annoyed_you_by_criticising_your_drinking,
+         cage..have_you_ever_felt_bad_or_guilty_about_your_drinking,
+         cage..have_you_ever_had_a_drink_first_thing_in_the_morning_to_steady_your_nerves_or_get_rid_of_a_hangover_
          ) %>%
   add_numeric(exclude = exclude_cols_numeric)
 
@@ -199,10 +199,10 @@ values_categorical
 Create vector of variable names for categorical variables
 ```{r Vector categorical variables}
 variables_categorical <- c(
-  "cage.drinking_cut_felt",
-  "cage.criticising_people_annoyed_drinking",
-  "cage.guilty_felt_bad_drinking",
-  "cage.hangover_morning_steady_rid"
+  "cage..have_you_ever_felt_you_should_cut_down_on_your_drinking",
+  "cage..have_people_annoyed_you_by_criticising_your_drinking",
+  "cage..have_you_ever_felt_bad_or_guilty_about_your_drinking",
+  "cage..have_you_ever_had_a_drink_first_thing_in_the_morning_to_steady_your_nerves_or_get_rid_of_a_hangover_"
     )
 variables_categorical
 ```
@@ -236,10 +236,10 @@ Create vector of variable names for numeric variables
 ```{r Vector numeric variables}
 variables_numeric <-
   c(
-    "cage.drinking_cut_felt_numeric",
-    "cage.criticising_people_annoyed_drinking_numeric",
-    "cage.guilty_felt_bad_drinking_numeric",
-    "cage.hangover_morning_steady_rid_numeric"
+    "cage..have_you_ever_felt_you_should_cut_down_on_your_drinking_numeric",
+    "cage..have_people_annoyed_you_by_criticising_your_drinking_numeric",
+    "cage..have_you_ever_felt_bad_or_guilty_about_your_drinking_numeric",
+    "cage..have_you_ever_had_a_drink_first_thing_in_the_morning_to_steady_your_nerves_or_get_rid_of_a_hangover__numeric"
     )
 variables_numeric
 ```
@@ -281,10 +281,10 @@ keys <- c(
   )
 
 sum_vars <- c(
-  "cage.drinking_cut_felt_numeric",
-  "cage.criticising_people_annoyed_drinking_numeric",
-  "cage.guilty_felt_bad_drinking_numeric",
-  "cage.hangover_morning_steady_rid_numeric"
+  "cage..have_you_ever_felt_you_should_cut_down_on_your_drinking_numeric",
+  "cage..have_people_annoyed_you_by_criticising_your_drinking_numeric",
+  "cage..have_you_ever_felt_bad_or_guilty_about_your_drinking_numeric",
+  "cage..have_you_ever_had_a_drink_first_thing_in_the_morning_to_steady_your_nerves_or_get_rid_of_a_hangover__numeric"
   )
 ```
 

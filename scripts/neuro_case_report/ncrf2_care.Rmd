@@ -113,8 +113,7 @@ Create new df with renamed and de-duplicated/NA-removed ID column
 covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
   remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
   dplyr::rename(
-    "ID" = "externalDataReference",
-    "ncrf2_care.modified_rankin_score_children.txt" = "QID167_TEXT"
+    "ID" = "externalDataReference"
   )
 
 # Inspect colnames

@@ -220,16 +220,16 @@ variables_text <- c(
   "ncrf1_newsymp.problems_seeing.txt",
   "ncrf1_newsymp.other.txt",
   "ncrf1_newsymp.any_other_issue_of_significance_to_note.txt",
-  "QID164#2_1_1",
-  "QID164#2_2_1",
-  "QID164#2_3_1",
-  "QID165#2_1_1",
-  "QID165#2_2_1",
-  "QID165#2_3_1",
-  "QID165#2_4_1",
-  "QID165#2_5_1",
-  "QID165#2_6_1",
-  "QID165#2_7_1"
+  "ncrf1_newsymp.central_neurological_complications.1",
+  "ncrf1_newsymp.peripheral_neurological_complications.1",
+  "ncrf1_newsymp.other_neurological_complications.1",
+  "ncrf1_newsymp.cardiac_complications.1",
+  "ncrf1_newsymp.renal_complications.1",
+  "ncrf1_newsymp.gut_complications.1",
+  "ncrf1_newsymp.liver_complications.1",
+  "ncrf1_newsymp.diabetes_related_complications.1",
+  "ncrf1_newsymp.peripheral_vascular_events.1",
+  "ncrf1_newsymp.other_nonneurological_complications.1"           
 )
 ```
 

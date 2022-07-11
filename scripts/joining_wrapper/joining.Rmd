@@ -1007,35 +1007,35 @@ nis_outp_covidcns_clean_selected %>%
 ## mh_case_report
 
 
-### mh_case_report_covidcns_clean
+### psy_neuro_scr_covidcns_clean
 Read in & variable names
-```{r mh_case_report_covidcns_clean Read in data & variable names}
-mh_case_report_covidcns_clean <-
+```{r psy_neuro_scr_covidcns_clean Read in data & variable names}
+psy_neuro_scr_covidcns_clean <-
   read_rds(
     file = 
-      paste0(ilovecovidcns, "/data/latest_freeze/mh_case_report/mh_case_report_covidcns_clean.rds")
+      paste0(ilovecovidcns, "/data/latest_freeze/mh_case_report/psy_neuro_scr_covidcns_clean.rds")
   )
 
-mh_case_report_covidcns_clean %>%
+psy_neuro_scr_covidcns_clean %>%
   dim()
 ```
 
 Dimensions
-```{r mh_case_report_covidcns_clean Dimensions}
-mh_case_report_covidcns_clean %>%
+```{r psy_neuro_scr_covidcns_clean Dimensions}
+psy_neuro_scr_covidcns_clean %>%
   colnames()
 ```
 
 Select columns for joining
-```{r mh_case_report_covidcns_clean Select columns for joining}
-mh_case_report_covidcns_clean_selected <-
-  mh_case_report_covidcns_clean %>%
+```{r psy_neuro_scr_covidcns_clean Select columns for joining}
+psy_neuro_scr_covidcns_clean_selected <-
+  psy_neuro_scr_covidcns_clean %>%
   select(
     -startDate,
     -endDate
   )
 
-mh_case_report_covidcns_clean_selected %>%
+psy_neuro_scr_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
@@ -1811,7 +1811,7 @@ tibble_list <-
     nis_inp_covidcns_clean_selected,
     nis_outp_covidcns_clean_selected,
     # mh_case_report
-    mh_case_report_covidcns_clean_selected,
+    psy_neuro_scr_covidcns_clean_selected,
     moca_inp_covidcns_clean_selected,
     # moca
     cognitron_outp_covidcns_clean_selected,

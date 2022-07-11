@@ -403,16 +403,15 @@ dat <- dat %>%
          )
 ```
 
-Transform nonanswer values to 3 digit
-```{r Cont vars nonanswer}
+Remove -77/-777 values
+```{r Cont vars remove sbna}
 dat <- dat %>%
   mutate(across(where(is.numeric),
-                ~case_when(
-                  . == -55 ~ -555,
-                  . == -77 ~ -777,
-                  . == -88 ~ -888,
-                  . == -99 ~ -999,
-                  TRUE ~ .)
+                ~na_if(., -77)
+                )
+         ) %>%
+  mutate(across(where(is.numeric),
+                ~na_if(., -777)
                 )
          )
 ```

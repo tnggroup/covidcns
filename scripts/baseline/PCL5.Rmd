@@ -1,13 +1,24 @@
 ---
-title: "PCL5 COVID CNS"
-author: "Chelsea Mika Malouf"
-date: "04/03/2022"
+title: "COVIDCNS PCL5 Cleaning Script"
+author: "Zain Ahmad"
+date: "10/07/2022"
 output: html_document
 ---
 
-Cleaning script for PCL-5 following Zain's template script: https://github.com/tnggroup/ilovecovidcns/pull/122/files.
 
-# Set up
+All arguments should be in their own row, including the first argument
+Closing bracket should have its own row
+Functions with a single argument can have this on the same line
+One argument can be hashed out per line for debugging errors
+
+Chunk names should be all lower case except capitalised first word
+Chunk names MUST be unique
+Points requiring user input are enclosed thus <>
+
+Ensure that you have deleted/untracked .DS_Store before your initial commit
+Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+
+Configure global options for all chunks
 ```{r Setup, include=FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
@@ -17,36 +28,57 @@ knitr::opts_chunk$set(
   )
 ```
 
+Clear global environment prior to initiation
 ```{r Clear global environment}
 remove(list = ls())
 ```
 
+Add the add_labelled_numeric function - used to convert character variables into numeric variables
+Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+Add the recode_check function - used to check for implausible values when recoding
+Add the imp_clean function - used to check variables for implausible values
+Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/add_labelled_numeric.R")
 source(file = "scripts/functions/remove_duplicates.R")
 source(file = "scripts/functions/sumscores.R")
 source(file = "scripts/functions/package_check.R")
-source(file = "scripts/functions/imp_check.R")
+source(file = "scripts/functions/recode_check.R")
+source(file = "scripts/functions/cont_clean.R")
 ```
 
+Use package_check to install and load dependencies
+Load tidyverse last
 ```{r Install load dependencies}
-packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
+packages <- c("sjlabelled",
+              "Amelia",
+              "gtsummary",
+              "tidyverse")
+
 package_check(packages)
 ```
 
-```{r Recent date}
-date <- Sys.Date()
-date
-```
-
-```{r Read in file with path to ilovecovidcns channel on teams}
+Read in file with path to ilovecovidcns channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Source filepath to ilovecovidcns OneDrive}
 source(file = "scripts/credentials/paths.R")
 ```
 
-# Read in the data: CNS PTSD Checklist (PCL-5)
+# Read in the data: Posttraumatic Stress Disorder Checklist for DSM-5
 
-## CNS
-```{r CNS load data}
+Do not change variable names from the NLP names that are produced by the extraction
+EXCEPT in exceptional circumstances
+Document ANY changes to variable names in the Teams Data Issues Tracker
+
+- For variable names, use ONLY 'questionnaire.variable_name' syntax
+- When using pipe operator '%>%', each function should begin on a new line for clarity
+- Do not add empty lines at the beginning or end of a chunk to keep the markdown as short as possible
+- Use only tidyverse functions wherever possible, they run faster than base R
+
+COVIDCNS data
+```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
   file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/pcl5_covid_cns.rds")
   )
@@ -54,82 +86,81 @@ covidcns_dat <- read_rds(
 # Check variable names in dataframe
 covidcns_dat %>%
   colnames()
+
 # Inspect dimensions of dataframe 
 covidcns_dat %>%
   dim()
-```
 
-```{r COVID CNS specify excluded columns}
-exclude_cols_numeric <- c(
-  "ID",
-  "sample",
-  "startDate",
-  "endDate"
-  )
-```
+# Report counts of duplicates in ID column
+covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(., externalDataReference)
 
-```{r COVID CNS select}
-covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
-  drop_na(externalDataReference) %>% # Drop participants with no ID
-  distinct(externalDataReference,
-           .keep_all = TRUE) %>% # Remove duplicate IDs
-  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
-  add_column(sample = "COVIDCNS",
-             .after = "externalDataReference") %>% # Create new sample column
-  select(
-         ID = externalDataReference, # ID
-         sample,
-         startDate,
-         endDate,
-         pcl5.repeated_disturbing_stressful_experience,
-         pcl5.repeated_disturbing_dreams_of_the_stressful_experience,
-         pcl5.stressful_experience_acting_happening,
-         pcl5.stressful_experience_reminded_upset,
-         pcl5.stressful_experience_reminded_strong,
-         pcl5.avoiding_memories_thoughts_stressful,
-         pcl5.avoiding_external_reminders_of_the_stressful_experience_,
-         pcl5.stressful_experience_trouble_remembering,
-         pcl5.world_people_strong_negative,
-         pcl5.stressful_experience_blaming_happened,
-         pcl5.fear_horror_anger_guilt,
-         pcl5.enjoy_activities_interest_loss,
-         pcl5.cut_people_feeling_distant,
-         pcl5.trouble_experiencing_positive_feelings_,
-         pcl5.irritable_behaviour_angry_outburst_or_acting_aggressively,
-         pcl5.risks_taking_harm_things,
-         pcl5.being_superalert_or_watchful_or_on_guard,
-         pcl5.feeling_jumpy_or_easily_startled,
-         pcl5.having_difficulty_concentrating,
-         pcl5.trouble_falling_or_staying_sleep
-         ) %>%
-  add_numeric(exclude = exclude_cols_numeric)
-# Inspect colnames
-covidcns_dat_id %>%
-  colnames()
-```
+# Report number of IDs to be dropped
+covidcns_excluded <- covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(., externalDataReference) %>%
+  select("Dropped IDs" = "n") %>%
+  colSums() + 1
 
-```{r COVIDCNS number excluded}
-# Inspect dimensions of new data set
-covidcns_dat_id %>%
-  dim()
-# Inspect number of rows dropped
-covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
 covidcns_excluded
 ```
 
+Create new df with renamed and de-duplicated/NA-removed ID column
+```{r COVIDCNS select}
+covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
+  dplyr::rename(
+    "ID" = "externalDataReference"
+  )
+
+# Inspect colnames
+covidcns_dat_id %>%
+  colnames()
+
+# Inspect dimensions of new data set
+covidcns_dat_id %>%
+  dim()
+```
+
 Check missingness by missmap
-```{r COVIDCNS inspect missingness}
-covidcns_miss_map <- covidcns_dat_id %>% 
+```{r COVIDCNS missmap}
+covidcns_dat_id %>% 
   missmap()
-covidcns_miss_map
 ```
 
 Create dat as copy of covidcns_dat_id for brevity
 This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
 ```{r Create dat}
 dat <- covidcns_dat_id 
-# Check
-dat %>% glimpse()
+```
+
+Extract and save labels
+```{r Extract save labels}
+# Save variable labels
+question_labels <- sjlabelled::get_label(dat)
+
+# Save value labels
+answer_labels <- sjlabelled::get_labels(dat, values = "as.name")
+
+# Change -77 to -777 in value labels names
+chng <- rapply(sapply(answer_labels, names),
+               function(x) ifelse(x==-77, -777, x),
+               how = "replace")
+
+# Add multiple lines here as necessary to change other nonanswer values in labels
+# chng <- rapply(chng,
+#                function(x) ifelse(x==-88, -888, x),
+#                how = "replace")
+
+# Substitute new value labels into answer_labels
+for (i in 1:length(chng)){
+  if(!is.null(answer_labels[[i]])){
+  names(answer_labels[[i]]) <- chng[[i]]
+  }
+}
 ```
 
 Recode Non-answer values to 3 digits
@@ -141,217 +172,192 @@ Recode Non-answer values to 3 digits
 When we code someone as being 'not applicable' by deduction, we use `NA_real_`
 ```{r Recode NA values}
 dat <- dat %>%
-  mutate(across(ends_with("numeric"),
+  mutate(across(where(is.numeric),
                 ~case_when(
                   . == -55 ~ -555,
                   . == -77 ~ -777,
                   . == -88 ~ -888,
                   . == -99 ~ -999,
-                  TRUE ~ .)))
+                  TRUE ~ .)
+                )
+         )
+
+# Re-add labels after mutate
+dat <- sjlabelled::set_label(dat, question_labels)
+dat <- sjlabelled::set_labels(dat, labels = answer_labels)
 ```
 
-Create list of all unique values
-```{r List unique values}
-ulst <- sapply(dat, unique)
+Create list of all labels and attributes
+This chunk supersedes all categorical/numeric cleaning
+It gives you an output of c(the question label, all value-label pairs)
+for each variable
+Check for errors in the output of this chunk, including:
+- Label spelling errors (for questions and answers)
+- Incorrect values
+- Mismatches between labels and values
+- Scale errors
+- Variable naming issues from the data extraction
+- Any other issues you can see
+All issues/changes need to be logged as a to-do on Teams
+At this point, you also need to pick out any continuous, date or text variables 
+to be cleaned in the later chunks
+```{r List labels attrs}
+label_list <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
+label_list
 ```
-
-
-# Categorical variables 
-
-## 0-4: 'Not at all' to 'Extremely'
-Note: PCL-5 items are scored 0-4 (changed introduced for DSM-5), unlike PCL-6 items which are scored 1-5 as they are adapted from the PCL-C (DSM-IV): https://www.ptsd.va.gov/professional/assessment/adult-sr/ptsd-checklist.asp
-```{r vector categorical variables 0_4}
-variables_categorical_0_4 <-
-  c(
-    "pcl5.repeated_disturbing_stressful_experience",
-    "pcl5.repeated_disturbing_dreams_of_the_stressful_experience",
-    "pcl5.stressful_experience_acting_happening",
-    "pcl5.stressful_experience_reminded_upset",
-    "pcl5.stressful_experience_reminded_strong",
-    "pcl5.avoiding_memories_thoughts_stressful",
-    "pcl5.avoiding_external_reminders_of_the_stressful_experience_",
-    "pcl5.stressful_experience_trouble_remembering",
-    "pcl5.world_people_strong_negative",
-    "pcl5.stressful_experience_blaming_happened",
-    "pcl5.fear_horror_anger_guilt",
-    "pcl5.enjoy_activities_interest_loss",
-    "pcl5.cut_people_feeling_distant",
-    "pcl5.trouble_experiencing_positive_feelings_",
-    "pcl5.irritable_behaviour_angry_outburst_or_acting_aggressively",
-    "pcl5.risks_taking_harm_things",
-    "pcl5.being_superalert_or_watchful_or_on_guard",
-    "pcl5.feeling_jumpy_or_easily_startled",
-    "pcl5.having_difficulty_concentrating",
-    "pcl5.trouble_falling_or_staying_sleep"
-  )
-variables_categorical_0_4
-```
-
-```{r vector categorical values}
-values_categorical_0_4 <- c(
-  "Seen but not answered",
-  "Prefer not to answer",
-  "Not at all",
-  "A little bit",
-  "Moderately",
-  "Quite a bit",
-  "Extremely",
-  NA
-  )
-values_categorical_0_4
-```
-
-```{r imp_check categorical variables 0_4}
-imp_check(data = dat,
-          variables = variables_categorical_0_4,
-          values = values_categorical_0_4)
-#There are no implausible values in the dataset. Can leave these variables as they are
-```
-
-
-
-# Numeric variables
-
-## 0-4
-```{r vector numeric variables 0_4 numeric}
-variables_numeric_0_4 <-
-  c(
-    "pcl5.repeated_disturbing_stressful_experience_numeric",
-    "pcl5.repeated_disturbing_dreams_of_the_stressful_experience_numeric",
-    "pcl5.stressful_experience_acting_happening_numeric",
-    "pcl5.stressful_experience_reminded_upset_numeric",
-    "pcl5.stressful_experience_reminded_strong_numeric",
-    "pcl5.avoiding_memories_thoughts_stressful_numeric",
-    "pcl5.avoiding_external_reminders_of_the_stressful_experience__numeric",
-    "pcl5.stressful_experience_trouble_remembering_numeric",
-    "pcl5.world_people_strong_negative_numeric",
-    "pcl5.stressful_experience_blaming_happened_numeric",
-    "pcl5.fear_horror_anger_guilt_numeric",
-    "pcl5.enjoy_activities_interest_loss_numeric",
-    "pcl5.cut_people_feeling_distant_numeric",
-    "pcl5.trouble_experiencing_positive_feelings__numeric",
-    "pcl5.irritable_behaviour_angry_outburst_or_acting_aggressively_numeric",
-    "pcl5.risks_taking_harm_things_numeric",
-    "pcl5.being_superalert_or_watchful_or_on_guard_numeric",
-    "pcl5.feeling_jumpy_or_easily_startled_numeric",
-    "pcl5.having_difficulty_concentrating_numeric",
-    "pcl5.trouble_falling_or_staying_sleep_numeric"
-    )
-variables_numeric_0_4
-```
-
-```{r pcl-6 0-4 vector numeric values}
-values_numeric_0_4 <- c(
-  0,
-  1,
-  2,
-  3,
-  4,
-  -777,
-  NA
-  )
-values_numeric_0_4
-```
-
-```{r imp_check numeric variables}
-imp_check(data = dat,
-          variables = variables_numeric_0_4,
-          values = values_numeric_0_4)
-#There are no implausible values in the dataset. Can leave these variables as they are
-```
-
 
 
 # Produce sumscores
 
+Reference the scoring guidance that you have used for your questionnaire here <"link">
+
+If changing na_limit, CHECK your guidance, na_limit > 0 will replace NAs with 0, ensure that this is correct for your scoring guidance before proceeding
+
+The coding_keys vector must contain 1s for all variables to be added and -1 for all variables to be subtracted.
+ - Putting 0 in the vector will omit the variable at that position.
+ - length(coding_keys) MUST be the same as the number of variables to be summed
+
+sum_vars vector should contain ONLY and ALL variable names needed for scoring, do not add "ID" or "sample" etc.
+
+If using reverse keying:
+ - MAKE SURE that reverse = TRUE is included as an argument, reverse keying will not work without this
+ - reverse_vars should contain all variable names to be reverse keyed
+ - If running multiple sumscores requiring reverse keying, a single reverse_vars vector containing all of the variable names to be reverse keyed is sufficient: `%in%` will pick the relevant variables for each sumscore
+
+These warnings are normal:
+ - "Scores vector contains missing values."
+ - "Input contains non-answer values. These will be converted to NA_real_ for this calculation."
+
+They are there to inform you that some sumscores have not been calculated due to non-answer values (e.g. -777) being present.
+Any other errors or warnings need to be investigated.
+
 Create required variables for sumscore arguments
-Note: Sumscore only includes the 20 items from PCL-5 DSM-5 checklist: https://www.ptsd.va.gov/professional/assessment/adult-sr/ptsd-checklist.asp. Does not include "Felt that there was no point in planning for the future?" item which was part of the PCL-5 for DSM-IV but not DSM-5.
 ```{r Sumscores inputs}
-keys <- c(
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1
-  )
+keys <- seq(1, 1, length.out = 20)
+
 sum_vars <- c(
-    "pcl5.repeated_disturbing_stressful_experience_numeric",
-    "pcl5.repeated_disturbing_dreams_of_the_stressful_experience_numeric",
-    "pcl5.stressful_experience_acting_happening_numeric",
-    "pcl5.stressful_experience_reminded_upset_numeric",
-    "pcl5.stressful_experience_reminded_strong_numeric",
-    "pcl5.avoiding_memories_thoughts_stressful_numeric",
-    "pcl5.avoiding_external_reminders_of_the_stressful_experience__numeric",
-    "pcl5.stressful_experience_trouble_remembering_numeric",
-    "pcl5.world_people_strong_negative_numeric",
-    "pcl5.stressful_experience_blaming_happened_numeric",
-    "pcl5.fear_horror_anger_guilt_numeric",
-    "pcl5.enjoy_activities_interest_loss_numeric",
-    "pcl5.cut_people_feeling_distant_numeric",
-    "pcl5.trouble_experiencing_positive_feelings__numeric",
-    "pcl5.irritable_behaviour_angry_outburst_or_acting_aggressively_numeric",
-    "pcl5.risks_taking_harm_things_numeric",
-    "pcl5.being_superalert_or_watchful_or_on_guard_numeric",
-    "pcl5.feeling_jumpy_or_easily_startled_numeric",
-    "pcl5.having_difficulty_concentrating_numeric",
-    "pcl5.trouble_falling_or_staying_sleep_numeric"
-    )
+  "pcl5.past_month_bothered.repeated_disturbing_and_unwanted_memories_of_the_stressful_experience",
+  "pcl5.past_month_bothered.repeated_disturbing_dreams_of_the_stressful_experience",
+  "pcl5.past_month_bothered.suddenly_feeling_or_acting_as_if_the_stressful_experience_were_actually_happening_again",
+  "pcl5.past_month_bothered.feeling_very_upset_when_something_reminded_you_of_the_stressful_experience",
+  "pcl5.past_month_bothered.having_strong_physical_reactions_when_something_reminded_you_of_the_stressful_experience_",
+  "pcl5.past_month_bothered.avoiding_memories_thoughts_or_feelings_related_to_the_stressful_experience",
+  "pcl5.past_month_bothered.avoiding_external_reminders_of_the_stressful_experience_",
+  "pcl5.past_month_bothered.trouble_remembering_important_parts_of_the_stressful_experience",
+  "pcl5.past_month_bothered.having_strong_negative_beliefs_about_yourself_other_people_or_the_world_",
+  "pcl5.past_month_bothered.blaming_yourself_or_someone_else_for_the_stressful_experience_or_what_happened_after_it",
+  "pcl5.past_month_bothered.having_strong_negative_feelings_such_as_fear_horror_anger_guilt_or_shame",
+  "pcl5.past_month_bothered.loss_of_interest_in_the_activities_that_you_used_to_enjoy",
+  "pcl5.past_month_bothered.feeling_distant_or_cut_off_from_from_other_people",
+  "pcl5.past_month_bothered.trouble_experiencing_positive_feelings_",
+  "pcl5.past_month_bothered.irritable_behaviour_angry_outburst_or_acting_aggressively",
+  "pcl5.past_month_bothered.taking_too_many_risks_or_doing_things_that_could_cause_you_harm",
+  "pcl5.past_month_bothered.being_superalert_or_watchful_or_on_guard",
+  "pcl5.past_month_bothered.feeling_jumpy_or_easily_startled",
+  "pcl5.past_month_bothered.having_difficulty_concentrating",
+  "pcl5.past_month_bothered.trouble_falling_or_staying_sleep"
+  )
 ```
 
-```{r generate sumscores}
+Generate sumscores from questionnaire data and use mutate onto dat as new column
+sumscores assumes that all items in the questionnaire have the SAME minimum and maximum scores for ALL items, ensure that this is correct before proceeding
+
+When adding the column name for your sumscore use "questionnaire.score_name"
+
+Sumscores will produce a list of 2 elements, the first is "scores", the second is "na.count"
+
+Add "scores" to your dataframe only, "na.count" provides a report of the number of NAs in the scoring variables for each participant
+
+Generate sumscores
+```{r Generate sumscores}
+sum_out <- sumscores(input = dat,
+                     sum_vars = sum_vars,
+                     coding_keys = keys,
+                     na_allowed = 0,
+                     min_item = 0,
+                     max_item = 4,
+                     min_score = 0,
+                     max_score = 80
+                     )
+```
+
+Add sumscores as new column
+```{r Add sumscores}
 dat <- dat %>% 
-  mutate(
-    pcl5.sum_score = 
-         sumscores(input = dat,
-                   sum_vars = sum_vars,
-                   coding_keys = keys,
-                   na_allowed = 0,
-                   min_item = 0,
-                   max_item = 4,
-                   min_score = 0,
-                   max_score = 80 #checkthis
-                   )[["scores"]]
-         )
+  mutate(pcl5.sum_score = sum_out$scores)
 ```
 
+
+# Create phenotypes
 Phenotyping of PCL-5
 Create binary phenotypes based on PCL-5 scoring criteria
 Cutoff for meeting PTSD criteria is sumscore of 31-33 or more
-Use "questionnaire.binary_score_name" when naming screener measures
-```{r hazardous and harmful alcohol use behaviour}
-dat <- dat %>% 
+
+Create clinical PTSD variable
+```{r Create clinical PTSD}
+dat <- dat %>%
   mutate(
-    pcl5.binary_PTSD =
+    pcl5.clinical_ptsd =
       case_when(
         pcl5.sum_score >= 31 ~ 1,
         pcl5.sum_score < 31 ~ 0
-        )
-    )
+      )
+  )
+dat %>%
+  select(pcl5.clinical_ptsd) %>%
+  tbl_summary()
 ```
+
+Label clinical PTSD
+```{r Label clinical PTSD}
+# Set question label
+dat$pcl5.clinical_ptsd <- sjlabelled::set_label(dat$pcl5.clinical_ptsd, "Clinical PTSD")
+
+# Create vector of answer labels
+clinical_ptsd_labels <- c("No Clinical PTSD" = 0, "Clinical PTSD" = 1)
+
+# Set answer labels
+dat$pcl5.clinical_ptsd <- sjlabelled::set_labels(dat$pcl5.clinical_ptsd,
+                                                 labels = clinical_ptsd_labels)
+
+# Remove vector of answer labels
+rm(clinical_ptsd_labels)
+
+# View variable to check
+sjlabelled::as_label(dat) %>%
+  select(pcl5.clinical_ptsd) %>%
+  tbl_summary(missing_text = "Missing")
+```
+
+
+# Add Numeric Variables
+
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+Text variables also need to be excluded
+Do not include ID and sample here
+```{r Specify excluded columns}
+exclude_cols_numeric <- c(
+  # columns as required
+  )
+```
+
+Add labelled/numeric columns
+Modify the leaders argument if necessary
+```{r Add columns}
+dat <- dat %>% 
+  add_labelled_numeric(exclude = exclude_cols_numeric)
+
+# Inspect colnames
+dat %>%
+  colnames()
+```
+
 
 # Save cleaned data
-Check colnames before exporting final dataset
-```{r check colnames}
-colnames(dat)
-```
 
-# COVID CNS
-```{r Write cleaned GLAD variables to a .rds file}
+# COVIDCNS
+```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
     file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/pcl5_covidcns_clean.rds")

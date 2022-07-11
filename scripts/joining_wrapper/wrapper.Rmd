@@ -244,7 +244,7 @@ source(knitr::purl("scripts/mh_case_report/MoCA_inpatient.Rmd"))
 
 ## cognitron_outp_info
 ```{r cognitron_outp_info Cleaning the individual questionnaires}
-source(knitr::purl("scripts/moca/cognitron_outp_info.Rmd"))
+source(knitr::purl("scripts/moca/cognitron_outp.Rmd"))
 ```
 
 ## MoCA_outpatient
@@ -276,6 +276,11 @@ source(knitr::purl("scripts/neuro_case_report/ncrf1_cic.Rmd"))
 ## ncrf1_comorbid
 ```{r ncrf1_comorbid Cleaning the individual questionnaires}
 source(knitr::purl("scripts/neuro_case_report/ncrf1_comorbid.Rmd"))
+```
+
+## ncrf1_dem
+```{r ncrf1_comorbid Cleaning the individual questionnaires}
+source(knitr::purl("scripts/neuro_case_report/ncrf1_dem.Rmd"))
 ```
 
 ## ncrf1_lab
