@@ -115,7 +115,7 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          nonmotor.pass_urine_regularly_night,
          nonmotor.sex_difficult_finding,
          nonmotor.weak_standing_lying_sitting,
-         nonmotor.dream_talking_sleep_acting,
+         nonmotor.dream_talking_moving_acting,
          nonmotor.double_vision
          ) %>%
   add_numeric(exclude = exclude_cols_numeric)
@@ -196,7 +196,7 @@ variables_cat <- c(
   "nonmotor.pass_urine_regularly_night",
   "nonmotor.sex_difficult_finding",
   "nonmotor.weak_standing_lying_sitting",
-  "nonmotor.dream_talking_sleep_acting",
+  "nonmotor.dream_talking_moving_acting",
   "nonmotor.double_vision"
 )
 ```
@@ -231,7 +231,7 @@ variables_num <- c(
   "nonmotor.pass_urine_regularly_night_numeric",
   "nonmotor.sex_difficult_finding_numeric",
   "nonmotor.weak_standing_lying_sitting_numeric",
-  "nonmotor.dream_talking_sleep_acting_numeric",
+  "nonmotor.dream_talking_moving_acting_numeric",
   "nonmotor.double_vision_numeric"
 )
 ```

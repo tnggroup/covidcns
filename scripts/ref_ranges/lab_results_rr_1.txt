@@ -1,0 +1,33 @@
+Variable	Label	Units	Lower	Upper
+"ncrf1_lab.hemoglobin"	"Hb"	"g/L"	115	155 
+"ncrf1_lab.wbc_count"	"WCC"	"10^9/L"	4.00	11.00
+"ncrf1_lab.hematocrit"	"Hematocrit"	"L/L"	0.390	0.440
+"ncrf1_lab.platelets"	"Platelets"	"10^9/L"	150	450
+"ncrf1_lab.aptt"	"APTT"	"s"	24	37
+"ncrf1_lab.aptr"	"APTR"	""	0.8	1.2
+"ncrf1_lab.pt"	"PT"	"s"	12.0	14.8
+"ncrf1_lab.inr"	"INR"	""	1.0	1.3
+"ncrf1_lab.astsgot"	"AST SGOT"	"U/L"	8	45
+"ncrf1_lab.total_bilirubin"	"Total Bilirubin"	"umol/L"	3	20
+"ncrf1_lab.urea"	"Urea"	"mmol/L"	2.5	7.8 
+"ncrf1_lab.lactate"	"Lactate"	"mmol/L"	0.5	2.2
+"ncrf1_lab.po2"	"pO2"	"mmHg"	83	108
+"ncrf1_lab.lowest_po2"	"Lowest pO2"	"mmHg"	83	108
+"ncrf1_lab.pco2"	"pCO2"	"mmHg"	32	45
+"ncrf1_lab.csf_wcc"	"CSF WCC"	"c/mm^3"	0	5
+"ncrf1_lab.csf_protein"	"CSF Protein"	"g/L"	0.15	0.45
+"ncrf1_lab.creatinine"	"Creatinine"	"umol/L"	47	99
+"ncrf1_lab.sodium"	"Sodium"	"mmol/L"	135	145
+"ncrf1_lab.potassium"	"Potassium"	"mmol/L"	3.5	5.0
+"ncrf1_lab.procalcitonin"	"Procalcitonin"	"ng/ml"	0	0.1
+"ncrf1_lab.crp"	"CRP"	"mg/L"	0	5
+"ncrf1_lab.ldh"	"LDH"	"IU/L"	105	333
+"ncrf1_lab.creatine_kinase"	"Creatine Kinase"	"U/L"	25	320
+"ncrf1_lab.troponin"	"Troponin"	"ug/L"	0	0.01
+"ncrf1_lab.esr"	"ESR"	"mm/hr"	0	4
+"ncrf1_lab.ddimer"	"D-Dimer"	"ng/ml"	0	500
+"ncrf1_lab.ferritin"	"Ferritin"	"ug/L"	13	150
+"ncrf1_lab.ph"	"pH"	""	7.35	7.45
+"ncrf1_lab.bicarbonate"	"HCO3"	"mmol/L"	22	26
+"ncrf1_lab.csf_rcc"	"CSF RCC"	"c/mm^3"	0	10
+"ncrf1_lab.csfserum_glucose"	"CSF Glucose"	"mmol/L"	2.8	4.2

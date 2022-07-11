@@ -1,0 +1,761 @@
+---
+title: "COVIDCNS Demographics"
+author: "Zain Ahmad"
+date: "03/09/2022"
+output: html_document
+---
+
+
+All arguments should be in their own row, including the first argument
+Closing bracket should have its own row
+Functions with a single argument can have this on the same line
+One argument can be hashed out per line for debugging errors
+
+Chunk names should be all lower case except capitalised first word
+Chunk names MUST be unique
+Points requiring user input are enclosed thus <>
+
+Ensure that you have deleted/untracked .DS_Store before your initial commit
+Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+Add the add_labelled_numeric function - used to convert character variables into numeric variables
+Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+Add the recode_check function - used to check for implausible values when recoding
+Add the imp_clean function - used to check variables for implausible values
+Add the cont_clean function - used to check continuous variables for implausible values
+```{r Read in functions}
+source(file = "scripts/functions/add_labelled_numeric.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/recode_check.R")
+source(file = "scripts/functions/cont_clean.R")
+```
+
+Use package_check to install and load dependencies
+Load tidyverse last
+```{r Install load dependencies}
+packages <- c("sjlabelled",
+              "Amelia",
+              "gtsummary",
+              "tidyverse")
+
+package_check(packages)
+```
+
+Read in file with path to ilovecovidcns channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Source filepath to ilovecovidcns OneDrive}
+source(file = "scripts/credentials/paths.R")
+```
+
+# Read in the data: COVIDCNS Demographics
+
+Do not change variable names from the NLP names that are produced by the extraction
+EXCEPT in exceptional circumstances
+Document ANY changes to variable names in the Teams Data Issues Tracker
+
+- For variable names, use ONLY 'questionnaire.variable_name' syntax
+- When using pipe operator '%>%', each function should begin on a new line for clarity
+- Do not add empty lines at the beginning or end of a chunk to keep the markdown as short as possible
+- Use only tidyverse functions wherever possible, they run faster than base R
+
+COVIDCNS data
+```{r COVIDCNS load data}
+covidcns_dat <- read_rds(
+  file = paste0(ilovecovidcns, "/data_raw/2022-05-28/baseline/dem_covid_cns.rds")
+  )
+  
+# Check variable names in dataframe
+covidcns_dat %>%
+  colnames()
+
+# Inspect dimensions of dataframe 
+covidcns_dat %>%
+  dim()
+
+# Report counts of duplicates in ID column
+covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(., externalDataReference)
+
+# Report number of IDs to be dropped
+covidcns_excluded <- covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(., externalDataReference) %>%
+  select("Dropped IDs" = "n") %>%
+  colSums() + 1
+
+covidcns_excluded
+```
+
+Create new df with renamed and de-duplicated/NA-removed ID column
+```{r COVIDCNS select}
+covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
+  remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
+  dplyr::rename(
+    "ID" = "externalDataReference",
+    "dem.how_old_are_you_now.txt" = "dem.required_question_eligibility_criteria.txt",
+    "dem.sex_at_birth" = "dem.medical_history_birth_relevant",
+    "dem.country_of_residence" = "dem.based_confirm_living_question",
+    "dem.turkish" = "QID126489347_22",
+    "dem.turkish_cypriot" = "QID126489347_23",
+    "dem.sri_lankan" = "QID126489349_11",
+    "dem.japanese" = "QID126489349_10",
+    "dem.current_weight" = "dem.pregnant_weigh_weight_provide",
+    "dem.current_weight.1" = "dem.pregnant_weigh_weight_provide.1",
+    "dem.current_weight.2" = "dem.pregnant_weigh_weight_provide.2",
+    "dem.highest_weight" = "dem.pregnant_weighed_weight_provide",
+    "dem.highest_weight.1" = "dem.pregnant_weighed_weight_provide.1",
+    "dem.highest_weight.2" = "dem.pregnant_weighed_weight_provide.2",
+    "dem.highest_weight_age" = "dem.highest_weight",
+    "dem.lowest_weight_adult_height" = "dem.stopped_growing_adult_height",
+    "dem.lowest_weight_adult_height.1" = "dem.stopped_growing_adult_height.1",
+    "dem.lowest_weight_adult_height.2" = "dem.stopped_growing_adult_height.2",
+    "dem.lowest_weight_age" = "dem.lowest_weight_adult_height",
+    "dem.metal_implants" = "dem.body_suffered_injury_involving",
+    "dem.concerned_memory" = "dem.affects_concerned_live_memory.1",
+    "dem.concerned_memory_before_covid" = "dem.affects_concerned_live_memory.2",
+    "dem.concerned_memory_after_covid" = "dem.affects_concerned_live_memory",
+    "dem.long_ago_diagnosed_years" = "dem.long_ago_diagnosed_required",
+    "dem.long_ago_diagnosed_months" = "dem.long_ago_diagnosed_required.1",
+    "dem.family_diagnosed_covid19" = "dem.diagnosed_covid19_experienced_similar",
+    "dem.middle_wake_night_before_covid" = "dem.middle_wake_night_covid19",
+    "dem.middle_wake_night_after_covid" = "dem.middle_wake_night_covid19.1",
+  ) %>%
+  dplyr::select(
+    "ID",
+    "startDate",
+    "endDate",
+    
+    #dob/age - clean/create age
+    "dem.day",
+    "dem.month",
+    "dem.year",
+    "dem.how_old_are_you_now.txt",
+    
+    #sex/gender/sexuality/relationship status
+    "dem.what_gender_do_you_identify_with",
+    "dem.what_gender_do_you_identify_with.txt",
+    "dem.do_you_consider_yourself_to_be_transgender",
+    "dem.sex_at_birth",
+    "dem.have_you_ever_been_pregnant",
+    "dem.what_is_your_sexual_orientation",
+    "dem.what_is_your_sexual_orientation.txt",
+    "dem.what_is_your_current_maritalrelationship_status",
+    "dem.what_is_your_current_maritalrelationship_status.txt",
+    
+    #country of residence
+    "dem.country_of_residence",
+    
+    #education - create unified variable
+    "dem.college_or_university_degree",
+    "dem.a_levelsas_levels_or_equivalent",
+    "dem.o_levelsgcses_or_equivalent",
+    "dem.cses_or_equivalent",
+    "dem.nvq_or_hnd_or_hnc_or_equivalent",
+    "dem.other_professional_qualifications_",
+    "dem.other_professional_qualifications_text.txt",
+    "dem.none_of_the_above",
+    "dem.prefer_not_to_say",
+    
+    #ethnicity
+    "dem.british_mixed_british",
+    "dem.irish",
+    "dem.northern_irish",
+    "dem.any_other_white_background",
+    "dem.white_and_black_caribbean",
+    "dem.white_and_black_africa",
+    "dem.white_and_asian",
+    "dem.any_other_mixed_background",
+    "dem.indian_or_british_indian",
+    "dem.pakistani_or_british_pakistani",
+    "dem.bangladeshi_or_british_bangladeshi",
+    "dem.any_other_asian_background",
+    "dem.caribbean",
+    "dem.african",
+    "dem.any_other_black_background",
+    "dem.chinese",
+    "dem.any_other_ethnic_group",
+    "dem.other",
+    "dem.othertext.txt",
+    "dem.english",
+    "dem.scottish",
+    "dem.welsh",
+    "dem.cornish",
+    "dem.cypriot_",
+    "dem.greek",
+    "dem.greek_cypriot",
+    "dem.turkish",
+    "dem.turkish_cypriot",
+    "dem.italian",
+    "dem.irish_traveller",
+    "dem.traveller",
+    "dem.gypsyromany",
+    "dem.polish",
+    "dem.republics_made_ussr",
+    "dem.kosovan",
+    "dem.albanian",
+    "dem.bosnian",
+    "dem.croatian",
+    "dem.serbian",
+    "dem.republics_made_yugoslavia",
+    "dem.mixed_white",
+    "dem.other_white_european_european_unspecified_european_mix",
+    "dem.black_and_asian",
+    "dem.black_and_chinese",
+    "dem.black_and_white",
+    "dem.chinese_and_white",
+    "dem.asian_and_chinese",
+    "dem.other_mixed_mixed_unspecified",
+    "dem.other_mixed_mixed_unspecifiedtext.txt",
+    "dem.mixed_asian",
+    "dem.punjabi",
+    "dem.kashmiri",
+    "dem.east_african_asian",
+    "dem.tamil",
+    "dem.sinhalese",
+    "dem.sri_lankan",
+    "dem.japanese",
+    "dem.british_asian",
+    "dem.caribbean_asian",
+    "dem.other_asian_asian_unspecified",
+    "dem.other_asian_asian_unspecifiedtext.txt",
+    "dem.somali",
+    "dem.mixed_black",
+    "dem.nigerian",
+    "dem.black_british",
+    "dem.other_black_black_unspecified",
+    "dem.other_black_black_unspecifiedtext.txt",
+    "dem.vietnamese",
+    "dem.filipino",
+    "dem.malaysian",
+    "dem.any_other_group",
+    "dem.any_other_grouptext.txt",
+    
+    #language
+    "dem.is_english_your_first_language",
+    "dem.what_is_your_first_language",
+    "dem.what_is_your_first_language.txt",
+    
+    #height/weight - clean numeric vars
+    "dem.please_select_your_preferred_units_of_measurement",
+    "dem.what_is_your_current_height",
+    "dem.what_is_your_current_height.1",
+    "dem.what_is_your_current_height.2",
+    "dem.current_weight",
+    "dem.current_weight.1",
+    "dem.current_weight.2",
+    "dem.highest_weight",
+    "dem.highest_weight.1",
+    "dem.highest_weight.2",
+    "dem.highest_weight_age",
+    "dem.lowest_weight_adult_height",
+    "dem.lowest_weight_adult_height.1",
+    "dem.lowest_weight_adult_height.2",
+    "dem.lowest_weight_age",
+    
+    #vision/hearing/handedness
+    "dem.how_would_you_describe_your_vision",
+    "dem.how_would_you_describe_your_hearing",
+    "dem.which_hand_do_you_usually_write_with",
+    
+    "dem.metal_implants",
+    
+    #memory
+    "dem.concerned_memory",
+    "dem.concerned_memory_before_covid",
+    "dem.concerned_memory_after_covid",
+    "dem.memory_problem_worse_year",
+    "dem.has_your_memory_got_progressively_worse",
+    
+    #covid19
+    "dem.diagnosed_required_question_covid19",
+    "dem.long_ago_diagnosed_years",
+    "dem.long_ago_diagnosed_months",
+    "dem.family_diagnosed_covid19",
+    
+    #quality of life
+    "dem.quality_rate_life",
+    "dem.happy_general_health",
+    "dem.energy_everyday_life",
+    "dem.opportunity_leisure_activities",
+    "dem.money_day",
+    "dem.middle_wake_night_trouble",
+    "dem.middle_wake_night_before_covid",
+    "dem.middle_wake_night_after_covid"
+    
+  )
+
+# Inspect colnames
+covidcns_dat_id %>%
+  colnames()
+
+# Inspect dimensions of new data set
+covidcns_dat_id %>%
+  dim()
+```
+
+Check missingness by missmap
+```{r COVIDCNS missmap}
+covidcns_dat_id %>% 
+  missmap()
+```
+
+Create dat as copy of covidcns_dat_id for brevity
+This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
+```{r Create dat}
+dat <- covidcns_dat_id 
+```
+
+Extract and save labels
+```{r Extract save labels}
+# Save variable labels
+question_labels <- sjlabelled::get_label(dat)
+
+# Save value labels
+answer_labels <- sjlabelled::get_labels(dat, values = "as.name")
+
+# Change -77 to -777 in value labels names
+chng <- rapply(sapply(answer_labels, names),
+               function(x) ifelse(x==-77, -777, x),
+               how = "replace")
+
+#names(answer_labels) <- chng
+# Add multiple lines here as necessary to change other nonanswer values in labels
+# chng <- rapply(chng,
+#                function(x) ifelse(x==-88, -888, x),
+#                how = "replace")
+
+# Substitute new value labels into answer_labels
+for (i in 1:length(chng)){
+  if(!is.null(answer_labels[[i]])){
+  names(answer_labels[[i]]) <- chng[[i]]
+  }
+}
+# NA coercion warning is due to text variables containing nothing except -77/NA
+# which causes coercion to numeric in get_labels_helper
+```
+
+Recode Non-answer values to 3 digits
+-555 'Not applicable' response from participant
+-777 Seen but not answered
+-888 Don't know
+-999 Prefer not to answer/Prefer not to say
+`NA` Were not shown the question (genuinely missing value)
+When we code someone as being 'not applicable' by deduction, we use `NA_real_`
+```{r Recode NA values}
+dat <- dat %>%
+  mutate(across(where(is.numeric),
+                ~case_when(
+                  . == -55 ~ -555,
+                  . == -77 ~ -777,
+                  . == -88 ~ -888,
+                  . == -99 ~ -999,
+                  TRUE ~ .)
+                )
+         )
+
+# Re-add labels after mutate
+dat <- sjlabelled::set_label(dat, question_labels)
+dat <- sjlabelled::set_labels(dat, labels = answer_labels)
+```
+
+Create list of all labels and attributes
+This chunk supersedes all categorical/numeric cleaning
+It gives you an output of c(the question label, all value-label pairs)
+for each variable
+Check for errors in the output of this chunk, including:
+- Label spelling errors (for questions and answers)
+- Incorrect values
+- Mismatches between labels and values
+- Scale errors
+- Variable naming issues from the data extraction
+- Any other issues you can see
+All issues/changes need to be logged as a to-do on Teams
+At this point, you also need to pick out any continuous, date or text variables 
+to be cleaned in the later chunks
+```{r List labels attrs}
+label_list <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
+label_list
+```
+
+
+# Recoding Incorrect Variables
+
+## Memory
+
+View dem.concerned_memory
+No should be 0 not 2
+```{r View dem.concerned_memory values and labels}
+attr(dat$dem.concerned_memory, "labels")
+```
+
+Recode incorrect variable
+Can be removed after data recoded in qualtrics and after data export
+If variables are found to be incorrect:
+Report the error on Teams
+Recode the variable yourself using `case_when` as below
+Continue cleaning your script with the recoded variable until fixed from source
+DO NOT run this chunk multiple times: it will mess up the variable coding, requiring you to run the script again from the beginning
+```{r Recode dem.concerned_memory}
+dat <- dat %>% 
+  mutate(across(dem.concerned_memory,
+                ~case_when(
+                  . == 2 ~ 0,
+                  TRUE ~ .)))
+```
+
+Rename value labels of dem.concerned_memory
+```{r Relabel dem.concerned_memory}
+# Named vector of correct labels
+new_levels_vec <- c("Prefer not to say" = -999,
+                    "Seen but not answered" = -777,
+                    "Yes" = 1,
+                    "No" = 0)
+
+# Assign new labels
+dat$dem.concerned_memory <- set_labels(dat$dem.concerned_memory, labels = new_levels_vec)
+
+# Remove labels vector
+rm(new_levels_vec)
+```
+
+Recheck variable coding
+```{r Recheck dem.concerned_memory values and labels}
+attr(dat$dem.concerned_memory, "labels")
+```
+
+
+## Pregnancy
+
+View dem.have_you_ever_been_pregnant
+Prefer not to say should be -999 not 2
+```{r View dem.have_you_ever_been_pregnant values and labels}
+attr(dat$dem.have_you_ever_been_pregnant, "labels")
+```
+
+Recode incorrect variable
+Can be removed after data recoded in qualtrics and after data export
+If variables are found to be incorrect:
+Report the error on Teams
+Recode the variable yourself using `case_when` as below
+Continue cleaning your script with the recoded variable until fixed from source
+DO NOT run this chunk multiple times: it will mess up the variable coding, requiring you to run the script again from the beginning
+```{r Recode dem.have_you_ever_been_pregnant}
+dat <- dat %>% 
+  mutate(across(dem.have_you_ever_been_pregnant,
+                ~case_when(
+                  . == 2 ~ -999,
+                  TRUE ~ .)))
+```
+
+Rename value labels of dem.have_you_ever_been_pregnant
+```{r Relabel dem.have_you_ever_been_pregnant}
+# Named vector of correct labels
+new_levels_vec <- c("Prefer not to say" = -999,
+                    "Seen but not answered" = -777,
+                    "Yes" = 1,
+                    "No" = 0)
+
+# Assign new labels
+dat$dem.have_you_ever_been_pregnant <- set_labels(dat$dem.have_you_ever_been_pregnant, labels = new_levels_vec)
+
+# Remove labels vector
+rm(new_levels_vec)
+```
+
+Recheck variable coding
+```{r Recheck dem.have_you_ever_been_pregnant values and labels}
+attr(dat$dem.have_you_ever_been_pregnant, "labels")
+```
+
+
+# Create DOB from day/month/year columns
+
+Add 1919 to year column
+This needs to be remediated in Qualtrics, current format is unacceptable
+```{r Year col add 1919}
+dat <- dat %>%
+  mutate(
+    dem.year = dem.year + 1919
+  )
+```
+
+
+Unite columns on "/" using tidyr to create DOB
+```{r Unite dob columns}
+dob_cols <- c(
+  "dem.day",
+  "dem.month",
+  "dem.year"
+)
+
+dat <- dat %>%
+  unite(.,
+        col = dem.date_of_birth,
+        all_of(dob_cols),
+        sep = "/",
+        remove = FALSE)
+
+dat$dem.date_of_birth <- set_label(dat$dem.date_of_birth, "Date of birth")
+```
+
+Parse dob using lubridate
+```{r Parse dob}
+dat <- dat %>% 
+  mutate(dem.date_of_birth = lubridate::parse_date_time(x = dem.date_of_birth,
+                                              orders = c("d/m/y"),
+                                              tz = "Europe/London")
+         )
+
+dat$dem.date_of_birth <- set_label(dat$dem.date_of_birth, "Date of birth")
+```
+
+Create dob age using startDate difference
+```{r Create dob age}
+dat <- dat %>%
+  mutate(dem.dob_age = floor((startDate - dem.date_of_birth)/lubridate::dyears(1)))
+
+dat$dem.dob_age <- set_label(dat$dem.dob_age, "Age")
+
+str(dat$dem.dob_age)
+```
+
+
+# Create education unified variable
+
+Categorical variable where highest_education is the variable and qualifications are categories
+```{r Create highest qualification variable}
+dat <- dat %>%
+  mutate(
+    dem.highest_education =
+      case_when(
+        dem.none_of_the_above == 1 ~ 0,
+        dem.college_or_university_degree == 1 ~ 1,
+        dem.a_levelsas_levels_or_equivalent == 1 ~ 2,
+        dem.o_levelsgcses_or_equivalent == 1 ~ 3,
+        dem.cses_or_equivalent == 1 ~ 4,
+        dem.nvq_or_hnd_or_hnc_or_equivalent == 1 ~ 5,
+        dem.other_professional_qualifications_ == 1 ~ 6,
+        dem.prefer_not_to_say == 1 ~ -999
+        )
+    )
+
+# Named vector of labels
+new_levels_vec <- c("None of the above" = 0,
+                    "College or university degree" = 1,
+                    "A levels/AS levels or equivalent" = 2,
+                    "O levels/GCSEs or equivalent" = 3,
+                    "CSEs or equivalent" = 4,
+                    "NVQ or HND or HNC or equivalent" = 5,
+                    "Other professional qualifications" = 6,
+                    "Prefer not to say" = -999)
+
+# Assign new labels
+dat$dem.highest_education <- set_labels(dat$dem.highest_education,
+                                        labels = new_levels_vec)
+dat$dem.highest_education <- set_label(dat$dem.highest_education,
+                                       label = "Highest level of education")
+
+# Remove labels vector
+rm(new_levels_vec)
+
+# Check output
+sjlabelled::as_label(dat) %>%
+  tbl_summary(include = dem.highest_education,
+              missing_text = "Missing")
+```
+
+# Cleaning Continuous Variables
+
+Create vector of continuous variables
+(I suggest adding variable names sorted by type e.g. all ages then all years
+etc. to make your life easier when creating limits_mat)
+```{r Create cont vars vector}
+variables_cont <- c(
+  "dem.how_old_are_you_now.txt",
+  "dem.dob_age",
+  "dem.long_ago_diagnosed_years",
+  "dem.long_ago_diagnosed_months"
+)
+
+# Check length of vector (must match dim(limits_mat)[1])
+length(variables_cont)
+```
+
+Create matrix of limits for continuous variables
+Matrix is series of vectors (lower, upper)
+Define limits for variable and list reasoning below
+Variable: Age
+- Lower: 16 youngest allowed in study
+- Upper: 117 oldest person in world
+
+Variable: Years ago diagnosed with COVID
+- Lower: 0 
+- Upper: 2 cannot be diagnosed before 2020
+
+Variable: Months ago diagnosed with COVID
+- Lower: 0
+- Upper: 12 months in a year
+```{r Create matrix limits}
+# Combine the vectors together
+limits_vec <- c(c(16, 117),
+                c(16, 117),
+                c(0, 2),
+                c(0, 12)
+                )
+
+# Create matrix, matrices are filled by columns, not rows, so must transpose
+limits_mat <- t(matrix(limits_vec, # take values from your vector of limits
+                       nrow = 2, # upper and lower bounds
+                       ncol = length(variables_cont) # number of variables total
+                       ))
+
+# Check dimensions
+dim(limits_mat)
+```
+
+Set row and col names of limits_mat
+This allows your to easily refer back to limits_mat for a summary
+```{r Set lim_mat names}
+rownames(limits_mat) <- variables_cont
+colnames(limits_mat) <- c("Lower", "Upper")
+```
+
+Use cont_clean to check if any implausible values and provide replacement vectors
+Cont_clean will not proceed if variables are not numeric type, clean manually above if necessary
+This chunk reports any variables that contain implausible values
+```{r Cont_clean cont vars}
+# Execute cleaning function
+cont_list <- cont_clean(
+  variables = variables_cont,
+  limits_mat = limits_mat,
+  dat = dat
+)
+
+# Create empty list of variable names to check
+implaus_checklist <- c()
+
+# Loop through function output
+for (i in 1:length(variables_cont)){
+  
+  # Report only variables containing implausibles
+  if(cont_list[[variables_cont[i]]]$Count > 0){
+    
+    # Add variable name to imp_checklist
+    implaus_checklist <- append(x = implaus_checklist, variables_cont[i])
+    
+    # Report readout of implausible values
+    print(paste0("Implausibles in ", variables_cont[i], ": ", cont_list[[variables_cont[i]]]$Count))
+  }
+}
+```
+
+Mutate variables with implausible values removed
+Repeat the mutate statements for as many variables as necessary
+```{r Mutate cont vars}
+dat <- dat %>%
+  mutate(
+    dem.long_ago_diagnosed_years = cont_list$dem.long_ago_diagnosed_years$Replacement
+  )
+
+dat <- dat %>%
+  mutate(
+    dem.long_ago_diagnosed_months = cont_list$dem.long_ago_diagnosed_months$Replacement
+  )
+```
+
+Re-inspect variables after cleaning
+```{r Cont vars inspect after cleaning}
+dat %>%
+  select(all_of(variables_cont)) %>%
+  tbl_summary(
+    missing_text = "Missing",
+    statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})")
+  )
+```
+
+
+# Add Numeric Variables
+
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+Text variables also need to be excluded
+Do not include ID and sample here
+```{r Specify excluded columns}
+exclude_cols_numeric <- c(
+  "dem.day",
+  "dem.month",
+  "dem.year",
+  "dem.dob_age",
+  "dem.how_old_are_you_now.txt",
+  "dem.what_gender_do_you_identify_with.txt",
+  "dem.what_is_your_sexual_orientation.txt",
+  "dem.what_is_your_current_maritalrelationship_status.txt",
+  "dem.other_professional_qualifications_text.txt",
+  "dem.othertext.txt",
+  "dem.other_mixed_mixed_unspecifiedtext.txt",
+  "dem.other_asian_asian_unspecifiedtext.txt",
+  "dem.other_black_black_unspecifiedtext.txt",
+  "dem.any_other_grouptext.txt",
+  "dem.what_is_your_first_language.txt",
+  "dem.what_is_your_current_height",
+  "dem.what_is_your_current_height.1",
+  "dem.what_is_your_current_height.2",
+  "dem.current_weight",
+  "dem.current_weight.1",
+  "dem.current_weight.2",
+  "dem.highest_weight",
+  "dem.highest_weight.1",
+  "dem.highest_weight.2",
+  "dem.highest_weight_age",
+  "dem.lowest_weight_adult_height",
+  "dem.lowest_weight_adult_height.1",
+  "dem.lowest_weight_adult_height.2",
+  "dem.lowest_weight_age",
+  "dem.long_ago_diagnosed_years",
+  "dem.long_ago_diagnosed_months"
+  )
+```
+
+Add labelled/numeric columns
+Modify the leaders argument if necessary
+```{r Add columns}
+dat <- dat %>% 
+  add_labelled_numeric(exclude = exclude_cols_numeric)
+
+# Inspect colnames
+dat %>%
+  colnames()
+```
+
+
+# Save cleaned data
+
+# COVIDCNS
+```{r Write cleaned COVIDCNS variables to a .rds file}
+dat %>%
+  saveRDS(
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_covidcns_clean.rds")
+    )
+```

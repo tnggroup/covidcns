@@ -1,7 +1,7 @@
 ---
-title: "Neuro Case Report Medication questionnaire"
-author: "Johan Zvrskovec"
-date: "17/01/2022"
+title: "COVIDCNS NCRF2 Medication Cleaning Script"
+author: "Zain Ahmad"
+date: "17/06/2022"
 output: html_document
 ---
 
@@ -11,9 +11,9 @@ Closing bracket should have its own row
 Functions with a single argument can have this on the same line
 One argument can be hashed out per line for debugging errors
 
-Chunk names should be all lower case except:
-Study name (e.g. GLAD/EDGI/NBR) all caps
-Capitalised first word
+Chunk names should be all lower case except capitalised first word
+Chunk names MUST be unique
+Points requiring user input are enclosed thus <>
 
 Ensure that you have deleted/untracked .DS_Store before your initial commit
 Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
@@ -33,55 +33,51 @@ Clear global environment prior to initiation
 remove(list = ls())
 ```
 
-Add the add_numeric function - used to convert character variables into numeric variables
+Add the add_labelled_numeric function - used to convert character variables into numeric variables
 Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
 Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
-Add the imp_check function - used to check variables for implausible values
+Add the recode_check function - used to check for implausible values when recoding
+Add the imp_clean function - used to check variables for implausible values
+Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/add_labelled_numeric.R")
 source(file = "scripts/functions/remove_duplicates.R")
 source(file = "scripts/functions/sumscores.R")
 source(file = "scripts/functions/package_check.R")
-source(file = "scripts/functions/imp_check.R")
+source(file = "scripts/functions/recode_check.R")
+source(file = "scripts/functions/cont_clean.R")
 ```
 
 Use package_check to install and load dependencies
 Load tidyverse last
 ```{r Install load dependencies}
-packages <- c("summarytools", "sjlabelled", "Amelia", "gtsummary", "tidyverse")
-package_check(packages)
-```
+packages <- c("sjlabelled",
+              "Amelia",
+              "gtsummary",
+              "tidyverse")
 
-Retrieve recent date
-We are using the recent date to save files with paste0() as an extension to not overwrite old versions
-```{r Recent date}
-date <- Sys.Date()
-date
+package_check(packages)
 ```
 
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
-```{r Read in file with path to ilovecovidcns channel on teams}
+```{r Source filepath to ilovecovidcns OneDrive}
 source(file = "scripts/credentials/paths.R")
 ```
 
-# Read in the data: Full Name of Questionnaire/Demographic
-Change this heading to the name of your questionnaire/demographic
-Load GLAD data first, then EDGI, then NBR, then RAMP
+# Read in the data: Neuro Case Report Form Module 2 Medication
 
 Do not change variable names from the NLP names that are produced by the extraction
 EXCEPT in exceptional circumstances
-Document ANY changes to variable names in the issues spreadsheet "https://docs.google.com/spreadsheets/d/1a2gL8c0eH2pZXNTbnPzkDYQGeeVXbLKU8BUpYM0moe8/edit?usp=sharing"
+Document ANY changes to variable names in the Teams Data Issues Tracker
 
-- For variable names, use ONLY 'questionnaire.variable_name'
-- For dataset, only use snake_case naming
-- When using pipe operator '%>%', each function should begin on a new line
-- Do not add empty lines at the beginning or end of a chunk
-- Use only tidyverse functions wherever possible
-- When naming chunks, begin with the name of the dataset (GLAD, EDGI, NBR, RAMP)
+- For variable names, use ONLY 'questionnaire.variable_name' syntax
+- When using pipe operator '%>%', each function should begin on a new line for clarity
+- Do not add empty lines at the beginning or end of a chunk to keep the markdown as short as possible
+- Use only tidyverse functions wherever possible, they run faster than base R
 
-## COVIDCNS data
+COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
   file = paste0(ilovecovidcns, "/data_raw/latest_freeze/neuro_case_report/ncrf2_med_covid_cns.rds")
@@ -94,73 +90,80 @@ covidcns_dat %>%
 # Inspect dimensions of dataframe 
 covidcns_dat %>%
   dim()
+
+# Report counts of duplicates in ID column
+covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(., externalDataReference)
+
+# Report number of IDs to be dropped
+covidcns_excluded <- covidcns_dat %>%
+  select(externalDataReference) %>%
+  filter(duplicated(.)) %>%
+  count(., externalDataReference) %>%
+  select("Dropped IDs" = "n") %>%
+  colSums() + 1
+
+covidcns_excluded
 ```
 
-Specify columns to be excluded from add_numeric function
-Continuous variables should be excluded, as they are already numeric
-NB: If this is data from the COPING survey, add "_cop" to the end of each variable name
-```{r GLAD specify excluded columns}
-exclude_cols_numeric <- c(
-  "ID",
-  "sample",
-  "startDate",
-  "endDate"
-  )
-```
-
-Select & rename relevant columns
+Create new df with renamed and de-duplicated/NA-removed ID column
 ```{r COVIDCNS select}
 covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
-  drop_na(externalDataReference) %>% # Drop participants with no ID
   remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
-  add_column(sample = "COVIDCNS",
-             .after = "externalDataReference") %>% # Create new sample column
-  rename(
-         ID = externalDataReference,
-         ) %>%
-  add_numeric(exclude = exclude_cols_numeric)
+  dplyr::rename(
+    "ID" = "externalDataReference"
+  )
 
 # Inspect colnames
 covidcns_dat_id %>%
   colnames()
-```
 
-Look at number of people excluded
-The number of people to be excluded should be negative
-```{r COVIDCNS number excluded}
 # Inspect dimensions of new data set
 covidcns_dat_id %>%
   dim()
-
-# Inspect number of rows dropped
-covidcns_excluded <- dim(covidcns_dat_id)[1] - dim(covidcns_dat)[1]
-covidcns_excluded
-```
-
-Inspect numeric variables
-```{r COVIDCNS inspect numeric variables}
-covidcns_dat_id %>%
-  select(all_of(ends_with("numeric"))) %>%
-  tbl_summary(missing_text = "Missing")
 ```
 
 Check missingness by missmap
-```{r GLAD inspect missingness}
-covidcns_miss_map <- covidcns_dat_id %>% 
+```{r COVIDCNS missmap}
+covidcns_dat_id %>% 
   missmap()
-
-covidcns_miss_map
-```
-# Set dat
-```{r Set dat}
-
-dat <- covidcns_dat_id
-
 ```
 
+Create dat as copy of covidcns_dat_id for brevity
+This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
+```{r Create dat}
+dat <- covidcns_dat_id 
+```
 
+Extract and save labels
+```{r Extract save labels}
+# Save variable labels
+question_labels <- sjlabelled::get_label(dat)
 
-# Recode Non-answer values to 3 digits
+# Save value labels
+answer_labels <- sjlabelled::get_labels(dat, values = "as.name")
+
+# Change -77 to -777 in value labels names
+chng <- rapply(sapply(answer_labels, names),
+               function(x) ifelse(x==-77, -777, x),
+               how = "replace")
+
+# Add multiple lines here as necessary to change other nonanswer values in labels
+# chng <- rapply(chng,
+#                function(x) ifelse(x==-88, -888, x),
+#                how = "replace")
+
+# Substitute new value labels into answer_labels
+for (i in 1:length(chng)){
+  if(!is.null(answer_labels[[i]])){
+  names(answer_labels[[i]]) <- chng[[i]]
+  }
+}
+```
+
+Recode Non-answer values to 3 digits
 -555 'Not applicable' response from participant
 -777 Seen but not answered
 -888 Don't know
@@ -169,139 +172,231 @@ dat <- covidcns_dat_id
 When we code someone as being 'not applicable' by deduction, we use `NA_real_`
 ```{r Recode NA values}
 dat <- dat %>%
-  mutate(across(ends_with("numeric") & is.numeric,
+  mutate(across(where(is.numeric),
                 ~case_when(
                   . == -55 ~ -555,
                   . == -77 ~ -777,
                   . == -88 ~ -888,
                   . == -99 ~ -999,
-                  TRUE ~ .)))
+                  TRUE ~ .)
+                )
+         )
+
+# Re-add labels after mutate
+dat <- sjlabelled::set_label(dat, question_labels)
+dat <- sjlabelled::set_labels(dat, labels = answer_labels)
+```
+
+Create list of all labels and attributes
+This chunk supersedes all categorical/numeric cleaning
+It gives you an output of c(the question label, all value-label pairs)
+for each variable
+Check for errors in the output of this chunk, including:
+- Label spelling errors (for questions and answers)
+- Incorrect values
+- Mismatches between labels and values
+- Scale errors
+- Variable naming issues from the data extraction
+- Any other issues you can see
+All issues/changes need to be logged as a to-do on Teams
+At this point, you also need to pick out any continuous, date or text variables 
+to be cleaned in the later chunks
+```{r List labels attrs}
+label_list <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
+label_list
+```
+
+
+# Cleaning Dates
+
+Create vector of date variables
+```{r Vector date vars}
+date_fun <- function(x){
+  sum(str_detect(names(attr(x, "labels")), "Date")) > 0
+}
+
+variables_date <- dat %>%
+  select(where(date_fun)) %>%
+  colnames()
+```
+
+Replace -77 values with NA: POSIX will reject -77 as a value when converting
+```{r Date vars recode -77 to NA}
+dat <- dat %>% 
+  mutate(across(all_of(variables_date),
+                ~na_if(., "-77")
+                )
+         )
+dat <- dat %>% 
+  mutate(across(all_of(variables_date),
+                ~na_if(., "-777")
+                )
+         )
+dat <- dat %>% 
+  mutate(across(all_of(variables_date),
+                ~na_if(., -77)
+                )
+         )
+dat <- dat %>% 
+  mutate(across(all_of(variables_date),
+                ~na_if(., -777)
+                )
+         )
+```
+
+Check for text in date variables
+This chunk outputs only the columns and rows that are not in dd//mm/yyyy format
+```{r Date vars check date format}
+# Function to check for date format
+check_for_date <- function(x){
+  sum(str_detect(x, "[0-3][0-9]\\/[0-1][0-9]\\/[2][0][2][0-2]", negate = TRUE), na.rm = TRUE) > 0}
+
+dat %>%
+  # select all continuous
+  select(all_of(variables_date)) %>%
+  # select only vars containing text
+  select(where(check_for_date)) %>%
+  # filter only rows containing text
+  filter(
+    if_any(where(check_for_date),
+           ~str_detect(., "[0-3][0-9]\\/[0-1][0-9]\\/[2][0][2][0-2]", negate = TRUE)
+           )
+    )
+```
+
+Manually clean date variables if necessary
+IF the text data contains useful info that can be converted to date, clean manually
+For example, "Feb 2020" can be converted to "01/02/2020", avoiding unnecessary data loss
+REMOVE THIS CHUNK IF NOT NECESSARY
+```{r Date vars manual clean}
+dat <- dat %>%
+  mutate(across(ncrf2_med.antiviral.1,
+                ~case_when(str_detect(ncrf2_med.antiviral.1, "12/005/2021") ~ "12/05/2021",
+                           TRUE ~ .)
+                )
+         )
 
 dat <- dat %>%
-  mutate(across(ends_with("numeric") & is.character,
-                ~case_when(
-                  . == '-55' ~ '-555',
-                  . == '-77' ~ '-777',
-                  . == '-88' ~ '-888',
-                  . == '-99' ~ '-999',
-                  TRUE ~ .)))
+  mutate(across(ncrf2_med.antibiotic.1,
+                ~case_when(str_detect(ncrf2_med.antibiotic.1, "14/4/20, 15/4/20") ~ "14/04/2020",
+                           str_detect(ncrf2_med.antibiotic.1, "19/082021") ~ "19/08/2021",
+                           str_detect(ncrf2_med.antibiotic.1, "1912/2021") ~ "19/12/2021",
+                           TRUE ~ .)
+                )
+         )
+
+dat <- dat %>%
+  mutate(across(ncrf2_med.iv_fluids.1,
+                ~case_when(str_detect(ncrf2_med.iv_fluids.1, "21/4 /21") ~ "21/04/2021",
+                           str_detect(ncrf2_med.iv_fluids.1, "07/03/3021") ~ "07/03/2021",
+                           TRUE ~ .)
+                )
+         )
+
+dat <- dat %>%
+  mutate(across(ncrf2_med.corticosteroid.1,
+                ~case_when(str_detect(ncrf2_med.corticosteroid.1, "17//08/2021") ~ "17/08/2021",
+                           str_detect(ncrf2_med.corticosteroid.1, "started on previous admission had a two day break then re started on 09/02/21") ~ "09/02/2021",
+                           TRUE ~ .)
+                )
+         )
+
+dat <- dat %>%
+  mutate(across(ncrf2_med.patient_enrolled_clinical_trial.1,
+                ~case_when(str_detect(ncrf2_med.patient_enrolled_clinical_trial.1, "07/01/02021") ~ "07/01/2021",
+                           TRUE ~ .)
+                )
+         )
+
+dat <- dat %>%
+  mutate(across(ncrf2_med.antibiotic.2,
+                ~case_when(str_detect(ncrf2_med.antibiotic.2, "25/032020") ~ "25/03/2020",
+                           TRUE ~ .)
+                )
+         )
+```
+
+Check unique values that do not match date format
+```{r Date vars check unique values}
+dat %>%
+  select(all_of(variables_date)) %>%
+  sapply(., function(x) unique(x)[str_detect(unique(x), "[0-3][0-9]\\/[0-1][0-9]\\/[2][0][2][0-2]", negate = TRUE)])
+```
+
+Remove text from numeric variables automatically
+ONLY use this chunk if there is no further information to be gained from the text by manual cleaning
+```{r Date vars remove text}
+dat <- dat %>%
+  mutate(across(all_of(variables_date),
+                ~str_remove(., "[a-zA-Z\\s]+")
+                )
+         )
+```
+
+Remove empty variables from variables_date
+These all contain only NAs and serve only to interfere with processing
+```{r Date vars remove empty}
+variables_empty <- dat %>%
+  select(all_of(variables_date)) %>%
+  select(where(~all(is.na(.))
+               )
+         ) %>%
+  colnames()
+
+variables_date <- variables_date[!variables_date %in% variables_empty]
+length(variables_date)
+```
+
+Parse dates using lubridate
+If you have worked correctly above, there should be no failures to parse
+```{r Parse date vars}
+dat <- dat %>% 
+  mutate(across(all_of(variables_date),
+                ~lubridate::parse_date_time(x = .,
+                                            orders = c("d m y", "d/m/y", "d.m.y"),
+                                            tz = "Europe/London")
+                )
+         )
+```
+
+Recheck date variables
+```{r Recheck parsed date vars}
+dat %>%
+  select(all_of(variables_date)) %>%
+  tbl_summary(missing_text = "Missing")
 ```
 
 
-# Cleaning Categorical variables
+# Add Numeric Variables
 
-Name your vectors in line with the chunks below
-Number the vectors or name them intuitively if you have multiple vectors
-Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
-
-Create vector of categorical values for variables
-```{r vector categorical values}
-values_categorical <- c(
-  "Yes",
-  "No",
-  "Unknown",
-  "Seen but not answered"
+Specify columns to be excluded from add_numeric function
+Continuous variables should be excluded, as they are already numeric
+Text variables also need to be excluded
+Do not include ID and sample here
+```{r Specify excluded columns}
+exclude_cols_numeric <- c(
+  variables_date,
+  variables_empty
   )
-values_categorical
 ```
 
-Create vector of variable names for categorical variables
-```{r vector categorical variables}
-variables_categorical <-
-  c(
-    "ncrf2_med.oralorogastrics_fluids",
-    "ncrf2_med.antiviral",
-    "ncrf2_med.antibiotic",
-    "ncrf2_med.antimalarial",
-    "ncrf2_med.nsaid",
-    "ncrf2_med.angiotensin_receptor_blockers",
-    "ncrf2_med.antipsychotic",
-    "ncrf2_med.iv_fluids",
-    "ncrf2_med.corticosteroid",
-    "ncrf2_med.antifungal",
-    "ncrf2_med.ace_inhibitor",
-    "ncrf2_med.systemic_anticoagulation",
-    "ncrf2_med.anxiolytic",
-    "ncrf2_med.antidepressant",
-    "ncrf2_med.patient_enrolled_clinical_trial",
-    "ncrf2_med.immunomodulatory_medication"
-    )
-variables_categorical
+Add labelled/numeric columns
+Modify the leaders argument if necessary
+```{r Add columns}
+dat <- dat %>% 
+  add_labelled_numeric(exclude = exclude_cols_numeric)
+
+# Inspect colnames
+dat %>%
+  colnames()
 ```
 
-Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r imp_check categorical variables}
-imp_check(data = dat,
-          variables = variables_categorical,
-          values = values_categorical)
-
-```
-
-# Numeric variables
-
-Name your vectors in line with the chunks below
-Number the vectors or name them intuitively if you have multiple vectors
-Vectors of potential values should only contain possible values (exclude nonanswer values as appropriate)
-
-Create vector of numeric values 
-```{r vector numeric values}
-values_numeric <- c(
-  # values as appropriate
-  NA,
-  0,
-  1,
-  -555,
-  -777,
-  -888,
-  -999
-  )
-values_numeric
-```
-
-Create vector of variable names for numeric variables
-```{r vector numeric variables}
-variables_numeric <-
-  c(
-    "ncrf2_med.oralorogastrics_fluids_numeric",
-    "ncrf2_med.antiviral_numeric",
-    "ncrf2_med.antibiotic_numeric",
-    "ncrf2_med.antimalarial_numeric",
-    "ncrf2_med.nsaid_numeric",
-    "ncrf2_med.angiotensin_receptor_blockers_numeric",
-    "ncrf2_med.antipsychotic_numeric",
-    "ncrf2_med.iv_fluids_numeric",
-    "ncrf2_med.iv_fluids_numeric",
-    "ncrf2_med.corticosteroid_numeric",
-    "ncrf2_med.antifungal_numeric",
-    "ncrf2_med.ace_inhibitor_numeric",
-    "ncrf2_med.systemic_anticoagulation_numeric",
-    "ncrf2_med.anxiolytic_numeric",
-    "ncrf2_med.antidepressant_numeric",
-    "ncrf2_med.patient_enrolled_clinical_trial_numeric",
-    "ncrf2_med.immunomodulatory_medication_numeric"
-    )
-variables_numeric
-```
-
-Use imp_check function to find if any implausible values and obtain summary table of variables
-```{r imp_check numeric variables}
-imp_check(data = dat,
-          variables = variables_numeric,
-          values = values_numeric)
-
-```
 
 # Save cleaned data
 
-Check colnames before exporting final dataset
-```{r check colnames}
-colnames(dat)
-```
-
 # COVIDCNS
 ```{r Write cleaned COVIDCNS variables to a .rds file}
-dat %>% 
-  filter(sample == "COVIDCNS") %>%  # select only COVIDCNS participants
+dat %>%
   saveRDS(
     file = paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf2_med_covidcns_clean.rds")
     )

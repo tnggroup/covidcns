@@ -1,7 +1,7 @@
 ---
-title: "COVIDCNS NCRF1 Care Cleaning Script"
+title: "COVIDCNS NCRF1 Lab Results Cleaning Script"
 author: "Zain Ahmad"
-date: "14/06/2022"
+date: "02/07/2022"
 output: html_document
 ---
 
@@ -66,7 +66,7 @@ Ensure that your credentials directory is correctly located
 source(file = "scripts/credentials/paths.R")
 ```
 
-# Read in the data: COVIDCNS NCRF1 Supportive Care 
+# Read in the data: Neuro Case Report Form Module 1 Lab Results
 
 Do not change variable names from the NLP names that are produced by the extraction
 EXCEPT in exceptional circumstances
@@ -80,7 +80,7 @@ Document ANY changes to variable names in the Teams Data Issues Tracker
 COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/neuro_case_report/ncrf1_care_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/neuro_case_report/ncrf1_lab_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -163,25 +163,6 @@ for (i in 1:length(chng)){
 }
 ```
 
-Create list of all labels and attributes
-This chunk supersedes all categorical/numeric cleaning
-It gives you an output of c(the question label, all value-label pairs)
-for each variable
-Check for errors in the output of this chunk, including:
-- Label spelling errors (for questions and answers)
-- Incorrect values
-- Mismatches between labels and values
-- Scale errors
-- Variable naming issues from the data extraction
-- Any other issues you can see
-All issues/changes need to be logged as a to-do on Teams
-At this point, you also need to pick out any continuous, date or text variables 
-to be cleaned in the later chunks
-```{r List labels attrs}
-label_list <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
-label_list
-```
-
 Recode Non-answer values to 3 digits
 -555 'Not applicable' response from participant
 -777 Seen but not answered
@@ -206,6 +187,25 @@ dat <- sjlabelled::set_label(dat, question_labels)
 dat <- sjlabelled::set_labels(dat, labels = answer_labels)
 ```
 
+Create list of all labels and attributes
+This chunk supersedes all categorical/numeric cleaning
+It gives you an output of c(the question label, all value-label pairs)
+for each variable
+Check for errors in the output of this chunk, including:
+- Label spelling errors (for questions and answers)
+- Incorrect values
+- Mismatches between labels and values
+- Scale errors
+- Variable naming issues from the data extraction
+- Any other issues you can see
+All issues/changes need to be logged as a to-do on Teams
+At this point, you also need to pick out any continuous, date or text variables 
+to be cleaned in the later chunks
+```{r List labels attrs}
+label_list <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
+label_list
+```
+
 
 # Cleaning Continuous Variables
 
@@ -214,8 +214,37 @@ Create vector of continuous variables
 etc. to make your life easier when creating limits_mat)
 ```{r Create cont vars vector}
 variables_cont <- c(
-  "ncrf1_care.overall_duration_of_invasive_ventilation.txt",
-  "ncrf1_care.modified_rankin_score.txt"
+  "ncrf1_lab.hemoglobin",
+  "ncrf1_lab.wbc_count",
+  "ncrf1_lab.hematocrit",
+  "ncrf1_lab.platelets",
+  "ncrf1_lab.apttaptr",
+  "ncrf1_lab.pt",
+  "ncrf1_lab.inr",
+  "ncrf1_lab.astsgot",
+  "ncrf1_lab.total_bilirubin",
+  "ncrf1_lab.urea",
+  "ncrf1_lab.lactate",
+  "ncrf1_lab.po2",
+  "ncrf1_lab.lowest_po2",
+  "ncrf1_lab.pco2",
+  "ncrf1_lab.csf_wcc",
+  "ncrf1_lab.csf_protein",
+  "ncrf1_lab.creatinine",
+  "ncrf1_lab.sodium",
+  "ncrf1_lab.potassium",
+  "ncrf1_lab.procalcitonin",
+  "ncrf1_lab.crp",
+  "ncrf1_lab.ldh",
+  "ncrf1_lab.creatine_kinase",
+  "ncrf1_lab.troponin",
+  "ncrf1_lab.esr",
+  "ncrf1_lab.ddimer",
+  "ncrf1_lab.ferritin",
+  "ncrf1_lab.ph",
+  "ncrf1_lab.bicarbonate",
+  "ncrf1_lab.csf_rcc",
+  "ncrf1_lab.csfserum_glucose"
 )
 
 # Check length of vector (must match dim(limits_mat)[1])
@@ -227,10 +256,50 @@ Use the question labels to ascertain context at this point and check for obvious
 The percentiles can be modified to exclude nonanswer values as appropriate to your data
 ```{r Initial inspect cont vars}
 dat %>%
-  select(all_of(variables_cont)) %>%
+  select(all_of("ncrf1_lab.apttaptr")) %>%
   tbl_summary(
     missing_text = "Missing",
     statistic = list(all_continuous() ~ "{median} ({p0}, {p5}, {p95}, {p100})"))
+```
+
+Detangle APTT and APTR and separate into 2 variables
+```{r Detangle APTT APTR}
+dat <- dat %>%
+  separate(ncrf1_lab.apttaptr, c("ncrf1_lab.aptt", "ncrf1_lab.aptr"), "/") %>%
+  mutate(across(ncrf1_lab.aptr,
+                ~case_when(str_detect(ncrf1_lab.aptt, "^0.") ~ ncrf1_lab.aptt,
+                           str_detect(ncrf1_lab.aptt, "^1.") ~ ncrf1_lab.aptt,
+                           TRUE ~ .)
+                )
+         ) %>%
+  mutate(across(ncrf1_lab.aptt,
+                ~case_when(str_detect(ncrf1_lab.aptt, "^0.") ~ NA_character_,
+                           str_detect(ncrf1_lab.aptt, "^1.") ~ NA_character_,
+                           TRUE ~ .)
+                )
+         )
+
+```
+
+Manually clean APTT
+```{r APTT manual clean}
+dat <- dat %>%
+  mutate(across(ncrf1_lab.aptt,
+                ~case_when(str_detect(ncrf1_lab.aptt, "-36.0") ~ "28.3",
+                           TRUE ~ .)
+                )
+         )
+```
+
+Subset variables_cont for manual cleaning
+```{r Subset variables_cont}
+variables_cont_man <- c(
+  "ncrf1_lab.wbc_count",
+  "ncrf1_lab.platelets",
+  "ncrf1_lab.pt",
+  "ncrf1_lab.total_bilirubin",
+  "ncrf1_lab.ddimer"
+)
 ```
 
 Check for text in continuous variables
@@ -242,7 +311,7 @@ check_for_string <- function(x){
 
 dat %>%
   # select all continuous
-  select(all_of(variables_cont)) %>%
+  select(all_of(variables_cont_man)) %>%
   # select only vars containing text
   select(where(check_for_string)) %>%
   # filter only rows containing text
@@ -258,43 +327,89 @@ IF the text data contains useful info that can be converted to numeric, clean ma
 REMOVE THIS CHUNK IF NOT NECESSARY
 ```{r Cont vars manual clean}
 dat <- dat %>%
-  mutate(across(ncrf1_care.overall_duration_of_invasive_ventilation.txt,
-                ~case_when(str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "did not have any invasive ventilation during admission - only had non-invasive ventilation - CPAP8") ~ "0",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "6 weeks") ~ "42",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "1 month") ~ "30",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "3 weeks") ~ "21",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "14 DAYS") ~ "14",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "38 days") ~ "38",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "2 months") ~ "60",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "2 weeks") ~ "14",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "09/05/2020") ~ "1",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "09/04/2020-09/05/2020") ~ "30",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "-") ~ "0",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "n") ~ "N/A",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "N") ~ "N/A",
+  mutate(across(ncrf1_lab.pt,
+                ~case_when(str_detect(ncrf1_lab.pt, "H") ~ "13.5",
                            TRUE ~ .)
                 )
          )
 
 dat <- dat %>%
-  mutate(across(ncrf1_care.modified_rankin_score.txt,
-                ~case_when(str_detect(ncrf1_care.modified_rankin_score.txt, "1 - Associated with Long COVID") ~ "1",
-                           str_detect(ncrf1_care.modified_rankin_score.txt, "grade 2") ~ "2",
-                           str_detect(ncrf1_care.modified_rankin_score.txt, "n") ~ "N/A",
-                           str_detect(ncrf1_care.modified_rankin_score.txt, "N") ~ "N/A",
+  mutate(across(ncrf1_lab.total_bilirubin,
+                ~case_when(str_detect(ncrf1_lab.total_bilirubin, "6 ") ~ "6",
+                           str_detect(ncrf1_lab.total_bilirubin, "15 ") ~ "15",
                            TRUE ~ .)
                 )
          )
 
 dat <- dat %>%
-  mutate(across(ncrf1_care.overall_duration_of_invasive_ventilation.txt,
-                ~na_if(., "N/A")
+  mutate(across(ncrf1_lab.ddimer,
+                ~case_when(str_detect(ncrf1_lab.ddimer, ">18000 ug/L H <500") ~ "18000",
+                           TRUE ~ .)
                 )
          )
 
 dat <- dat %>%
-  mutate(across(ncrf1_care.modified_rankin_score.txt,
-                ~na_if(., "N/A")
+  mutate(across(all_of(variables_cont_man),
+                ~str_remove(., "x10\\^9\\/L")
+                )
+         )
+
+dat <- dat %>%
+  mutate(across(all_of(variables_cont_man),
+                ~str_remove(., "[xX]10\\(9\\)")
+                )
+         )
+```
+
+Add aptt and aptr to variables_cont
+```{r Reset variables_cont}
+variables_cont <- c(
+  "ncrf1_lab.hemoglobin",
+  "ncrf1_lab.wbc_count",
+  "ncrf1_lab.hematocrit",
+  "ncrf1_lab.platelets",
+  "ncrf1_lab.aptt",
+  "ncrf1_lab.aptr",
+  "ncrf1_lab.pt",
+  "ncrf1_lab.inr",
+  "ncrf1_lab.astsgot",
+  "ncrf1_lab.total_bilirubin",
+  "ncrf1_lab.urea",
+  "ncrf1_lab.lactate",
+  "ncrf1_lab.po2",
+  "ncrf1_lab.lowest_po2",
+  "ncrf1_lab.pco2",
+  "ncrf1_lab.csf_wcc",
+  "ncrf1_lab.csf_protein",
+  "ncrf1_lab.creatinine",
+  "ncrf1_lab.sodium",
+  "ncrf1_lab.potassium",
+  "ncrf1_lab.procalcitonin",
+  "ncrf1_lab.crp",
+  "ncrf1_lab.ldh",
+  "ncrf1_lab.creatine_kinase",
+  "ncrf1_lab.troponin",
+  "ncrf1_lab.esr",
+  "ncrf1_lab.ddimer",
+  "ncrf1_lab.ferritin",
+  "ncrf1_lab.ph",
+  "ncrf1_lab.bicarbonate",
+  "ncrf1_lab.csf_rcc",
+  "ncrf1_lab.csfserum_glucose"
+)
+
+# Check length of vector (must match dim(limits_mat)[1])
+length(variables_cont)
+```
+
+Remove all responses of '-' and '/'
+```{r Remove incorrect negative responses}
+dat <- dat %>%
+  mutate(across(all_of(variables_cont),
+                ~case_when(
+                  . == "-" ~ "-77",
+                  . == "/" ~ "-77",
+                  TRUE ~ .)
                 )
          )
 ```
@@ -304,7 +419,7 @@ ONLY use this chunk if there is no information to be gained from the text
 ```{r Cont vars remove text}
 dat <- dat %>%
   mutate(across(all_of(variables_cont),
-                ~str_remove(., "[a-zA-Z\\s]+")
+                ~str_remove(., "[a-zA-Z\\s\\/\\<\\>]+")
                 )
          )
 ```
@@ -320,18 +435,73 @@ dat <- dat %>%
          )
 ```
 
-Transform nonanswer values to 3 digit
-```{r Cont vars nonanswer}
+Remove -77/-777 values
+```{r Cont vars remove sbna}
 dat <- dat %>%
   mutate(across(where(is.numeric),
-                ~case_when(
-                  . == -55 ~ -555,
-                  . == -77 ~ -777,
-                  . == -88 ~ -888,
-                  . == -99 ~ -999,
-                  TRUE ~ .)
+                ~na_if(., -77)
+                )
+         ) %>%
+  mutate(across(where(is.numeric),
+                ~na_if(., -777)
                 )
          )
+```
+
+Create matrix of limits for continuous variables
+Reference ranges for all blood values above have been obtained from Liverpool University Hospital NHS Trust
+```{r Create matrix limits}
+# Read in tsv of reference ranges
+lab_results_rr <- read_tsv("scripts/ref_ranges/lab_results_rr_1.txt")
+
+# Create limits matrix
+limits_mat <- as.matrix(lab_results_rr[,4:5])
+
+# Check dimensions
+dim(limits_mat)
+```
+
+Set row and col names of limits_mat
+This allows your to easily refer back to limits_mat for a summary
+```{r Set lim_mat names}
+rownames(limits_mat) <- variables_cont
+colnames(limits_mat) <- c("Lower", "Upper")
+```
+
+Generate variables indicating deranged blood values
+```{r Create deranged levels variables}
+# Create empty list
+outlst <- list()
+
+# Add variables to list
+for (i in 1:length(variables_cont)){
+outlst[[i]] <-  case_when(
+    dat[variables_cont[i]] < limits_mat[i, 1] ~ 1,
+    dat[variables_cont[i]] > limits_mat[i, 2] ~ 2,
+    dat[variables_cont[i]] < limits_mat[i, 2] &
+      dat[variables_cont[i]] > limits_mat[i, 1] ~ 0,
+    is.na(dat[variables_cont[i]]) ~ NA_real_
+  )
+}
+
+# Add "_level" to names
+var_cont_names <- paste(variables_cont, "level", sep = "_")
+
+# Add names to list
+names(outlst) <- var_cont_names
+
+# Transform list to tibble
+out_tib <- as_tibble(outlst)
+
+
+# Set labels
+for (i in 1:ncol(out_tib)){
+  out_tib[i] <- set_labels(out_tib[i], labels = c("Normal" = 0, "Low" = 1, "High" = 2))
+  out_tib[i] <- set_label(out_tib[i], lab_results_rr[i, 2])
+}
+
+# Add new columns to dat
+dat <- bind_cols(dat, out_tib)
 ```
 
 
@@ -340,8 +510,16 @@ dat <- dat %>%
 Create vector of text variables
 ```{r Vector text vars}
 variables_text <- c(
-  "ncrf1_care.any_other_issue_of_significance_to_note.txt"
-)
+  "ncrf1_lab.csf_autoantibodies",
+  "ncrf1_lab.csf_pcr",
+  "ncrf1_lab.serum_autoantibodies",
+  "ncrf1_lab.csf_antiviral_antibodies",
+  "ncrf1_lab.csf_autoantibodies_.txt",
+  "ncrf1_lab.csf_pcr_.txt",
+  "ncrf1_lab.serum_autoantibodies_.txt",
+  "ncrf1_lab.csf_antiviral_antibodies_.txt",
+  "ncrf1_lab.any_other_issue_of_significance_to_note.txt"
+  )
 ```
 
 View text variables
@@ -351,113 +529,31 @@ dat %>%
   tbl_summary(missing_text = "Missing")
 ```
 
-
-# Cleaning Dates
-
-Create vector of date variables
-```{r Vector date vars}
-variables_date <- c(
-  "ncrf1_care.icu_or_high_dependency_unit_admission.txt"
-)
-```
-
-Check for text in date variables
-This chunk outputs only the columns and rows that contain text
-```{r Date vars check text}
-# Function to check for any text or spaces
-check_for_string <- function(x){
-  sum(str_detect(x, "[a-zA-Z\\s]+"), na.rm = TRUE) > 0}
-
-dat %>%
-  # select all continuous
-  select(all_of(variables_date)) %>%
-  # select only vars containing text
-  select(where(check_for_string)) %>%
-  # filter only rows containing text
-  filter(
-    if_any(where(check_for_string),
-           ~str_detect(., "[a-zA-Z\\s]+")
-           )
-    )
-```
-
-Manually clean date variables if necessary
-IF the text data contains useful info that can be converted to date, clean manually
-For example, "Feb 2020" can be converted to "01/02/2020", avoiding unnecessary data loss
-```{r Date vars manual clean}
+Recode text variables
+Repeat these chunks as necessary
+```{r Recode text variables}
 dat <- dat %>%
-  mutate(across(ncrf1_care.icu_or_high_dependency_unit_admission.txt,
-                ~case_when(str_detect(ncrf1_care.icu_or_high_dependency_unit_admission.txt, "28/01/2021 - 31/-1/2021 at Royal Liverpool") ~ "28/01/2021",
-                           TRUE ~ .)
-                )
-         )
-
-dat <- dat %>%
-  mutate(across(ncrf1_care.icu_or_high_dependency_unit_admission.txt,
-                ~na_if(., "30")
-                )
-         )
-```
-
-Replace -77 values with NA: POSIX will reject -77 as a value when converting
-```{r Date vars recode -77 to NA}
-dat <- dat %>% 
-  mutate(across(all_of(variables_date),
-                ~na_if(., "-77")
+  mutate(across(all_of(variables_text),
+                ~case_when(
+                  . == "-" ~ "-77",
+                  . == "/" ~ "-77",
+                  str_detect(., "NK") ~ "-77",
+                  str_detect(., "N/K") ~ "-77",
+                  str_detect(., "NA") ~ "-77",
+                  str_detect(., "N/A") ~ "-77",
+                  str_detect(., "n/a") ~ "-77",
+                  str_detect(., "No") ~ "-77",
+                  str_detect(., "no") ~ "-77",
+                  TRUE ~ .)
                 )
          )
 ```
 
-Parse dates using lubridate
-If you have worked correctly above, there should be no failures to parse
-```{r Parse date vars}
-dat <- dat %>% 
-  mutate(across(all_of(variables_date),
-                ~lubridate::parse_date_time(x = .,
-                                            orders = c("d m y", "d/m/y", "d.m.y"),
-                                            tz = "Europe/London")
-                )
-         )
-```
 
-Recheck date variables
-```{r Recheck parsed date vars}
+Re-check all text variables
+```{r Recheck text vars coding final}
 dat %>%
-  select(all_of(variables_date)) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
-Define limits for variable and list reasoning below
-Variable name:
-- Upper: latest data extraction, cannot have test in the future
-- Lower: 30/01/2020, first confirmed UK COVID cases 
-
-```{r Define limits}
-upper_limit <- as.POSIXct("2022-06-14")
-lower_limit <- as.POSIXct("2020-01-30")
-```
-
-Recode variable outliers to NA
-```{r Date vars recode outliers to NA}
-dat <- dat %>%
-    mutate(across(all_of(variables_date),
-                  ~ifelse(. > upper_limit | # bigger than the upper limit
-                          . < lower_limit, # smaller than the lower limit
-                          yes = NA_real_,
-                          no = .)
-                  )
-           ) %>%
-  mutate(across(all_of(variables_date),
-                ~as.POSIXct(.,
-                            origin = lubridate::origin)
-                )
-         )
-```
-
-Re-check dates
-```{r Recheck cleaned date vars}
-dat %>%
-  select(all_of(variables_date)) %>%
+  select(all_of(variables_text)) %>%
   tbl_summary(missing_text = "Missing")
 ```
 
@@ -471,7 +567,6 @@ Do not include ID and sample here
 ```{r Specify excluded columns}
 exclude_cols_numeric <- c(
   variables_cont,
-  variables_date,
   variables_text
   )
 ```
@@ -494,6 +589,6 @@ dat %>%
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_care_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/neuro_case_report/ncrf1_lab_covidcns_clean.rds")
     )
 ```

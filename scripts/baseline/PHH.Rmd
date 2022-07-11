@@ -33,7 +33,7 @@ Clear global environment prior to initiation
 remove(list = ls())
 ```
 
-Add the add_numeric function - used to convert character variables into numeric variables
+Add the add_labelled_numeric function - used to convert character variables into numeric variables
 Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
 Add the sumscores function - used to generate sumscores
 Add the package_check function - used to install and load dependencies
@@ -41,7 +41,7 @@ Add the recode_check function - used to check for implausible values when recodi
 Add the imp_clean function - used to check variables for implausible values
 Add the cont_clean function - used to check continuous variables for implausible values
 ```{r Read in functions}
-source(file = "scripts/functions/add_numeric_1.R")
+source(file = "scripts/functions/add_labelled_numeric.R")
 source(file = "scripts/functions/remove_duplicates.R")
 source(file = "scripts/functions/sumscores.R")
 source(file = "scripts/functions/package_check.R")
@@ -113,8 +113,6 @@ Select & rename relevant columns
 covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
   drop_na(externalDataReference) %>% # Drop participants with no ID
   remove_duplicates("externalDataReference") %>% # Remove duplicate IDs
-  add_column(sample = "COVIDCNS",
-             .after = "externalDataReference") %>%
   dplyr::rename(
     "ID" = "externalDataReference"
   )
@@ -161,8 +159,10 @@ chng <- rapply(sapply(answer_labels, names),
 #                how = "replace")
 
 # Substitute new value labels into answer_labels
-for (i in 5:length(chng)){
+for (i in 1:length(chng)){
+  if(!is.null(answer_labels[[i]])){
   names(answer_labels[[i]]) <- chng[[i]]
+  }
 }
 ```
 
@@ -500,6 +500,11 @@ dat %>%
   )
 ```
 
+```{r}
+dat %>% select(contains("txt")) %>% colnames()
+```
+
+
 
 # Text variables
 
@@ -527,8 +532,8 @@ variables_text <- c(
   "phh.other_arthritistext.txt",
   "phh.othertext.txt",
   "phh.thyroid_disease_text.txt",
-  "phh.list_reason_taking_type.txt",
-  "phh.chronic_medical_conditions_diagnosis.txt"
+  "phh.list_taking_reason_type.txt",
+  "phh.chronic_medical_conditions_medication.txt"
   )
 
 dat %>%
@@ -930,123 +935,15 @@ Specify columns to be excluded from add_numeric function
 Continuous variables should be excluded, as they are already numeric
 ```{r COVIDCNS specify excluded columns}
 exclude_cols_numeric <- c(
-  "ID",
-  "sample",
-  "startDate",
-  "endDate",
-  "phh.nbsp",
-  "phh.nbsp.1",
-  "phh.",
-  "phh..1",
-  "phh..2",
-  "phh.nbsp.2",
-  "phh.nbsp.3",
-  "phh..3",
-  "phh..4",
-  "phh..5",
-  "phh.nbsp.4",
-  "phh.nbsp.5",
-  "phh..6",
-  "phh..7",
-  "phh..8",
-  "phh.epilepsy_or_convulsions.1",
-  "phh.migraines.1",
-  "phh.multiple_sclerosis.1",
-  "phh.parkinsons_disease.1",
-  "phh.brain_tumour.1",
-  "phh.severe_memory_loss",
-  "phh.cerebral_palsy.1",
-  "phh.dont_know.7",
-  "phh.prefer_not_to_answer.6",
-  "phh.none_of_the_above.7",
-  "phh.ankylosing_spondylitis.1",
-  "phh.osteoporosis_or_thin_bones.1",
-  "phh.hypermobility",
-  "phh.osteoarthritis.1",
-  "phh.rheumatoid_arthritis.1",
-  "phh.other_arthritis.1",
-  "phh.prefer_not_to_answer.9",
-  "phh.none_of_the_above.10",
-  "phh.dont_know.10",
-  "phh.asthma.1",
-  "phh.pulmonary_fibrosis.1",
-  "phh.chronic_obstructive_pulmonary_disease",
-  "phh.cystic_fibrosis.1",
-  "phh.pleural_effusion.1",
-  "phh.pneumonia",
-  "phh.pulmonary_embolus",
-  "phh.emphysema_or_chronic_bronchitis.1",
-  "phh.other.1",
-  "phh.dont_know.13",
-  "phh.prefer_not_to_say.1",
-  "phh.none_of_the_above.13",
-  "phh.heart_attack_angina.1",
-  "phh.high_blood_cholesterol.1",
-  "phh.high_blood_pressure.1",
-  "phh.atrial_fibrillation.1",
-  "phh.stroke.1",
-  "phh.paroxysmal_tachycardia_sydrome",
-  "phh.dont_know.16",
-  "phh.prefer_not_to_answer.12",
-  "phh.none_of_the_above.16",
-  "phh.breast_cancer.1",
-  "phh.lung_cancer.1",
-  "phh.stomach_cancer.1",
-  "phh.colon_cancer.1",
-  "phh.uterus_cancer.1",
-  "phh.prostate_cancer.1",
-  "phh.bladder_cancer.1",
-  "phh.bowel_cancer.1",
-  "phh.rectal_cancer.1",
-  "phh.lymphoma.1",
-  "phh.melanoma.1",
-  "phh.skin_cancer.1",
-  "phh.ovarian_cancer.1",
-  "phh.none_of_the_above.19",
-  "phh.dont_know.19",
-  "phh.prefer_not_to_answer.15",
-  "phh.psoriasis.1",
-  "phh.vitiligo.1",
-  "phh.eczema.1",
-  "phh.thyroid_disease_.1",
-  "phh.pain_due_to_virus",
-  "phh.none_of_the_above.22",
-  "phh.dont_know.22",
-  "phh.prefer_not_to_answer.18",
-  "phh.hay_fever.1",
-  "phh.drug_allergy_",
-  "phh.food_allergy_.1",
-  "phh.any_other_allergy_.1",
-  "phh.dont_know.25",
-  "phh.prefer_not_to_answer.21",
-  "phh.none_of_the_above.25",
-  "phh.crohns_disease.1",
-  "phh.ulcerative_colitis.1",
-  "phh.irritable_bowel_disease",
-  "phh.coeliac_disease.1",
-  "phh.bacterial_stomach_infection",
-  "phh.viral_weeks_bacterial_stomach.1",
-  "phh.diabetes_type_1",
-  "phh.diabetes_type_2",
-  "phh.pain_due_to_diabetes",
-  "phh.dont_know.29",
-  "phh.prefer_not_to_answer.25",
-  "phh.none_of_the_above.29",
-  "phh.drug_allergy_text.txt",
-  "phh.food_allergy_text.txt",
-  "phh.allergy_text.txt",
-  "phh.other_arthritistext.txt",
-  "phh.othertext.txt",
-  "phh.thyroid_disease_text.txt",
-  "phh.list_reason_taking_type.txt",
-  "phh.chronic_medical_conditions_diagnosis.txt"
+  variables_cont,
+  variables_text
   )
 ```
 
 Select & rename relevant columns
 ```{r COVIDCNS add numeric}
 dat <- dat %>% 
-  add_numeric_1(exclude = exclude_cols_numeric)
+  add_labelled_numeric(exclude = exclude_cols_numeric)
 
 # Inspect colnames
 dat %>%

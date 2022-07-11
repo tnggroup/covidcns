@@ -105,7 +105,7 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          ID = externalDataReference, # ID
          startDate,
          endDate,
-         "als.limb_weakness_past_month",
+         "als.limb_weakness_noticed_past",
          "als.noticed_limb_weakness_list.txt",
          "als.handwriting_change_noticed",
          "als.have_you_noticed_any_difficulty_walking",
@@ -230,7 +230,7 @@ values_cat_list <- list(
 Set names of list to variable names
 ```{r Set list names categorical variables}
 names(values_cat_list) <- c(
-  "als.limb_weakness_past_month",
+  "als.limb_weakness_noticed_past",
   "als.handwriting_change_noticed",
   "als.have_you_noticed_any_difficulty_walking",
   "als.do_you_have_any_difficulty_climbing_stairs",
@@ -326,7 +326,7 @@ values_num_list <- list(
 Set names of list to variable names
 ```{r Set list names numeric variables}
 names(values_num_list) <- c(
-  "als.limb_weakness_past_month_numeric",
+  "als.limb_weakness_noticed_past_numeric",
   "als.handwriting_change_noticed_numeric",
   "als.have_you_noticed_any_difficulty_walking_numeric",
   "als.do_you_have_any_difficulty_climbing_stairs_numeric",

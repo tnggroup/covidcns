@@ -1,5 +1,5 @@
 ---
-title: "COVIDCNS GCS Outpatient Cleaning Script"
+title: "COVIDCNS 4-AT Inpatient Cleaning Script"
 author: "Zain Ahmad"
 date: "29/06/2022"
 output: html_document
@@ -66,7 +66,7 @@ Ensure that your credentials directory is correctly located
 source(file = "scripts/credentials/paths.R")
 ```
 
-# Read in the data: COVIDCNS Glasgow Coma Scale Outpatient
+# Read in the data: COVIDCNS 4-AT Inpatient
 
 Do not change variable names from the NLP names that are produced by the extraction
 EXCEPT in exceptional circumstances
@@ -80,7 +80,7 @@ Document ANY changes to variable names in the Teams Data Issues Tracker
 COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/core_neuro/gcs_outp_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/core_neuro/fourat_inp_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -206,6 +206,108 @@ dat <- sjlabelled::set_label(dat, question_labels)
 dat <- sjlabelled::set_labels(dat, labels = answer_labels)
 ```
 
+
+# Recoding Incorrect Variables
+
+Variable is not coded incorrectly on Qualtrics but 4AT scoring requires non
+linear scale for alertness and acute change so variables must be recoded to
+produce sumscores
+
+
+## Recoding Alertness Variable
+
+View alertness
+Alertness is coded 0,1,2: should be 0,0,4
+```{r View alertness values and labels}
+attr(dat$fourat_inp.asleep_attempt_patient_address, "labels")
+```
+
+Recode incorrect variable
+Can be removed after data recoded in qualtrics and after data export
+If variables are found to be incorrect:
+Report the error on Teams
+Recode the variable yourself using `case_when` as below
+Continue cleaning your script with the recoded variable until fixed from source
+DO NOT run this chunk multiple times: it will mess up the variable coding, requiring you to run the script again from the beginning
+```{r Recode alertness}
+dat <- dat %>% 
+  mutate(across(fourat_inp.asleep_attempt_patient_address,
+                ~case_when(
+                  . == 0 ~ 0,
+                  . == 1 ~ 0,
+                  . == 2 ~ 4,
+                  TRUE ~ .)))
+```
+
+Rename value labels of alertness
+```{r Relabel alertness}
+# Named vector of correct labels
+new_levels_vec <- c(
+  "Normal (fully alert, but not agitated, throughout assessment) OR Mild sleepiness for < 10 seconds after waking, then normal" = 0,
+  "Clearly abnormal" = 4,
+  "Seen but not answered" = -777
+  )
+
+# Assign new labels
+dat$fourat_inp.asleep_attempt_patient_address <- set_labels(dat$fourat_inp.asleep_attempt_patient_address, labels = new_levels_vec)
+
+# Remove labels vector
+rm(new_levels_vec)
+```
+
+Recheck variable coding
+```{r Recheck alertness values and labels}
+attr(dat$fourat_inp.asleep_attempt_patient_address, "labels")
+```
+
+
+## Recoding Acute Change Variable
+
+
+View acute change
+Acute change is coded 0,1: should be 0,4
+```{r View acute change values and labels}
+attr(dat$fourat_inp.mental_function_arising_fluctuating, "labels")
+```
+
+Recode acute change
+Can be removed after data recoded in qualtrics and after data export
+If variables are found to be incorrect:
+Report the error on Teams
+Recode the variable yourself using `case_when` as below
+Continue cleaning your script with the recoded variable until fixed from source
+DO NOT run this chunk multiple times: it will mess up the variable coding, requiring you to run the script again from the beginning
+```{r Recode acute change}
+dat <- dat %>% 
+  mutate(across(fourat_inp.mental_function_arising_fluctuating,
+                ~case_when(
+                  . == 1 ~ 4,
+                  TRUE ~ .)))
+```
+
+Rename value labels of acute change
+```{r Relabel acute change}
+# Named vector of correct labels
+new_levels_vec <- c(
+  "No" = 0,
+  "Yes" = 4,
+  "Seen but not answered" = -777
+  )
+
+# Assign new labels
+dat$fourat_inp.mental_function_arising_fluctuating <- set_labels(dat$fourat_inp.mental_function_arising_fluctuating, labels = new_levels_vec)
+
+# Remove labels vector
+rm(new_levels_vec)
+```
+
+Recheck variable coding
+```{r Recheck acute change values and labels}
+attr(dat$fourat_inp.mental_function_arising_fluctuating, "labels")
+```
+
+
+
 # Produce sumscores
 
 Reference the scoring guidance that you have used for your questionnaire here <"link">
@@ -235,12 +337,15 @@ Create required variables for sumscore arguments
 keys <- c(
   1,
   1,
+  1,
   1
   )
+
 sum_vars <- c(
-  "gcs_outp.eyes",
-  "gcs_outp.movements",
-  "gcs_outp.verbal"
+  "fourat_inp.asleep_attempt_patient_address",
+  "fourat_inp.birth_place_current_year",
+  "fourat_inp.assist_initial_understanding_attentionask",
+  "fourat_inp.mental_function_arising_fluctuating"
   )
 ```
 
@@ -259,17 +364,65 @@ sum_out <- sumscores(input = dat,
                      sum_vars = sum_vars,
                      coding_keys = keys,
                      na_allowed = 0,
-                     min_item = 1,
-                     max_item = 6,
-                     min_score = 3,
-                     max_score = 15
+                     min_item = 0,
+                     max_item = 4,
+                     min_score = 0,
+                     max_score = 12
                      )
 ```
 
 Add sumscores as new column
 ```{r Add sumscores}
 dat <- dat %>% 
-  mutate(gcs_outp.gcs_score = sum_out$scores)
+  mutate(fourat_inp.sum_score = sum_out$scores)
+```
+
+
+# Create delirium phenotype
+Add explanation of phenotype here:
+Score of 0 = Does not suggest delirium or cognitive impairment
+Score of 1-3 = Suggests cognitive impairment
+Score of 4+ = Suggests delirium
+
+Create delirium phenotype
+```{r Create delirium}
+dat <- dat %>%
+  mutate(
+    fourat_inp.delirium =
+      case_when(
+        fourat_inp.sum_score >= 4 ~ 2,
+        fourat_inp.sum_score < 4 & fourat_inp.sum_score >= 1 ~ 1,
+        fourat_inp.sum_score == 0 ~ 0
+      )
+  )
+dat %>%
+  select(fourat_inp.delirium) %>%
+  tbl_summary()
+```
+
+Label delirium phenotype
+```{r Label delirium phenotype}
+# Set question label
+dat$fourat_inp.delirium <- sjlabelled::set_label(dat$fourat_inp.delirium, "Is the patient delirious or cognitively impaired?")
+
+# Create vector of answer labels
+fourat_inp.delirium_labels <- c(
+  "Does not suggest delirium or cognitive impairment" = 0,
+  "Suggests cognitive impairment" = 1,
+  "Suggests delirium" = 2
+  )
+
+# Set answer labels
+dat$fourat_inp.delirium <- sjlabelled::set_labels(dat$fourat_inp.delirium,
+                                              labels = fourat_inp.delirium_labels)
+
+# Remove vector of answer labels
+rm(fourat_inp.delirium_labels)
+
+# View variable to check
+sjlabelled::as_label(dat) %>%
+  select(fourat_inp.delirium) %>%
+  tbl_summary(missing_text = "Missing")
 ```
 
 
@@ -281,7 +434,7 @@ Text variables also need to be excluded
 Do not include ID and sample here
 ```{r Specify excluded columns}
 exclude_cols_numeric <- c(
-  # columns as required
+  "fourat_inp.sum_score"
   )
 ```
 
@@ -303,6 +456,6 @@ dat %>%
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/gcs_outp_covidcns_clean.rds")
+    file = paste0(ilovecovidcns, "/data/latest_freeze/core_neuro/fourat_inp_covidcns_clean.rds")
     )
 ```

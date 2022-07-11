@@ -258,82 +258,54 @@ variables_date <- c(
 )
 ```
 
-Inspect date variables
-```{r COVIDCNS inspect dates}
+Check for text in date variables
+This chunk outputs only the columns and rows that contain text
+```{r Date vars check text}
+# Function to check for any text or spaces
+check_for_string <- function(x){
+  sum(str_detect(x, "[a-zA-Z\\s]+"), na.rm = TRUE) > 0}
+
 dat %>%
+  # select all continuous
   select(all_of(variables_date)) %>%
-  glimpse()
+  # select only vars containing text
+  select(where(check_for_string)) %>%
+  # filter only rows containing text
+  filter(
+    if_any(where(check_for_string),
+           ~str_detect(., "[a-zA-Z\\s]+")
+           )
+    )
 ```
 
-Replace -77 values with NA as POSIX will reject -77 as a value when converting
-```{r COVIDCNS recode -77 to NA}
+
+Replace -777 values with NA: POSIX will reject -77 as a value when converting
+```{r Date vars recode -777 to NA}
 dat <- dat %>% 
-  mutate(across(
-    all_of(variables_date),
-    ~na_if(., "-77")
+  mutate(across(all_of(variables_date),
+                ~na_if(., "-777")
                 )
          )
 ```
 
 Parse dates using lubridate
-```{r COVIDCNS parse dates}
-
+If you have worked correctly above, there should be no failures to parse
+```{r Parse date vars}
 dat <- dat %>% 
-  mutate(across(
-    all_of(variables_date),
-    ~lubridate::parse_date_time(
-    x = .,
-    orders = c("d m y", "d/m/y", "d.m.y"),
-    tz = "Europe/London"
-    )
+  mutate(across(all_of(variables_date),
+                ~lubridate::parse_date_time(x = .,
+                                            orders = c("d m y", "d/m/y", "d.m.y"),
+                                            tz = "Europe/London")
                 )
          )
-
 ```
 
 Recheck date variables
-```{r COVIDCNS reinspect dates}
+```{r Recheck parsed date vars}
 dat %>%
   select(all_of(variables_date)) %>%
   tbl_summary(missing_text = "Missing")
 ```
-
-Define limits for variable and list reasoning below
-Variable name:
-- Upper: latest data extraction, cannot have test in the future
-- Lower: 30/01/2020, first confirmed UK COVID cases 
-
-```{r Define limits}
-upper_limit <- as.POSIXct("2022-02-22")
-lower_limit <- as.POSIXct("2020-01-30")
-```
-
-Recode variable outliers to -666
-```{r Recode outliers to NA}
-dat <- dat %>%
-    mutate(across(
-    all_of(variables_date),
-    ~ifelse(
-      . > upper_limit | # bigger than the upper limit
-        . < lower_limit, # smaller than the lower limit
-      yes = NA_real_,
-      no = .
-        )
-    )
-) %>%
-  mutate(across(
-    all_of(variables_date),
-    ~as.POSIXct(., origin = lubridate::origin))
-  )
-```
-
-Re-check dates
-```{r COVID CNS recheck dates}
-dat %>%
-  select(all_of(variables_date)) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
 
 # Save cleaned data
 

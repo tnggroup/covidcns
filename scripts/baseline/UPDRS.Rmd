@@ -111,8 +111,8 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          sample,
          startDate,
          endDate,
-         updrs.trouble_reading_handwriting_past,
-         updrs.hobbies_trouble_past_week,
+         updrs.trouble_reading_handwriting_people,
+         updrs.hobbies_trouble_things_past,
          updrs.trouble_turning_bed_past,
          updrs.shaking_tremor_past_week,
          updrs.left_arm,
@@ -122,7 +122,7 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          updrs.whole_body,
          updrs.deep_chair_car_seat,
          updrs.balance_walking_past_week,
-         updrs.feet_floor_freeze_stuck,
+         updrs.usual_day_feet_floor,
          updrs.speech_past_week_problems,
          updrs.awake_saliva_sleep_past,
          updrs.made_soft_chopped_avoid,
@@ -474,8 +474,8 @@ values_cat_list <- list(
 Set names of list to variable names
 ```{r Set list names categorical variables}
 names(values_cat_list) <- c(
-  "updrs.trouble_reading_handwriting_past",
-  "updrs.hobbies_trouble_past_week",
+  "updrs.trouble_reading_handwriting_people",
+  "updrs.hobbies_trouble_things_past",
   "updrs.trouble_turning_bed_past",
   "updrs.shaking_tremor_past_week",
   "updrs.left_arm",
@@ -485,7 +485,7 @@ names(values_cat_list) <- c(
   "updrs.whole_body",
   "updrs.deep_chair_car_seat",
   "updrs.balance_walking_past_week",
-  "updrs.feet_floor_freeze_stuck",
+  "updrs.usual_day_feet_floor",
   "updrs.speech_past_week_problems",
   "updrs.awake_saliva_sleep_past",
   "updrs.made_soft_chopped_avoid",
@@ -617,8 +617,8 @@ rm(
 Set names of list to variable names
 ```{r Set list names numeric variables}
 names(values_num_list) <- c(
-  "updrs.trouble_reading_handwriting_past_numeric",
-  "updrs.hobbies_trouble_past_week_numeric",
+  "updrs.trouble_reading_handwriting_people_numeric",
+  "updrs.hobbies_trouble_things_past_numeric",
   "updrs.trouble_turning_bed_past_numeric",
   "updrs.shaking_tremor_past_week_numeric",
   "updrs.left_arm_numeric",
@@ -628,7 +628,7 @@ names(values_num_list) <- c(
   "updrs.whole_body_numeric",
   "updrs.deep_chair_car_seat_numeric",
   "updrs.balance_walking_past_week_numeric",
-  "updrs.feet_floor_freeze_stuck_numeric",
+  "updrs.usual_day_feet_floor_numeric",
   "updrs.speech_past_week_problems_numeric",
   "updrs.awake_saliva_sleep_past_numeric",
   "updrs.made_soft_chopped_avoid_numeric",
@@ -720,8 +720,8 @@ keys <- c(
   1
   )
 sum_vars <- c(
-  "updrs.trouble_reading_handwriting_past_numeric",
-  "updrs.hobbies_trouble_past_week_numeric",
+  "updrs.trouble_reading_handwriting_people_numeric",
+  "updrs.hobbies_trouble_things_past_numeric",
   "updrs.trouble_turning_bed_past_numeric",
   "updrs.shaking_tremor_past_week_numeric",
   "updrs.left_arm_numeric",
@@ -731,7 +731,7 @@ sum_vars <- c(
   "updrs.whole_body_numeric",
   "updrs.deep_chair_car_seat_numeric",
   "updrs.balance_walking_past_week_numeric",
-  "updrs.feet_floor_freeze_stuck_numeric",
+  "updrs.usual_day_feet_floor_numeric",
   "updrs.speech_past_week_problems_numeric",
   "updrs.awake_saliva_sleep_past_numeric",
   "updrs.made_soft_chopped_avoid_numeric",

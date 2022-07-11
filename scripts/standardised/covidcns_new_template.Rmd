@@ -156,28 +156,11 @@ chng <- rapply(sapply(answer_labels, names),
 #                how = "replace")
 
 # Substitute new value labels into answer_labels
-for (i in 5:length(chng)){
+for (i in 1:length(chng)){
+  if(!is.null(answer_labels[[i]])){
   names(answer_labels[[i]]) <- chng[[i]]
+  }
 }
-```
-
-Create list of all labels and attributes
-This chunk supersedes all categorical/numeric cleaning
-It gives you an output of c(the question label, all value-label pairs)
-for each variable
-Check for errors in the output of this chunk, including:
-- Label spelling errors (for questions and answers)
-- Incorrect values
-- Mismatches between labels and values
-- Scale errors
-- Variable naming issues from the data extraction
-- Any other issues you can see
-All issues/changes need to be logged as a to-do on Teams
-At this point, you also need to pick out any continuous, date or text variables 
-to be cleaned in the later chunks
-```{r List labels attrs}
-label_list <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
-label_list
 ```
 
 Recode Non-answer values to 3 digits
@@ -202,6 +185,25 @@ dat <- dat %>%
 # Re-add labels after mutate
 dat <- sjlabelled::set_label(dat, question_labels)
 dat <- sjlabelled::set_labels(dat, labels = answer_labels)
+```
+
+Create list of all labels and attributes
+This chunk supersedes all categorical/numeric cleaning
+It gives you an output of c(the question label, all value-label pairs)
+for each variable
+Check for errors in the output of this chunk, including:
+- Label spelling errors (for questions and answers)
+- Incorrect values
+- Mismatches between labels and values
+- Scale errors
+- Variable naming issues from the data extraction
+- Any other issues you can see
+All issues/changes need to be logged as a to-do on Teams
+At this point, you also need to pick out any continuous, date or text variables 
+to be cleaned in the later chunks
+```{r List labels attrs}
+label_list <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
+label_list
 ```
 
 
@@ -240,9 +242,7 @@ dat %>%
 View <incorrect variable>
 <Note problem here and report on Teams>
 ```{r View <incorrect variable> values and labels}
-dat %>%
-  select(<incorrect variable>) %>%
-  attr(., "labels")
+attr(dat$<incorrect variable>, "labels")
 ```
 
 Recode incorrect variable
@@ -274,9 +274,7 @@ rm(new_levels_vec)
 
 Recheck variable coding
 ```{r Recheck <incorrect variable> values and labels}
-dat %>%
-  select(<incorrect variable>) %>%
-  attr(., "labels")
+attr(dat$<incorrect variable>, "labels")
 ```
 
 
@@ -393,11 +391,11 @@ dat <- sjlabelled::set_labels(dat, labels = answer_labels)
 Create matrix of limits for continuous variables
 Matrix is series of vectors (lower, upper)
 Define limits for variable and list reasoning below
-Variable type 1: <name>
+<Variable type 1>: <any explanation required>
 - Lower: <limit> <justification>
 - Upper: <limit> <justification>
 
-Variable type 2: <name>
+<Variable type 2>: <any explanation required>
 - Lower: <limit> <justification>
 - Upper: <limit> <justification>
 ```{r Create matrix limits}
