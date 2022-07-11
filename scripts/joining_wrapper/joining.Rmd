@@ -236,7 +236,8 @@ Select columns for joining
 cfs_covidcns_clean_selected <-
   cfs_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 cfs_covidcns_clean_selected %>%
@@ -366,7 +367,8 @@ Select columns for joining
 ```{r gad7_covidcns_clean Select columns for joining}
 gad7_covidcns_clean_selected <- gad7_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 gad7_covidcns_clean_selected %>%
@@ -466,7 +468,8 @@ Select columns for joining
 ```{r phh Select columns for joining}
 phh_selected <- phh %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 phh_selected %>%
@@ -498,7 +501,8 @@ Select columns for joining
 pcl5_covidcns_clean_selected <-
   pcl5_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 pcl5_covidcns_clean_selected %>%
@@ -530,7 +534,8 @@ Select columns for joining
 ```{r phq9_covidcns_clean Select columns for joining}
 phq9_covidcns_clean_selected <- phq9_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 
@@ -1099,7 +1104,8 @@ Select columns for joining
 cognitron_outp_covidcns_clean_selected <-
   cognitron_outp_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 cognitron_outp_covidcns_clean_selected %>%
