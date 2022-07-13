@@ -2027,6 +2027,90 @@ data_export_matching %>%
   slice(1:5)
 ```
 
+Select columns for neuro data extraction
+```{r matching Select columns}
+data_export_glynn_dem <- qualtrics_data_joined %>%
+  select(
+      "ID",
+      
+      # Age
+      "dem.dob_age",
+      
+      # Sex
+      "dem.sex_at_birth",
+      
+      # Ethnicity
+      "dem.nhs_ethnicity",
+      "dem.simplified_ethnicity",
+      
+      # Language
+      "dem.is_english_your_first_language",
+      
+      # Education
+      "dem.highest_education",
+      
+      # Employment
+      "impact.current_employment_status"
+      )
+
+data_export_neuro_inp <- 
+  plyr::join_all(
+    dfs =  list(
+      clinical_na_inp_covidcns_clean_selected,
+      nis_inp_covidcns_clean_selected,
+      neuro_add_inp_covidcns_clean_selected
+      ),
+    by = c("ID"),
+    type = "full"
+    )
+
+data_export_neuro_outp <- 
+  plyr::join_all(
+    dfs =  list(
+      clinical_na_outp_covidcns_clean_selected,
+      nis_outp_covidcns_clean_selected,
+      neuro_add_outp_covidcns_clean_selected
+      ),
+    by = c("ID"),
+    type = "full"
+    )
+```
+
+
+Join neuro data to demographics
+```{r Join to demographics inpatient}
+data_export_glynn_inp <- 
+  plyr::join_all(
+    dfs =  list(
+      data_export_glynn_dem,
+      data_export_neuro_inp
+      ),
+    by = c("ID"),
+    type = "right"
+    )
+
+data_export_glynn_inp %>%
+  slice(1:5)
+```
+
+Join neuro data to demographics
+```{r Join to demographics outpatient}
+data_export_glynn_outp <- 
+  plyr::join_all(
+    dfs =  list(
+      data_export_glynn_dem,
+      data_export_neuro_outp
+      ),
+    by = c("ID"),
+    type = "right"
+    )
+
+
+data_export_glynn_outp %>%
+  slice(1:5)
+```
+
+
 # Save joined data set
 ```{r matching Save joint data set}
 saveRDS(
@@ -2041,6 +2125,20 @@ saveRDS(
   file = paste0(ilovecovidcns, "/data_sharing/matching/covidcns_matching.rds")
 )
 ```
+
+
+# Save joined data set
+```{r glynn Save joint data set}
+saveRDS(
+  object = data_export_glynn_inp, 
+  file = paste0(ilovecovidcns, "/data_sharing/glynn/glynn_neuro_inp.rds")
+)
+saveRDS(
+  object = data_export_glynn_outp, 
+  file = paste0(ilovecovidcns, "/data_sharing/glynn/glynn_neuro_outp.rds")
+)
+```
+
 
 # Save joined data set
 ```{r greta Save joint data set}
