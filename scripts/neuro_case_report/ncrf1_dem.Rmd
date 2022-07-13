@@ -562,11 +562,53 @@ dat %>%
   sort()
 ```
 
+Recode country of birth
+```{r COVIDCNS recode country of birth variable}
+dat <- dat %>% 
+  mutate(ncrf1_dem.simplified_ethnicity =
+                case_when(
+                  str_detect(ncrf1_dem.ethnicity.txt, "ixed") ~ "Mixed",
+                  
+                  str_detect(ncrf1_dem.ethnicity.txt, "hite") ~ "White",
+                  
+                  
+                  str_detect(ncrf1_dem.ethnicity.txt, "lack") ~ "Black",
+                  str_detect(ncrf1_dem.ethnicity.txt, "fri") ~ "Black",
+                  str_detect(ncrf1_dem.ethnicity.txt, "Car") ~ "Black",
+                  
+                  str_detect(ncrf1_dem.ethnicity.txt, "sia") ~ "Asian",
+                  str_detect(ncrf1_dem.ethnicity.txt, "SIA") ~ "Asian",
+                  str_detect(ncrf1_dem.ethnicity.txt, "Ind") ~ "Asian",
+                  str_detect(ncrf1_dem.ethnicity.txt, "Beng") ~ "Asian",
+                  str_detect(ncrf1_dem.ethnicity.txt, "Punj") ~ "Asian",
+                  str_detect(ncrf1_dem.ethnicity.txt, "Pak") ~ "Asian",
+                  
+                  str_detect(ncrf1_dem.ethnicity.txt, "the") ~ "Other",
+                  str_detect(ncrf1_dem.ethnicity.txt, "Kurd") ~ "Other",
+                  str_detect(ncrf1_dem.ethnicity.txt, "Cypr") ~ "Other",
+                  str_detect(ncrf1_dem.ethnicity.txt, "Fil") ~ "Other",
+                  str_detect(ncrf1_dem.ethnicity.txt, "ARA") ~ "Other",
+                  
+                  str_detect(ncrf1_dem.ethnicity.txt, "Bri") ~ "White",
+                  str_detect(ncrf1_dem.ethnicity.txt, "BRI") ~ "White",
+                  str_detect(ncrf1_dem.ethnicity.txt, "Pol") ~ "White",
+                  str_detect(ncrf1_dem.ethnicity.txt, "Wel") ~ "White",
+                  str_detect(ncrf1_dem.ethnicity.txt, "Iris") ~ "White",
+                  str_detect(ncrf1_dem.ethnicity.txt, "Engl") ~ "White",
+                  
+                  str_detect(ncrf1_dem.ethnicity.txt, "nk") ~ NA_character_,
+                  str_detect(ncrf1_dem.ethnicity.txt, "NK") ~ NA_character_,
+                  str_detect(ncrf1_dem.ethnicity.txt, "ot") ~ NA_character_)
+         )
+
+dat$ncrf1_dem.simplified_ethnicity <- set_label(dat$ncrf1_dem.simplified_ethnicity, "Ethnicity:")
+```
+
 Recheck text variables
 ```{r Recheck text vars}
 dat %>%
-  select(all_of(variables_text)) %>%
-  tbl_summary()
+  select(ncrf1_dem.ethnicity.txt, ncrf1_dem.simplified_ethnicity) %>%
+  View()
 ```
 
 # Save cleaned data

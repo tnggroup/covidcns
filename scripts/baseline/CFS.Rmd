@@ -275,7 +275,7 @@ sum_out <- sumscores(input = dat,
 Add sumscores as new column
 ```{r Add sumscores}
 dat <- dat %>% 
-  mutate(questionnaire.sum_score = sum_out$scores)
+  mutate(cfs.sum_score = sum_out$scores)
 ```
 
 # Subscale scores

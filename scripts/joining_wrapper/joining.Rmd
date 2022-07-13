@@ -1890,7 +1890,6 @@ qualtrics_data_joined <- qualtrics_data_joined %>%
   filter(!ID %in% swapped_ids$incorrect_ID)
 ```
 
-
 # Coalesce demographics
 
 Coalesce age and sex demographic variables from baseline and ncrf dem
@@ -1907,10 +1906,13 @@ qualtrics_data_joined <- qualtrics_data_joined %>%
     
     dem.sex_at_birth_numeric = coalesce(
       dem.sex_at_birth_numeric,
-      ncrf1_dem.sex_at_birth_numeric)
+      ncrf1_dem.sex_at_birth_numeric),
+    
+    dem.simplified_ethnicity = coalesce(
+      dem.simplified_ethnicity,
+      ncrf1_dem.simplified_ethnicity)
   )
 ```
-
 
 # Add website data
 
@@ -1922,6 +1924,18 @@ data_joined_1 <-
     by = c("ID"),
     type = "full"
     )
+```
+
+
+
+```{r}
+qualtrics_data_joined %>%
+  select(
+   dem.dob_age,
+   dem.sex_at_birth,
+   dem.simplified_ethnicity
+  ) %>%
+  tbl_summary()
 ```
 
 
