@@ -268,11 +268,7 @@ dem_covidcns_clean %>%
 Select columns for joining
 ```{r dem_covidcns_clean Select columns for joining}
 dem_covidcns_clean_selected <-
-  dem_covidcns_clean %>%
-  select(
-    -startDate,
-    -endDate
-  )
+  dem_covidcns_clean
 
 dem_covidcns_clean_selected %>%
   slice(1:5)
