@@ -490,6 +490,229 @@ attr(dat$dem.have_you_ever_been_pregnant, "labels")
 ```
 
 
+# Create ethnicity variables from ethnicity cols
+
+Check for multiple selection of ethnicities
+```{r Check ethnicity multiple selection}
+# Create vector of ethnicity variables
+eth_vars <- c(
+  "dem.british_mixed_british",
+  "dem.irish",
+  "dem.northern_irish",
+  "dem.any_other_white_background",
+  "dem.white_and_black_caribbean",
+  "dem.white_and_black_africa",
+  "dem.white_and_asian",
+  "dem.any_other_mixed_background",
+  "dem.indian_or_british_indian",
+  "dem.pakistani_or_british_pakistani",
+  "dem.bangladeshi_or_british_bangladeshi",
+  "dem.any_other_asian_background",
+  "dem.caribbean",
+  "dem.african",
+  "dem.any_other_black_background",
+  "dem.chinese",
+  "dem.any_other_ethnic_group",
+  "dem.other"
+)
+
+# Select ID and eth_vars
+dat_eth <- dat %>%
+  select(
+    ID,
+    all_of(eth_vars)
+  )
+
+# Produce count of ethnicities
+dat_eth <- dat_eth %>%
+  mutate(
+    eth_num = dat_eth %>% select(-ID) %>% rowSums(na.rm = TRUE)
+  )
+
+# Create list of IDs with multiple ethnicities selected
+mult_id_vec <- dat_eth %>%
+  select(ID, eth_num) %>%
+  filter(eth_num > 1) %>%
+  select(ID) %>%
+  unlist() %>%
+  unname()
+
+# Show only cols with multiple ethnicities
+sub_eth <- dat_eth %>%
+  filter(ID %in% mult_id_vec) %>%
+  na_if(., 0) %>%
+  discard(~all(is.na(.)))
+
+# Hard code ethnicities
+dat <- dat %>%
+  mutate(
+    # Remove other doubled
+    dem.other =
+      case_when(
+        ID %in% mult_id_vec ~ 0,
+        is.na(dem.other) ~ NA_real_,
+        TRUE ~ dem.other
+      )
+  ) %>%
+  #CNS01160 british_mixedbritish + white_and_black_caribbean -> white_and_black_caribbean
+  mutate(
+    dem.british_mixed_british =
+      case_when(
+        ID == "CNS01160" ~ 0,
+        TRUE ~ dem.british_mixed_british
+      )
+  ) %>%
+  #CNS01031 british_mixedbritish + african -> dem.white_and_black_africa
+  mutate(
+    dem.british_mixed_british =
+      case_when(
+        ID == "CNS01031" ~ 0,
+        TRUE ~ dem.british_mixed_british
+      )
+  ) %>%
+  mutate(
+    dem.african =
+      case_when(
+        ID == "CNS01031" ~ 0,
+        TRUE ~ dem.african
+      )
+  ) %>%
+  mutate(
+    dem.white_and_black_africa =
+      case_when(
+        ID == "CNS01031" ~ 1,
+        TRUE ~ dem.white_and_black_africa
+      )
+  )
+```
+
+Create NHS ethnicity variable
+```{r Create NHS ethnicity}
+dat <- dat %>%
+  mutate(
+    dem.nhs_ethnicity =
+      case_when(
+        dem.british_mixed_british == 1 ~ 1,
+        dem.irish == 1 ~ 2,
+        dem.northern_irish == 1 ~ 3,
+        dem.any_other_white_background == 1 ~ 3,
+        dem.white_and_black_caribbean == 1 ~ 4,
+        dem.white_and_black_africa == 1 ~ 5,
+        dem.white_and_asian == 1 ~ 6,
+        dem.any_other_mixed_background == 1 ~ 7,
+        dem.indian_or_british_indian == 1 ~ 8,
+        dem.pakistani_or_british_pakistani == 1 ~ 9,
+        dem.bangladeshi_or_british_bangladeshi == 1 ~ 10,
+        dem.any_other_asian_background == 1 ~ 11,
+        dem.caribbean == 1 ~ 12,
+        dem.african == 1 ~ 13,
+        dem.any_other_black_background == 1 ~ 14,
+        dem.chinese == 1 ~ 15,
+        dem.other == 1 ~ 16,
+        dem.any_other_ethnic_group == 1 ~ 16
+      )
+  )
+```
+
+Label NHS ethnicity
+```{r Label NHS ethnicity}
+# Add question label
+dat$dem.nhs_ethnicity <- set_label(dat$dem.nhs_ethnicity, "NHS Ethnicity")
+
+# Named vector of correct labels
+new_levels_vec <- c(
+  "White - British" = 1,
+  "White - Irish" = 2,
+  "White - Any other White background" = 3,
+  "Mixed - White and Black Caribbean" = 4,
+  "Mixed - White and Black African" = 5,
+  "Mixed - White and Asian" = 6,
+  "Mixed - Any other mixed background" = 7,
+  "Asian or Asian British - Indian" = 8,
+  "Asian or Asian British - Pakistani" = 9,
+  "Asian or Asian British - Bangladeshi" = 10,
+  "Asian or Asian British - Any other Asian background" = 11,
+  "Black or Black British - Caribbean" = 12,
+  "Black or Black British - African" = 13,
+  "Black or Black British - Any other Black background" = 14,
+  "Other Ethnic Groups - Chinese" = 15,
+  "Other Ethnic Groups - Any other ethnic group" = 16
+)
+
+# Assign new labels
+dat$dem.nhs_ethnicity <- set_labels(dat$dem.nhs_ethnicity, labels = new_levels_vec)
+
+# Remove labels vector
+rm(new_levels_vec)
+```
+
+View NHS ethnicity variable
+```{r View NHS ethnicity}
+sjlabelled::as_label(dat) %>%
+  select(dem.nhs_ethnicity) %>%
+  tbl_summary()
+```
+
+Create simplified ethnicity variable
+```{r Create simplified ethnicity}
+dat <- dat %>%
+  mutate(
+    dem.simplified_ethnicity =
+      case_when(
+        dem.nhs_ethnicity == 1 |
+          dem.nhs_ethnicity == 2 |
+          dem.nhs_ethnicity == 3 ~ 1,
+        
+        dem.nhs_ethnicity == 4 |
+          dem.nhs_ethnicity == 5 |
+          dem.nhs_ethnicity == 6 |
+          dem.nhs_ethnicity == 7 ~ 2,
+        
+        dem.nhs_ethnicity == 8 |
+          dem.nhs_ethnicity == 9 |
+          dem.nhs_ethnicity == 10 |
+          dem.nhs_ethnicity == 11 ~ 3,
+        
+        dem.nhs_ethnicity == 12 |
+          dem.nhs_ethnicity == 13 |
+          dem.nhs_ethnicity == 14 ~ 4,
+        
+        dem.nhs_ethnicity == 15 |
+          dem.nhs_ethnicity == 16 ~ 5
+      )
+  )
+```
+
+Label simplified ethnicity
+```{r Label simplified ethnicity}
+# Add question label
+dat$dem.simplified_ethnicity <- set_label(dat$dem.simplified_ethnicity, "Simplified NHS Ethnicity")
+
+# Named vector of correct labels
+new_levels_vec <- c(
+  "White" = 1,
+  "Mixed" = 2,
+  "Asian" = 3,
+  "Black" = 4,
+  "Other" = 5
+
+)
+
+# Assign new labels
+dat$dem.simplified_ethnicity <- set_labels(dat$dem.simplified_ethnicity, labels = new_levels_vec)
+
+# Remove labels vector
+rm(new_levels_vec)
+```
+
+View simplified ethnicity variable
+```{r View simplified ethnicity}
+sjlabelled::as_label(dat) %>%
+  select(dem.simplified_ethnicity) %>%
+  tbl_summary()
+```
+
+
 # Create DOB from day/month/year columns
 
 Add 1919 to year column

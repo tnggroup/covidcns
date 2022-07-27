@@ -430,7 +430,7 @@ write.csv(scores_df_final, paste0(ilovecovidcns, "/data/cognitron/scores/cognitr
 
 
 #saveRDS(control_task_scaling, file = "submit/control_subjects_mean_sd.rds")
-control_task_scaling = readRDS(paste0(ilovecovidcns, "/data_raw/cognitron/models/control_subjects_mean_sd.rds"))
+control_task_scaling = readRDS(paste0(ilovecovidcns, "/data_raw/cognitron/models/matched_controls/control_subjects_mean_sd.rds"))
 
 
 # # Standardise scores of healthy using the mean and sd of control
@@ -449,7 +449,7 @@ patient_data <- select(scores_df_final, -c('age1', 'age2', 'decade', 'sex','lang
 # Reorder the columns of the patients according to the order of the controls dataframe
 # cols_fanmat = colnames(fanmat)
 # saveRDS(cols_fanmat, "submit/cols_fanmat.rds")
-cols_fanmat = readRDS(paste0(ilovecovidcns, "/data_raw/cognitron/models/cols_fanmat.rds"))
+cols_fanmat = readRDS(paste0(ilovecovidcns, "/data_raw/cognitron/models/matched_controls/cols_fanmat.rds"))
 
 patient_data <- patient_data %>% select(all_of(cols_fanmat))
 patient_data <- map_dfc(patient_data, as.numeric)
@@ -500,7 +500,7 @@ composite_global_patients = rowMeans(patient_data_scaled_global)
 # )
 #
 # saveRDS(control_scaling_composite, file = "submit/control_subjects_mean_sd_composite.rds")
-control_scaling_composite = readRDS(paste0(ilovecovidcns, "/data_raw/cognitron/models/control_subjects_mean_sd_composite.rds"))
+control_scaling_composite = readRDS(paste0(ilovecovidcns, "/data_raw/cognitron/models/matched_controls/control_subjects_mean_sd_composite.rds"))
 
 # Normalise the composites of healthy and patients with the mean and sd of control
 # composites
@@ -553,7 +553,7 @@ colnames(scores_composites_patients) = c("Composite_global", "Composite_rt", "Co
 #
 #
 # save(pca_output, file = "submit/composite_models.rds")
-load(paste0(ilovecovidcns, "/data_raw/cognitron/models/composite_models.rds"))
+load(paste0(ilovecovidcns, "/data_raw/cognitron/models/matched_controls/composite_models.rds"))
 
 # Test the model obtained by training on the control dataset
 
@@ -610,7 +610,7 @@ saveRDS(deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitr
 #
 # names(final_output) <- names(fanmat)
 # save(final_output, file = "submit/task_score_models.rds")
-load(paste0(ilovecovidcns, "/data_raw/cognitron/models/task_score_models.rds"))
+load(paste0(ilovecovidcns, "/data_raw/cognitron/models/matched_controls/task_score_models.rds"))
 
 # PREDICTIONS using the model
 test_set  <- X_patients
