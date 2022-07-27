@@ -2028,6 +2028,8 @@ Select columns for neuro data extraction
 data_export_glynn_dem <- qualtrics_data_joined %>%
   select(
       "ID",
+      "startDate",
+      "endDate",
       
       # Age
       "dem.dob_age",
