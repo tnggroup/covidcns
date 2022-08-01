@@ -2171,11 +2171,19 @@ data_export_nanopore <- data_export_nanopore %>%
 
 Summary table
 ```{r Summary table}
-data_export_nanopore %>%
+nanopore_sumtable <- data_export_nanopore %>%
   select(-ID) %>%
   gtsummary::tbl_summary(
     missing_text = "Missing"
   )
+
+# Save table as png image
+gt::gtsave(
+  as_gt(nanopore_sumtable),
+  file = paste0(ilovecovidcns, "/data/nanopore/nanopore_sumtable.png"))
+
+# View table
+nanopore_sumtable
 ```
 
 
@@ -2183,7 +2191,7 @@ data_export_nanopore %>%
 ```{r nanopore Save joint data set}
 write_csv(
   x = data_export_nanopore, 
-  file = paste0(ilovecovidcns, "/data/joined/covidcns_nanopore_compli.csv")
+  file = paste0(ilovecovidcns, "/data/nanopore/covidcns_nanopore_compli.csv")
 )
 ```
 
