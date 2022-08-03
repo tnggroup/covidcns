@@ -275,6 +275,38 @@ dem_covidcns_clean_selected %>%
 ```
 
 
+### fam_covidcns_clean
+Read in & variable names
+```{r fam_covidcns_clean Read in data & variable names}
+fam_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/fam_covidcns_clean.rds")
+  )
+
+fam_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r fam_covidcns_clean Dimensions}
+fam_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r fam_covidcns_clean Select columns for joining}
+fam_covidcns_clean_selected <-
+  fam_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+fam_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
 ### impact_covidcns_clean
 Read in & variable names
 ```{r impact_covidcns_clean Read in data & variable names}
@@ -567,6 +599,38 @@ smelltaste_covidcns_clean_selected <- smelltaste_covidcns_clean %>%
   )
 
 smelltaste_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### sub_covidcns_clean
+Read in & variable names
+```{r sub_covidcns_clean Read in data & variable names}
+sub_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/sub_covidcns_clean.rds")
+  )
+
+sub_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r fam_covidcns_clean Dimensions}
+sub_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r fam_covidcns_clean Select columns for joining}
+sub_covidcns_clean_selected <-
+  sub_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+sub_covidcns_clean_selected %>%
   slice(1:5)
 ```
 

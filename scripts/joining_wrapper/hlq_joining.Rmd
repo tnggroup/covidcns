@@ -1,0 +1,286 @@
+---
+title: "HLQ Joining Script"
+author: "Zain Ahmad"
+date: "2022-08-01"
+output: html_document
+---
+
+
+This R markdown:
+1) Joins COVID-CNS questionnaires together
+2) Creates on rds file with matching variables
+3) One rds file for the biomarker work
+4) One rds file for Greta's work
+
+# Set up
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+Add the add_numeric function - used to convert character variables into numeric variables
+Add the remove_duplicates function - used to deduplicate and remove NAs from IDs
+Add the sumscores function - used to generate sumscores
+Add the package_check function - used to install and load dependencies
+Add the imp_check function - used to check variables for implausible values
+```{r Read in functions}
+source(file = "scripts/functions/add_numeric.R")
+source(file = "scripts/functions/remove_duplicates.R")
+source(file = "scripts/functions/sumscores.R")
+source(file = "scripts/functions/package_check.R")
+source(file = "scripts/functions/imp_check.R")
+```
+
+Use package_check to install and load dependencies
+Load tidyverse last
+```{r Install load dependencies}
+packages <- c(
+  "summarytools",
+  "sjlabelled",
+  "gtsummary",
+  "tidyverse"
+  )
+
+package_check(packages)
+```
+
+Retrieve the recent date
+We are using the recent date to save files with paste0() as an extension to not overwrite old versions
+```{r Recent date}
+date = Sys.Date()
+date
+```
+
+Read in file with path to ilovecovidcns channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Read in file with path to ilovecovidcns channel on teams}
+source(file = "scripts/credentials/paths.R")
+```
+
+Exclude these variables
+```{r Exclude variables vector}
+exclude_variables <-
+  c(
+    "startDate",
+    "endDate"
+    )
+```
+
+
+# Read in the data
+
+### dem_covidcns_clean
+Read in & variable names
+```{r dem_covidcns_clean Read in data & variable names}
+dem_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/dem_covidcns_clean.rds")
+  )
+
+dem_covidcns_clean %>%
+  dim()
+```
+
+Select columns for joining
+```{r dem_covidcns_clean Select columns for joining}
+dem_covidcns_clean_selected <-
+  dem_covidcns_clean
+
+dem_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### fam_covidcns_clean
+Read in & variable names
+```{r fam_covidcns_clean Read in data & variable names}
+fam_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/fam_covidcns_clean.rds")
+  )
+
+fam_covidcns_clean %>%
+  dim()
+```
+
+Select columns for joining
+```{r fam_covidcns_clean Select columns for joining}
+fam_covidcns_clean_selected <-
+  fam_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+fam_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### mhd_covidcns_clean
+Read in & variable names
+```{r mhd_covidcns_clean Read in data & variable names}
+mhd_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/mhd_covidcns_clean.rds")
+  )
+
+
+mhd_covidcns_clean %>%
+  dim()
+```
+
+Select columns for joining
+```{r mhd_covidcns_clean Select columns for joining}
+mhd_covidcns_clean_selected <- mhd_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+mhd_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### phh_covidcns_clean
+Read in & variable names
+```{r phh_covidcns_clean Read in data & variable names}
+phh_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/phh_covidcns_clean.rds")
+  )
+
+phh_covidcns_clean %>%
+  dim()
+```
+
+Select columns for joining
+```{r phh_covidcns_clean Select columns for joining}
+phh_covidcns_clean_selected <- phh_covidcns_clean %>%
+  select(
+    -startDate,
+    -endDate
+  )
+
+phh_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+### sub_covidcns_clean
+Read in & variable names
+```{r sub_covidcns_clean Read in data & variable names}
+sub_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/sub_covidcns_clean.rds")
+  )
+
+sub_covidcns_clean %>%
+  dim()
+```
+
+Select columns for joining
+```{r sub_covidcns_clean Select columns for joining}
+sub_covidcns_clean_selected <-
+  sub_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+sub_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+
+# Joining process
+
+## List of tibbles to join, not including website data
+```{r List of tibbles to join}
+tibble_list <- 
+  list(
+    dem_covidcns_clean_selected,
+    fam_covidcns_clean_selected,
+    mhd_covidcns_clean_selected,
+    phh_covidcns_clean_selected,
+    sub_covidcns_clean_selected
+    )
+```
+
+Joining of demographics and questionnaires, not including website data
+```{r Joining of demographics and questionnaires}
+hlq_data_joined <- 
+  plyr::join_all(
+    dfs =  tibble_list,
+    by = c("ID"),
+    type = "full"
+    )
+```
+
+
+
+# Change/remove Incorrect IDs from Qualtrics
+
+Change IDs with newline char
+```{r}
+hlq_data_joined$ID[hlq_data_joined$ID == "\nCNS02002"] <- "CNS02002"
+hlq_data_joined$ID[hlq_data_joined$ID == "\nCNS01004"] <- "CNS01004"
+```
+
+Import swapping IDs excel sheet and remove problem IDs
+```{r Remove swapping ids}
+# Read in excel sheet of IDs to change as data frame
+swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/data_raw/ids/incorrect_ids.xlsx"),
+                                 sheet = "Sheet1")
+
+# Remove ids with issues
+hlq_data_joined <- hlq_data_joined %>%
+  filter(!ID %in% swapped_ids$incorrect_ID)
+```
+
+
+
+# Select only columns required for HLQ
+
+Import var names for HLQ
+```{r Import var names}
+hlq_var_names <- read_lines(
+  file = "scripts/ref_ranges/hlq_var_names.txt"
+)
+```
+
+Select HLQ columns from dataset
+```{r Select hlq cols}
+hlq_data_joined <- hlq_data_joined %>%
+  select(
+    ID,
+    startDate,
+    endDate,
+    all_of(hlq_var_names),
+    all_of(colnames(fam_covidcns_clean_selected)[2:length(colnames(fam_covidcns_clean_selected))])
+  )
+```
+
+
+
+# Save HLQ data set
+```{r Save HLQ data set}
+write_csv(
+  x = hlq_data_joined, 
+  file = paste0(ilovecovidcns, "/data/hlq/covidcns_hlq_data.csv")
+)
+```

@@ -139,9 +139,32 @@ Create dat as copy of covidcns_dat_id for brevity
 This step gives you a 'reset' point: if your variable recoding screws up, re-run this chunk to give you a fresh 'dat' dataframe
 ```{r Create dat}
 dat <- covidcns_dat_id 
+```
 
-# Check
-dat %>% glimpse()
+Extract and save labels
+```{r Extract save labels}
+# Save variable labels
+question_labels <- sjlabelled::get_label(dat)
+
+# Save value labels
+answer_labels <- sjlabelled::get_labels(dat, values = "as.name")
+
+# Change -77 to -777 in value labels names
+chng <- rapply(sapply(answer_labels, names),
+               function(x) ifelse(x==-77, -777, x),
+               how = "replace")
+
+# Add multiple lines here as necessary to change other nonanswer values in labels
+# chng <- rapply(chng,
+#                function(x) ifelse(x==-88, -888, x),
+#                how = "replace")
+
+# Substitute new value labels into answer_labels
+for (i in 1:length(chng)){
+  if(!is.null(answer_labels[[i]])){
+  names(answer_labels[[i]]) <- chng[[i]]
+  }
+}
 ```
 
 Create list of all labels and attributes
@@ -167,6 +190,8 @@ dat <- dat %>%
                   . == -99 ~ -999,
                   TRUE ~ .)))
 ```
+
+
 
 # Cleaning Continuous Variables
 
@@ -259,6 +284,10 @@ dat <- dat %>%
                TRUE ~ .)
                 )
          )
+
+# Re-add labels after mutate
+dat <- sjlabelled::set_label(dat, question_labels)
+dat <- sjlabelled::set_labels(dat, labels = answer_labels)
 ```
 
 Recheck continuous variables
