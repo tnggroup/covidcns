@@ -275,6 +275,38 @@ dem_covidcns_clean_selected %>%
 ```
 
 
+### fam_covidcns_clean
+Read in & variable names
+```{r fam_covidcns_clean Read in data & variable names}
+fam_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/fam_covidcns_clean.rds")
+  )
+
+fam_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r fam_covidcns_clean Dimensions}
+fam_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r fam_covidcns_clean Select columns for joining}
+fam_covidcns_clean_selected <-
+  fam_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+fam_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
 ### impact_covidcns_clean
 Read in & variable names
 ```{r impact_covidcns_clean Read in data & variable names}
@@ -567,6 +599,38 @@ smelltaste_covidcns_clean_selected <- smelltaste_covidcns_clean %>%
   )
 
 smelltaste_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+### sub_covidcns_clean
+Read in & variable names
+```{r sub_covidcns_clean Read in data & variable names}
+sub_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/sub_covidcns_clean.rds")
+  )
+
+sub_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r fam_covidcns_clean Dimensions}
+sub_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r fam_covidcns_clean Select columns for joining}
+sub_covidcns_clean_selected <-
+  sub_covidcns_clean %>%
+  select(
+    -all_of(exclude_variables)
+  )
+
+sub_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
@@ -2106,6 +2170,93 @@ data_export_glynn_outp <-
 
 data_export_glynn_outp %>%
   slice(1:5)
+```
+
+Select columns for nanopore data
+```{r Select compli nanopore}
+nanopore_compli <- ncrf3_compli_covidcns_clean_selected %>%
+  select(
+    ID,
+    ncrf3_compli.encephalitis,
+    ncrf3_compli.encephalopathy_or_delirium,
+    ncrf3_compli.acute_necrotizing_encephalopathy,
+    ncrf3_compli.posterior_reversible_encephalopathy_syndrome,
+    ncrf3_compli.meningitis,
+    ncrf3_compli.demyelinating_disease,
+    ncrf3_compli.acute_hemorrhagic_necrotizing_encephalopathy,
+    ncrf3_compli.acute_disseminated_encephalomyelitis,
+    ncrf3_compli.myelitis,
+    ncrf3_compli.guillain_barre_syndrome_miller_fisher_syndrome
+  )
+```
+
+Join neuro data to demographics
+```{r Join data nanopore}
+data_export_nanopore <- 
+  plyr::join_all(
+    dfs =  list(
+      data_export_glynn_dem,
+      nanopore_compli
+      ),
+    by = c("ID"),
+    type = "right"
+    )
+
+
+data_export_nanopore %>%
+  slice(1:5)
+```
+
+Filter export down to only patient with diagnosis + relevant demographics
+```{r Cut down nanopore export}
+data_export_nanopore <- data_export_nanopore %>%
+  select(
+    -startDate,
+    -endDate,
+    -dem.is_english_your_first_language,
+    -dem.highest_education,
+    -impact.current_employment_status
+  ) %>%
+  mutate(across(6:ncol(.),
+                ~na_if(., "No")
+                )
+         ) %>%
+  mutate(across(6:ncol(.),
+                ~na_if(., "Seen but not answered")
+                )
+         ) %>%
+  filter(!if_all(6:ncol(.), is.na)) %>%
+  filter(!is.na(dem.nhs_ethnicity)) %>%
+  mutate(across(6:ncol(.),
+                ~droplevels(.)
+                )
+         )
+```
+
+Summary table
+```{r Summary table}
+nanopore_sumtable <- data_export_nanopore %>%
+  select(-ID) %>%
+  gtsummary::tbl_summary(
+    missing_text = "Missing"
+  )
+
+# Save table as png image
+gt::gtsave(
+  as_gt(nanopore_sumtable),
+  file = paste0(ilovecovidcns, "/data/nanopore/nanopore_sumtable.png"))
+
+# View table
+nanopore_sumtable
+```
+
+
+# Save joined data set
+```{r nanopore Save joint data set}
+write_csv(
+  x = data_export_nanopore, 
+  file = paste0(ilovecovidcns, "/data/nanopore/covidcns_nanopore_compli.csv")
+)
 ```
 
 

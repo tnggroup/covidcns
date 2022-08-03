@@ -102,6 +102,11 @@ source(knitr::purl("scripts/baseline/dem.Rmd"))
 source(knitr::purl("scripts/baseline/facial.Rmd"))
 ```
 
+## fam
+```{r catatonia Cleaning the individual questionnaires}
+source(knitr::purl("scripts/baseline/fam.Rmd"))
+```
+
 ## GAD7
 ```{r GAD7 Cleaning the individual questionnaires}
 source(knitr::purl("scripts/baseline/GAD7.Rmd"))
@@ -140,6 +145,11 @@ source(knitr::purl("scripts/baseline/PHQ9.Rmd"))
 ## smelltaste
 ```{r smelltaste Cleaning the individual questionnaires}
 source(knitr::purl("scripts/baseline/smelltaste.Rmd"))
+```
+
+## sub
+```{r catatonia Cleaning the individual questionnaires}
+source(knitr::purl("scripts/baseline/sub.Rmd"))
 ```
 
 ## trauma
