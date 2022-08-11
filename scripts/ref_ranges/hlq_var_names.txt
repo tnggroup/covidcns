@@ -3,6 +3,9 @@ dem.please_select_your_preferred_units_of_measurement
 dem.what_is_your_current_height
 dem.what_is_your_current_height.1
 dem.what_is_your_current_height.2
+dem.current_weight
+dem.current_weight.1
+dem.current_weight.2
 dem.which_hand_do_you_usually_write_with
 dem.sex_at_birth
 dem.what_gender_do_you_identify_with

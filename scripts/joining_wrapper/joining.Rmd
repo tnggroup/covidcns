@@ -299,7 +299,8 @@ Select columns for joining
 fam_covidcns_clean_selected <-
   fam_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 fam_covidcns_clean_selected %>%
@@ -627,7 +628,8 @@ Select columns for joining
 sub_covidcns_clean_selected <-
   sub_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 sub_covidcns_clean_selected %>%
@@ -1852,6 +1854,7 @@ tibble_list <-
     catatonia_covidcns_clean_selected,
     cfs_covidcns_clean_selected,
     dem_covidcns_clean_selected,
+    fam_covidcns_clean_selected,
     impact_covidcns_clean_selected,
     facial_covidcns_clean_selected,
     gad7_covidcns_clean_selected,
@@ -1861,6 +1864,7 @@ tibble_list <-
     pcl5_covidcns_clean_selected,
     phq9_covidcns_clean_selected,
     smelltaste_covidcns_clean_selected,
+    sub_covidcns_clean_selected,
     trauma_covidcns_clean_selected,
     updrs_covidcns_clean_selected,
     vaccine_covidcns_clean_selected,
@@ -2251,6 +2255,29 @@ nanopore_sumtable
 ```
 
 
+# Produce MoCA export
+```{r}
+data_export_moca <-
+  plyr::join_all(
+    dfs =  list(
+      moca_inp_covidcns_clean_selected,
+      moca_outp_covidcns_clean_selected
+      ),
+    by = c("ID"),
+    type = "full"
+    )
+```
+
+
+# Save joined data set
+```{r nanopore Save joint data set}
+write_csv(
+  x = data_export_moca, 
+  file = paste0(ilovecovidcns, "/data_sharing/liverpool/Sophie/covidcns_moca.csv")
+)
+```
+
+
 # Save joined data set
 ```{r nanopore Save joint data set}
 write_csv(
@@ -2266,9 +2293,7 @@ saveRDS(
   object = data_export_matching, 
   file = paste0(ilovecovidcns, "/data/joined/covidcns_matching.rds")
 )
-```
 
-```{r matching Save joint data set sharing}
 saveRDS(
   object = data_export_matching, 
   file = paste0(ilovecovidcns, "/data_sharing/matching/covidcns_matching.rds")
@@ -2295,9 +2320,12 @@ saveRDS(
   object = data_joined, 
   file = paste0(ilovecovidcns, "/data/joined/covidcns_greta.rds")
 )
-```
 
-```{r greta Save joint data set sharing}
+saveRDS(
+  object = data_joined, 
+  file = paste0(ilovecovidcns, "/data_sharing/daniel/covidcns_daniel.rds")
+)
+
 saveRDS(
   object = data_joined, 
   file = paste0(ilovecovidcns, "/data_sharing/liverpool/covidcns-cog-analysis/data_raw/covidcns_greta.rds")
