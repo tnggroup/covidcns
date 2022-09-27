@@ -2383,6 +2383,14 @@ write_csv(
 ```
 
 # Save joined data set
+```{r adam Save joint data set}
+write_csv(
+  x = data_joined, 
+  file = paste0(ilovecovidcns, "/data_sharing/adam/covidcns_adam_updated.csv")
+)
+```
+
+# Save joined data set
 ```{r greta Save joint data set}
 saveRDS(
   object = data_joined, 
