@@ -169,6 +169,16 @@ scores_df_final$sex <- as.character(scores_df_final$sex)
 scores_df_final$sex[(scores_df_final$sex != "Male" &
                        scores_df_final$sex != "Female")] <- "Other"
 
+# Select times from cognitron_final
+cog_times <- cognitron_final %>% select(user_id, timeStamp)
+
+# Take only the earliest timeStamp
+cog_times <- cog_times %>% drop_na()
+cog_times <- cog_times[!duplicated(cog_times[ , c("user_id")]),]
+
+# Add to scores_df_final
+scores_df_final <- plyr::join_all(list(scores_df_final, cog_times), by = "user_id", type = "full")
+
 # Object of problematic IDs
 #scores_df_copy <- scores_df_final
 #View(scores_df_copy[rowSums(is.na(scores_df_copy[,1:6]))>0 & rowSums(is.na(scores_df_copy[,7:20]))<3,])

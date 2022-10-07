@@ -299,7 +299,8 @@ Select columns for joining
 fam_covidcns_clean_selected <-
   fam_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 fam_covidcns_clean_selected %>%
@@ -627,7 +628,8 @@ Select columns for joining
 sub_covidcns_clean_selected <-
   sub_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 sub_covidcns_clean_selected %>%
@@ -1852,6 +1854,7 @@ tibble_list <-
     catatonia_covidcns_clean_selected,
     cfs_covidcns_clean_selected,
     dem_covidcns_clean_selected,
+    fam_covidcns_clean_selected,
     impact_covidcns_clean_selected,
     facial_covidcns_clean_selected,
     gad7_covidcns_clean_selected,
@@ -1861,6 +1864,7 @@ tibble_list <-
     pcl5_covidcns_clean_selected,
     phq9_covidcns_clean_selected,
     smelltaste_covidcns_clean_selected,
+    sub_covidcns_clean_selected,
     trauma_covidcns_clean_selected,
     updrs_covidcns_clean_selected,
     vaccine_covidcns_clean_selected,
@@ -2087,8 +2091,63 @@ data_export_matching %>%
   slice(1:5)
 ```
 
+Select columns for Cord extraction
+```{r cord Select columns}
+data_export_cord <- data_joined %>%
+  select(
+    ID,
+    
+    ncrf1_dem.date_of_birth.txt,
+    ncrf1_dem.sex_at_birth,
+    
+    ncrf1_admission.date_of_positive_covid19_test.txt,
+    
+    ncrf1_vital.glasgow_coma_score.txt,
+    ncrf2_vital.glasgow_coma_score.txt,
+    ncrf2_vital.lowest_gcs_during_admission.txt,
+    
+    ncrf1_vital.admission_hours_severity_covid19,
+    ncrf1_vital.admission_severity_worst_covid19,
+    
+    ncrf1_comorbid.existing_comorbiditiesrisk_factors.atrial_fibrillation,
+    ncrf1_comorbid.existing_comorbiditiesrisk_factors.myasthenia_gravis,
+    ncrf1_comorbid.existing_comorbiditiesrisk_factors.autoimmune_disease,
+    
+    ncrf1_vital.vitals.1,
+    ncrf1_vital.vitals.2,
+    ncrf1_vital.vitals.3,
+    ncrf1_vital.vitals.4,
+    
+    ncrf1_newsymp.new_onsetacute_symptoms.chest_painpalpatations,
+    ncrf1_newsymp.new_onsetacute_symptoms.pulmonary_embolus,
+    ncrf1_newsymp.new_onsetacute_symptoms.dyspnoea,
+    ncrf1_newsymp.new_onsetacute_symptoms.seizures,
+    
+    ncrf1_lab.troponin,
+    ncrf2_lab.troponin,
+    ncrf1_lab.creatine_kinase,
+    ncrf2_lab.creatine_kinase,
+    
+    ncrf2_newsymp.new_onsetacute_symptoms.chest_painpalpatations,
+    ncrf2_newsymp.new_onsetacute_symptoms.pulmonary_embolus,
+    ncrf2_newsymp.new_onsetacute_symptoms.dyspnoea,
+    ncrf2_newsymp.new_onsetacute_symptoms.seizures,
+    ncrf2_newsymp.new_onsetacute_symptoms.diarrhoea,
+    
+    ncrf2_vital.vitals.1,
+    ncrf2_vital.vitals.2,
+    ncrf2_vital.vitals.3,
+    ncrf2_vital.vitals.4
+    )
+
+
+data_export_cord %>%
+  slice(1:5)
+```
+
+
 Select columns for neuro data extraction
-```{r matching Select columns}
+```{r glynn Select columns}
 data_export_glynn_dem <- qualtrics_data_joined %>%
   select(
       "ID",
@@ -2186,7 +2245,12 @@ nanopore_compli <- ncrf3_compli_covidcns_clean_selected %>%
     ncrf3_compli.acute_hemorrhagic_necrotizing_encephalopathy,
     ncrf3_compli.acute_disseminated_encephalomyelitis,
     ncrf3_compli.myelitis,
-    ncrf3_compli.guillain_barre_syndrome_miller_fisher_syndrome
+    ncrf3_compli.guillain_barre_syndrome_miller_fisher_syndrome,
+    ncrf3_compli.myalgia_myositis_myopathy,
+    ncrf3_compli.neuromuscular_junction_disorder,
+    ncrf3_compli.autonomic_dysfucntion,
+    ncrf3_compli.compression_or_critical_illness_neuropathymyopathy,
+    ncrf3_compli.cranial_nerve_palsy
   )
 ```
 
@@ -2251,6 +2315,29 @@ nanopore_sumtable
 ```
 
 
+# Produce MoCA export
+```{r}
+data_export_moca <-
+  plyr::join_all(
+    dfs =  list(
+      moca_inp_covidcns_clean_selected,
+      moca_outp_covidcns_clean_selected
+      ),
+    by = c("ID"),
+    type = "full"
+    )
+```
+
+
+# Save joined data set
+```{r nanopore Save joint data set}
+write_csv(
+  x = data_export_moca, 
+  file = paste0(ilovecovidcns, "/data_sharing/liverpool/Sophie/covidcns_moca.csv")
+)
+```
+
+
 # Save joined data set
 ```{r nanopore Save joint data set}
 write_csv(
@@ -2266,9 +2353,7 @@ saveRDS(
   object = data_export_matching, 
   file = paste0(ilovecovidcns, "/data/joined/covidcns_matching.rds")
 )
-```
 
-```{r matching Save joint data set sharing}
 saveRDS(
   object = data_export_matching, 
   file = paste0(ilovecovidcns, "/data_sharing/matching/covidcns_matching.rds")
@@ -2290,14 +2375,33 @@ saveRDS(
 
 
 # Save joined data set
+```{r cord Save joint data set}
+write_csv(
+  x = data_export_cord, 
+  file = paste0(ilovecovidcns, "/data_sharing/cordelia/covidcns_cordelia.csv")
+)
+```
+
+# Save joined data set
+```{r adam Save joint data set}
+write_csv(
+  x = data_joined, 
+  file = paste0(ilovecovidcns, "/data_sharing/adam/covidcns_adam_updated.csv")
+)
+```
+
+# Save joined data set
 ```{r greta Save joint data set}
 saveRDS(
   object = data_joined, 
   file = paste0(ilovecovidcns, "/data/joined/covidcns_greta.rds")
 )
-```
 
-```{r greta Save joint data set sharing}
+write_csv(
+  x = data_joined, 
+  file = paste0(ilovecovidcns, "/data_sharing/daniel/covidcns_daniel.csv")
+)
+
 saveRDS(
   object = data_joined, 
   file = paste0(ilovecovidcns, "/data_sharing/liverpool/covidcns-cog-analysis/data_raw/covidcns_greta.rds")

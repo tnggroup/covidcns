@@ -275,12 +275,17 @@ hlq_data_joined <- hlq_data_joined %>%
   )
 ```
 
-
+Retrieve the recent date
+We are using the recent date to save files with paste0() as an extension to not overwrite old versions
+```{r Recent date}
+date = Sys.Date()
+date
+```
 
 # Save HLQ data set
 ```{r Save HLQ data set}
 write_csv(
   x = hlq_data_joined, 
-  file = paste0(ilovecovidcns, "/data/hlq/covidcns_hlq_data.csv")
+  file = paste0(ilovecovidcns, "/data/hlq/covidcns_hlq_data", date, ".csv")
 )
 ```
