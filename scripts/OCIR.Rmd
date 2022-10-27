@@ -209,122 +209,6 @@ label_list
 ```
 
 
-# Rectifying Incorrect Variable Labelling
-
-Check <incorrect variable> labels
-<Note problem here and report on Teams>
-```{r Check <incorrect variable> labelling}
-dat %>%
-  select(<incorrect variable>) %>%
-  str()
-```
-
-Rename value labels of <incorrect variable>
-```{r Rename <incorrect variable> value labels}
-# Named vector of correct labels
-new_levels_vec <- c("<correct label>" = <value>, "<correct label>" = <value>)
-
-# Assign new labels
-dat$<incorrect variable> <- set_labels(dat$<incorrect variable>, labels = new_levels_vec)
-
-# Remove labels vector
-rm(new_levels_vec)
-```
-
-Recheck <incorrect variable> labelling
-```{r Recheck <incorrect variable> labelling}
-dat %>%
-  select(<incorrect variable>) %>%
-  str()
-```
-
-
-# Recoding Incorrect Variables
-
-View <incorrect variable>
-<Note problem here and report on Teams>
-```{r View <incorrect variable> values and labels}
-attr(dat$<incorrect variable>, "labels")
-```
-
-Recode incorrect variable
-Can be removed after data recoded in qualtrics and after data export
-If variables are found to be incorrect:
-Report the error on Teams
-Recode the variable yourself using `case_when` as below
-Continue cleaning your script with the recoded variable until fixed from source
-DO NOT run this chunk multiple times: it will mess up the variable coding, requiring you to run the script again from the beginning
-```{r Recode <incorrect variable>}
-dat <- dat %>% 
-  mutate(across(<incorrect variable>,
-                ~case_when(
-                  . == <incorrect value> ~ <correct value>,
-                  TRUE ~ .)))
-```
-
-Rename value labels of <incorrect variable>
-```{r Relabel <incorrect variable>}
-# Named vector of correct labels
-new_levels_vec <- c("<correct label>" = <value>, "<correct label>" = <value>)
-
-# Assign new labels
-dat$<incorrect variable> <- set_labels(dat$<incorrect variable>, labels = new_levels_vec)
-
-# Remove labels vector
-rm(new_levels_vec)
-```
-
-Recheck variable coding
-```{r Recheck <incorrect variable> values and labels}
-attr(dat$<incorrect variable>, "labels")
-```
-
-
-
-# Cleaning Textual Variables
-
-Create vector of text variables
-```{r Vector text vars}
-variables_text <- c(
-  "<questionnaire.variable_name>"
-)
-```
-
-View text variables
-```{r Check text vars}
-dat %>%
-  select(all_of(variables_text)) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
-Recode <text variable>
-Repeat these chunks as necessary
-```{r Recode <text variable>}
-dat <- dat %>% 
-  mutate(across(<questionnaire.variable_name>,
-                ~case_when(
-                  str_detect(<questionnaire.variable_name>, "<misspelling>")  ~ "<Correct Spelling>",
-                  str_detect(<questionnaire.variable_name>, "<misspelling>")  ~ "<Correct Spelling>",
-                  TRUE ~ .)))
-```
-
-Re-check <text variable>
-Repeat these chunks as necessary
-```{r Recheck coding <text variable>}
-dat %>%
-  select(<questionnaire.variable_name>) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
-Re-check all text variables
-```{r Recheck text vars coding final}
-dat %>%
-  select(all_of(variables_text)) %>%
-  tbl_summary(missing_text = "Missing")
-```
-
-
-
 
 # Produce sumscores
 
@@ -419,72 +303,52 @@ sum_out <- sumscores(input = dat,
 Add sumscores as new column
 ```{r Add sumscores}
 dat <- dat %>% 
-  mutate(questionnaire.sum_score = sum_out$scores)
+  mutate(ocir.sum_score = sum_out$scores)
 ```
 
 
 # Create phenotypes
 Add explanation of phenotype here:
+OCD 
+Non OCD
 
-Create <phenotype variable>
-```{r Create <pheno var>}
+Create ocir.ocd
+```{r Create ocir.ocd}
+
 dat <- dat %>%
   mutate(
-    <questionnaire.phenotype> =
+    ocir.ocd =
       case_when(
-        <questionnaire.sum_score> >= <threshold> ~ 1,
-        <questionnaire.sum_score> < <threshold> ~ 0
+        ocir.sum_score >= 21 ~ 1,
+        ocir.sum_score < 21 ~ 0
       )
   )
 dat %>%
-  select(<questionnaire.phenotype>) %>%
+  select(ocir.ocd) %>%
   tbl_summary()
 ```
 
-Label <phenotype variable>
-```{r Label <pheno var>}
+Label OCD
+```{r Label OCD}
 # Set question label
-dat$<questionnaire.phenotype> <- sjlabelled::set_label(dat$<questionnaire.phenotype>, "<Phenotype Question>")
+dat$ocir.ocd <- sjlabelled::set_label(dat$ocir.ocd, "OCIR OCD?")
 
 # Create vector of answer labels
-<pheno_var>_labels <- c("<No Phenotype>" = 0, "<Phenotype>" = 1)
+ocd_labels <- c("No clinically significant OCD" = 0, "Clinically significant OCD" = 1)
 
 # Set answer labels
-dat$<questionnaire.phenotype> <- sjlabelled::set_labels(dat$<questionnaire.phenotype>,
-                                                        labels = <pheno_var>_labels)
+dat$ocir.ocd <- sjlabelled::set_labels(dat$ocir.ocd,
+                                       labels = ocd_labels)
 
 # Remove vector of answer labels
-rm(<pheno_var>_labels)
+rm(ocd_labels)
 
 # View variable to check
 sjlabelled::as_label(dat) %>%
-  select(<questionnaire.phenotype>) %>%
+  select(ocir.ocd) %>%
   tbl_summary(missing_text = "Missing")
 ```
 
-
-# Add Numeric Variables
-
-Specify columns to be excluded from add_numeric function
-Continuous variables should be excluded, as they are already numeric
-Text variables also need to be excluded
-Do not include ID and sample here
-```{r Specify excluded columns}
-exclude_cols_numeric <- c(
-  # columns as required
-  )
-```
-
-Add labelled/numeric columns
-Modify the leaders argument if necessary
-```{r Add columns}
-dat <- dat %>% 
-  add_labelled_numeric(exclude = exclude_cols_numeric)
-
-# Inspect colnames
-dat %>%
-  colnames()
-```
 
 
 # Save cleaned data
@@ -493,6 +357,6 @@ dat %>%
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovecovidcns, <"/data/latest_freeze/location/questionnaire_covidcns_clean.rds">)
+    file = paste0(ilovecovidcns, "/data/latest_freeze/baseline/ocir_covidcns_clean.rds")
     )
 ```
