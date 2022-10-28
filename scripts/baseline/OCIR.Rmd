@@ -1,6 +1,6 @@
 ---
 title: "OCIR"
-author: "Chelsea Mika Malouf and Saakshi Kakar"
+author: "Chelsea Mika Malouf"
 date: "2022-10-17"
 output: html_document
 ---
@@ -68,7 +68,7 @@ Ensure that your credentials directory is correctly located
 source(file = "scripts/credentials/paths.R")
 ```
 
-# Read in the data: <Full Name of Questionnaire/Demographic>
+# Read in the data: OCIR COVID-CNS
 
 Do not change variable names from the NLP names that are produced by the extraction
 EXCEPT in exceptional circumstances
@@ -314,7 +314,6 @@ Non OCD
 
 Create ocir.ocd
 ```{r Create ocir.ocd}
-
 dat <- dat %>%
   mutate(
     ocir.ocd =
@@ -323,6 +322,7 @@ dat <- dat %>%
         ocir.sum_score < 21 ~ 0
       )
   )
+
 dat %>%
   select(ocir.ocd) %>%
   tbl_summary()
