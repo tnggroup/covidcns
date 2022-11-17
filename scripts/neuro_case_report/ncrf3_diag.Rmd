@@ -328,6 +328,7 @@ length(variables_cont)
 Mutate variables to numeric after cleaning out text
 This step is necessary to check for non-integer values
 If you have correctly cleaned them above, this chunk should not have any failures to parse
+@note - Failures to parse manually checked and cleared
 ```{r Cont vars to numeric}
 dat <- dat %>%
   mutate(across(all_of(variables_cont),
@@ -335,11 +336,6 @@ dat <- dat %>%
                 )
          )
 ```
-
-```{r}
-
-```
-
 
 Transform nonanswer values to 3 digit
 ```{r Cont vars nonanswer}

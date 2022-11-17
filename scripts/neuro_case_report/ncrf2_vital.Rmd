@@ -582,10 +582,10 @@ dat <- dat %>%
 ```{r GCS manual clean}
 dat <- dat %>%
   mutate(across(ncrf2_vital.glasgow_coma_score.txt,
-                ~case_when(str_detect(ncrf2_vital.glasgow_coma_score.txt, "-") ~ "-77",
-                           str_detect(ncrf2_vital.glasgow_coma_score.txt, "n") ~ "-77",
-                           str_detect(ncrf2_vital.glasgow_coma_score.txt, "N") ~ "-77",
-                           str_detect(ncrf2_vital.glasgow_coma_score.txt, "I") ~ "-77",
+                ~case_when(str_detect(ncrf2_vital.glasgow_coma_score.txt, "-") ~ "-777",
+                           str_detect(ncrf2_vital.glasgow_coma_score.txt, "n") ~ "-777",
+                           str_detect(ncrf2_vital.glasgow_coma_score.txt, "N") ~ "-777",
+                           str_detect(ncrf2_vital.glasgow_coma_score.txt, "I") ~ "-777",
                            . == "04" ~ "4",
                            . == "10 (tracheostomy)" ~ "10",
                            . == "11 (E4, Vt, M6)" ~ "11",
@@ -605,10 +605,10 @@ dat <- dat %>%
 ```{r Lowest GCS manual clean}
 dat <- dat %>%
   mutate(across(ncrf2_vital.lowest_gcs_during_admission.txt,
-                ~case_when(str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "-") ~ "-77",
-                           str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "k") ~ "-77",
-                           str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "K") ~ "-77",
-                           str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "A") ~ "-77",
+                ~case_when(str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "-") ~ "-777",
+                           str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "k") ~ "-777",
+                           str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "K") ~ "-777",
+                           str_detect(ncrf2_vital.lowest_gcs_during_admission.txt, "A") ~ "-777",
                            . == "04" ~ "4",
                            . == "1" ~ "-77",
                            . == "10 (when not sedated and ventilated)" ~ "10",
@@ -620,7 +620,7 @@ dat <- dat %>%
                            . == "4 (E2vtM1)" ~ "4",
                            . == "5 (E4VTM1)" ~ "5",
                            . == "8/15" ~ "8",
-                           . == "E Vt M6" ~ "-77",
+                           . == "E Vt M6" ~ "-777",
                            TRUE ~ .)
                 )
          )
@@ -630,6 +630,7 @@ Mutate variables to numeric after cleaning manually
 This step is necessary to check for non-integer values
 Modify the all_of statement as required: DO NOT MUTATE TO NUMERIC UNNECESSARILY
 REMOVE THIS CHUNK IF NOT NECESSARY
+@note - Failures to parse manually checked and cleared
 ```{r Cont vars to numeric}
 dat <- dat %>%
   mutate(across(all_of(variables_cont),
@@ -792,6 +793,10 @@ dat <- dat %>%
   mutate(across(all_of(variables_date),
                 ~na_if(., "-77")
                 )
+         ) %>%
+  mutate(across(all_of(variables_date),
+                ~na_if(., "-777")
+                )
          )
 ```
 
@@ -807,7 +812,7 @@ my_dates <- unlist(dat %>% select(ncrf2_vital.date.txt) %>% drop_na())
 ```
 
 Find unparsable value where for loop fails and add to case_when
-```{r Find unparsable value}
+```{r Find unparsable value, eval=FALSE, include=FALSE}
 my_dates[278]
 ```
 
@@ -835,7 +840,7 @@ Variable name:
 - Lower: 30/01/2020, first confirmed UK COVID cases 
 
 ```{r Define limits}
-upper_limit <- as.POSIXct("2022-05-09")
+upper_limit <- as.POSIXct("2022-11-22")
 lower_limit <- as.POSIXct("2020-01-30")
 ```
 

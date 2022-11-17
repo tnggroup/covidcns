@@ -1368,7 +1368,8 @@ Select columns for joining
 ncrf1_dem_covidcns_clean_selected <-
   ncrf1_dem_covidcns_clean %>%
   select(
-    -all_of(exclude_variables)
+    -startDate,
+    -endDate
   )
 
 ncrf1_dem_covidcns_clean_selected %>%

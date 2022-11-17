@@ -263,8 +263,6 @@ dat <- dat %>%
                            str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "6 weeks") ~ "42",
                            str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "1 month") ~ "30",
                            str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "3 weeks") ~ "21",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "14 DAYS") ~ "14",
-                           str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "38 days") ~ "38",
                            str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "2 months") ~ "60",
                            str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "2 weeks") ~ "14",
                            str_detect(ncrf1_care.overall_duration_of_invasive_ventilation.txt, "09/05/2020") ~ "1",
@@ -280,6 +278,8 @@ dat <- dat %>%
   mutate(across(ncrf1_care.modified_rankin_score.txt,
                 ~case_when(str_detect(ncrf1_care.modified_rankin_score.txt, "1 - Associated with Long COVID") ~ "1",
                            str_detect(ncrf1_care.modified_rankin_score.txt, "grade 2") ~ "2",
+                           str_detect(ncrf1_care.modified_rankin_score.txt, "15/15") ~ "N/A",
+                           str_detect(ncrf1_care.modified_rankin_score.txt, "1/2") ~ "N/A",
                            str_detect(ncrf1_care.modified_rankin_score.txt, "n") ~ "N/A",
                            str_detect(ncrf1_care.modified_rankin_score.txt, "N") ~ "N/A",
                            TRUE ~ .)
@@ -381,29 +381,11 @@ dat %>%
     )
 ```
 
-Manually clean date variables if necessary
-IF the text data contains useful info that can be converted to date, clean manually
-For example, "Feb 2020" can be converted to "01/02/2020", avoiding unnecessary data loss
-```{r Date vars manual clean}
-dat <- dat %>%
-  mutate(across(ncrf1_care.icu_or_high_dependency_unit_admission.txt,
-                ~case_when(str_detect(ncrf1_care.icu_or_high_dependency_unit_admission.txt, "28/01/2021 - 31/-1/2021 at Royal Liverpool") ~ "28/01/2021",
-                           TRUE ~ .)
-                )
-         )
-
-dat <- dat %>%
-  mutate(across(ncrf1_care.icu_or_high_dependency_unit_admission.txt,
-                ~na_if(., "30")
-                )
-         )
-```
-
-Replace -77 values with NA: POSIX will reject -77 as a value when converting
-```{r Date vars recode -77 to NA}
+Replace -777 values with NA: POSIX will reject -777 as a value when converting
+```{r Date vars recode -777 to NA}
 dat <- dat %>% 
   mutate(across(all_of(variables_date),
-                ~na_if(., "-77")
+                ~na_if(., "-777")
                 )
          )
 ```
@@ -433,7 +415,7 @@ Variable name:
 - Lower: 30/01/2020, first confirmed UK COVID cases 
 
 ```{r Define limits}
-upper_limit <- as.POSIXct("2022-06-14")
+upper_limit <- as.POSIXct("2022-10-27")
 lower_limit <- as.POSIXct("2020-01-30")
 ```
 

@@ -545,7 +545,7 @@ Replace -77 values with NA as POSIX will reject -77 as a value when converting
 dat <- dat %>% 
   mutate(across(
     all_of(variables_date),
-    ~na_if(., "-77")
+    ~na_if(., "-777")
                 )
          )
 ```
@@ -577,7 +577,7 @@ Variable name:
 - Lower: 30/01/2020, first confirmed UK COVID cases 
 
 ```{r Define limits}
-upper_limit <- as.POSIXct("2022-02-22")
+upper_limit <- as.POSIXct("2022-11-22")
 lower_limit <- as.POSIXct("2020-01-30")
 ```
 
