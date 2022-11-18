@@ -595,11 +595,11 @@ dat <- dat %>%
          )
 ```
 
-Replace -77 values with NA: POSIX will reject -77 as a value when converting
-```{r Date vars recode -77 to NA}
+Replace -777 values with NA: POSIX will reject -777 as a value when converting
+```{r Date vars recode -777 to NA}
 dat <- dat %>% 
   mutate(across(all_of(variables_date),
-                ~na_if(., "-77")
+                ~na_if(., "-777")
                 )
          )
 ```
