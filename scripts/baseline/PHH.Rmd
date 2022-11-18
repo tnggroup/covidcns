@@ -236,7 +236,7 @@ variables_cont <- c(
   "phh.emphysema_or_chronic_bronchitis.1",
   "phh.other.1",
   "phh.dont_know.13",
-  "phh.prefer_not_to_say.1",
+  "phh.prefer_not_to_answer.1",
   "phh.none_of_the_above.13",
   
   #cardio
@@ -394,7 +394,7 @@ Variable name: Age
 - Lower: 0
 - Upper: 117 (oldest person in the world)
 ```{r Create matrix limits}
-limits_mat <- t(matrix(rep(c(0,117), 62), nrow = 2, ncol = 62))
+limits_mat <- t(matrix(rep(c(0,117), 63), nrow = 2, ncol = 63))
 dim(limits_mat)
 ```
 
