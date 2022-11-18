@@ -80,7 +80,7 @@ Document ANY changes to variable names in the Teams Data Issues Tracker
 COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_rds(
-  file = paste0(ilovecovidcns, "/data_raw/2022-05-28/baseline/dem_covid_cns.rds")
+  file = paste0(ilovecovidcns, "/data_raw/latest_freeze/baseline/dem_covid_cns.rds")
   )
   
 # Check variable names in dataframe
@@ -117,10 +117,6 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
     "dem.how_old_are_you_now.txt" = "dem.required_question_eligibility_criteria.txt",
     "dem.sex_at_birth" = "dem.medical_history_birth_relevant",
     "dem.country_of_residence" = "dem.based_confirm_living_question",
-    "dem.turkish" = "QID126489347_22",
-    "dem.turkish_cypriot" = "QID126489347_23",
-    "dem.sri_lankan" = "QID126489349_11",
-    "dem.japanese" = "QID126489349_10",
     "dem.current_weight" = "dem.pregnant_weigh_weight_provide",
     "dem.current_weight.1" = "dem.pregnant_weigh_weight_provide.1",
     "dem.current_weight.2" = "dem.pregnant_weigh_weight_provide.2",
@@ -128,14 +124,14 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
     "dem.highest_weight.1" = "dem.pregnant_weighed_weight_provide.1",
     "dem.highest_weight.2" = "dem.pregnant_weighed_weight_provide.2",
     "dem.highest_weight_age" = "dem.highest_weight",
-    "dem.lowest_weight_adult_height" = "dem.stopped_growing_adult_height",
-    "dem.lowest_weight_adult_height.1" = "dem.stopped_growing_adult_height.1",
-    "dem.lowest_weight_adult_height.2" = "dem.stopped_growing_adult_height.2",
+    "dem.lowest_weight_adult_height" = "dem.adult_height_stopped_growing",
+    "dem.lowest_weight_adult_height.1" = "dem.adult_height_stopped_growing.1",
+    "dem.lowest_weight_adult_height.2" = "dem.adult_height_stopped_growing.2",
     "dem.lowest_weight_age" = "dem.lowest_weight_adult_height",
     "dem.metal_implants" = "dem.body_suffered_injury_involving",
-    "dem.concerned_memory" = "dem.affects_concerned_live_memory.1",
-    "dem.concerned_memory_before_covid" = "dem.affects_concerned_live_memory.2",
-    "dem.concerned_memory_after_covid" = "dem.affects_concerned_live_memory",
+    "dem.concerned_memory" = "dem.affects_concerned_memory_live.1",
+    "dem.concerned_memory_before_covid" = "dem.affects_concerned_memory_live.2",
+    "dem.concerned_memory_after_covid" = "dem.affects_concerned_memory_live",
     "dem.long_ago_diagnosed_years" = "dem.long_ago_diagnosed_required",
     "dem.long_ago_diagnosed_months" = "dem.long_ago_diagnosed_required.1",
     "dem.family_diagnosed_covid19" = "dem.diagnosed_covid19_experienced_similar",
@@ -297,9 +293,9 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
     #quality of life
     "dem.quality_rate_life",
     "dem.happy_general_health",
-    "dem.energy_everyday_life",
-    "dem.opportunity_leisure_activities",
-    "dem.money_day",
+    "dem.happy_general_health.do_you_have_enough_energy_for_everyday_life",
+    "dem.happy_general_health.do_you_have_the_opportunity_for_leisure_activities",
+    "dem.happy_general_health.do_you_have_enough_money_for_day_to_day_needs",
     "dem.middle_wake_night_trouble",
     "dem.middle_wake_night_before_covid",
     "dem.middle_wake_night_after_covid"
@@ -398,97 +394,6 @@ to be cleaned in the later chunks
 label_list <- sapply(dat, function(x) c(attr(x, "label"), attr(x, "labels")))
 label_list
 ```
-
-
-# Recoding Incorrect Variables
-
-## Memory
-
-View dem.concerned_memory
-No should be 0 not 2
-```{r View dem.concerned_memory values and labels}
-attr(dat$dem.concerned_memory, "labels")
-```
-
-Recode incorrect variable
-Can be removed after data recoded in qualtrics and after data export
-If variables are found to be incorrect:
-Report the error on Teams
-Recode the variable yourself using `case_when` as below
-Continue cleaning your script with the recoded variable until fixed from source
-DO NOT run this chunk multiple times: it will mess up the variable coding, requiring you to run the script again from the beginning
-```{r Recode dem.concerned_memory}
-dat <- dat %>% 
-  mutate(across(dem.concerned_memory,
-                ~case_when(
-                  . == 2 ~ 0,
-                  TRUE ~ .)))
-```
-
-Rename value labels of dem.concerned_memory
-```{r Relabel dem.concerned_memory}
-# Named vector of correct labels
-new_levels_vec <- c("Prefer not to say" = -999,
-                    "Seen but not answered" = -777,
-                    "Yes" = 1,
-                    "No" = 0)
-
-# Assign new labels
-dat$dem.concerned_memory <- set_labels(dat$dem.concerned_memory, labels = new_levels_vec)
-
-# Remove labels vector
-rm(new_levels_vec)
-```
-
-Recheck variable coding
-```{r Recheck dem.concerned_memory values and labels}
-attr(dat$dem.concerned_memory, "labels")
-```
-
-
-## Pregnancy
-
-View dem.have_you_ever_been_pregnant
-Prefer not to say should be -999 not 2
-```{r View dem.have_you_ever_been_pregnant values and labels}
-attr(dat$dem.have_you_ever_been_pregnant, "labels")
-```
-
-Recode incorrect variable
-Can be removed after data recoded in qualtrics and after data export
-If variables are found to be incorrect:
-Report the error on Teams
-Recode the variable yourself using `case_when` as below
-Continue cleaning your script with the recoded variable until fixed from source
-DO NOT run this chunk multiple times: it will mess up the variable coding, requiring you to run the script again from the beginning
-```{r Recode dem.have_you_ever_been_pregnant}
-dat <- dat %>% 
-  mutate(across(dem.have_you_ever_been_pregnant,
-                ~case_when(
-                  . == 2 ~ -999,
-                  TRUE ~ .)))
-```
-
-Rename value labels of dem.have_you_ever_been_pregnant
-```{r Relabel dem.have_you_ever_been_pregnant}
-# Named vector of correct labels
-new_levels_vec <- c("Prefer not to say" = -999,
-                    "Seen but not answered" = -777,
-                    "Yes" = 1,
-                    "No" = 0)
-
-# Assign new labels
-dat$dem.have_you_ever_been_pregnant <- set_labels(dat$dem.have_you_ever_been_pregnant, labels = new_levels_vec)
-
-# Remove labels vector
-rm(new_levels_vec)
-```
-
-Recheck variable coding
-```{r Recheck dem.have_you_ever_been_pregnant values and labels}
-attr(dat$dem.have_you_ever_been_pregnant, "labels")
-```
-
 
 # Create ethnicity variables from ethnicity cols
 
