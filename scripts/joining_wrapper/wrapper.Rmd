@@ -132,6 +132,11 @@ source(knitr::purl("scripts/baseline/impact.Rmd"))
 source(knitr::purl("scripts/baseline/mhd.Rmd"))
 ```
 
+## migraine
+```{r migraine Cleaning the individual questionnaires}
+source(knitr::purl("scripts/baseline/migraine.Rmd"))
+```
+
 ## nonmotor
 ```{r nonmotor Cleaning the individual questionnaires}
 source(knitr::purl("scripts/baseline/nonmotor.Rmd"))
@@ -257,6 +262,15 @@ source(knitr::purl("scripts/core_neuro/nis_outp.Rmd"))
 ## nis_inp
 ```{r nis_inp Cleaning the individual questionnaires}
 source(knitr::purl("scripts/core_neuro/nis_inp.Rmd"))
+```
+
+
+
+# fbc
+
+## fbc
+```{r fbc Cleaning the individual questionnaires}
+source(knitr::purl("scripts/fbc/fbc.Rmd"))
 ```
 
 

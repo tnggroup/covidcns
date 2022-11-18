@@ -14,7 +14,7 @@ This R markdown:
 # Set up
 
 Configure global options for all chunks
-```{r Setup, include=FALSE}
+```{r Setup, include=FfbcE}
 knitr::opts_chunk$set(
   echo = TRUE,
   comment = '',
@@ -143,6 +143,40 @@ als_covidcns_clean_selected <-
   )
 
 als_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+
+### anxdep_covidcns_clean
+Read in & variable names
+```{r anxdep_covidcns_clean Read in data & variable names}
+anxdep_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/anxdep_covidcns_clean.rds")
+  )
+
+anxdep_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r anxdep_covidcns_clean Dimensions}
+anxdep_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r anxdep_covidcns_clean Select columns for joining}
+anxdep_covidcns_clean_selected <-
+  anxdep_covidcns_clean %>%
+  select(
+    -c("startDate",
+       "endDate")
+  )
+
+anxdep_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
@@ -338,6 +372,40 @@ fam_covidcns_clean_selected %>%
 ```
 
 
+
+### harm_covidcns_clean
+Read in & variable names
+```{r harm_covidcns_clean Read in data & variable names}
+harm_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/harm_covidcns_clean.rds")
+  )
+
+harm_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r harm_covidcns_clean Dimensions}
+harm_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r harm_covidcns_clean Select columns for joining}
+harm_covidcns_clean_selected <-
+  harm_covidcns_clean %>%
+  select(
+    -c("startDate",
+       "endDate")
+  )
+
+harm_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
 ### impact_covidcns_clean
 Read in & variable names
 ```{r impact_covidcns_clean Read in data & variable names}
@@ -470,6 +538,73 @@ nonmotor_covidcns_clean_selected %>%
 
 
 
+### psq_covidcns_clean
+Read in & variable names
+```{r psq_covidcns_clean Read in data & variable names}
+psq_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/psq_covidcns_clean.rds")
+  )
+
+psq_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r psq_covidcns_clean Dimensions}
+psq_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r psq_covidcns_clean Select columns for joining}
+psq_covidcns_clean_selected <-
+  psq_covidcns_clean %>%
+  select(
+    -c("startDate",
+       "endDate")
+  )
+
+psq_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+
+### migraine_covidcns_clean
+Read in & variable names
+```{r migraine_covidcns_clean Read in data & variable names}
+migraine_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/migraine_covidcns_clean.rds")
+  )
+
+migraine_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r migraine_covidcns_clean Dimensions}
+migraine_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r migraine_covidcns_clean Select columns for joining}
+migraine_covidcns_clean_selected <-
+  migraine_covidcns_clean %>%
+  select(
+    -c("startDate",
+       "endDate")
+  )
+
+migraine_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
 
 ### MHD
 Read in & variable names
@@ -570,6 +705,40 @@ pcl5_covidcns_clean_selected %>%
 
 
 
+### ocir_covidcns_clean
+Read in & variable names
+```{r ocir_covidcns_clean Read in data & variable names}
+ocir_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/ocir_covidcns_clean.rds")
+  )
+
+ocir_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r ocir_covidcns_clean Dimensions}
+ocir_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r ocir_covidcns_clean Select columns for joining}
+ocir_covidcns_clean_selected <-
+  ocir_covidcns_clean %>%
+  select(
+    -c("startDate",
+       "endDate")
+  )
+
+ocir_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+
 ### phq9_covidcns_clean
 Read in & variable names
 ```{r phq9_covidcns_clean Read in data & variable names}
@@ -665,6 +834,41 @@ sub_covidcns_clean_selected <-
 sub_covidcns_clean_selected %>%
   slice(1:5)
 ```
+
+
+
+### tinnitus_covidcns_clean
+Read in & variable names
+```{r tinnitus_covidcns_clean Read in data & variable names}
+tinnitus_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/tinnitus_covidcns_clean.rds")
+  )
+
+tinnitus_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r tinnitus_covidcns_clean Dimensions}
+tinnitus_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r tinnitus_covidcns_clean Select columns for joining}
+tinnitus_covidcns_clean_selected <-
+  tinnitus_covidcns_clean %>%
+  select(
+    -c("startDate",
+       "endDate")
+  )
+
+tinnitus_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
 
 
 ### trauma_covidcns_clean
@@ -1099,6 +1303,42 @@ nis_outp_covidcns_clean_selected %>%
   slice(1:5)
 ```
 
+
+
+## fbc
+
+
+### fbc_covidcns_clean
+Read in & variable names
+```{r fbc_covidcns_clean Read in data & variable names}
+fbc_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/fbc/fbc_covidcns_clean.rds")
+  )
+
+fbc_covidcns_clean %>%
+  dim()
+```
+
+Dimensions
+```{r fbc_covidcns_clean Dimensions}
+fbc_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r fbc_covidcns_clean Select columns for joining}
+fbc_covidcns_clean_selected <-
+  fbc_covidcns_clean %>%
+  select(
+    -c("startDate",
+       "endDate")
+  )
+
+fbc_covidcns_clean_selected %>%
+  slice(1:5)
+```
 
 
 ## mh_case_report
@@ -1881,21 +2121,27 @@ DfE_task_scores_selected %>%
 tibble_list <- 
   list(
     als_covidcns_clean_selected,
+    anxdep_covidcns_clean_selected,
     cage_covidcns_clean_selected,
     catatonia_covidcns_clean_selected,
     cfs_covidcns_clean_selected,
     dem_covidcns_clean_selected,
     fam_covidcns_clean_selected,
+    harm_covidcns_clean_selected,
     impact_covidcns_clean_selected,
     facial_covidcns_clean_selected,
     gad7_covidcns_clean_selected,
-    nonmotor_covidcns_clean_selected,
     mhd_selected,
+    migraine_covidcns_clean_selected,
+    nonmotor_covidcns_clean_selected,
+    ocir_covidcns_clean_selected,
     phh_selected,
     pcl5_covidcns_clean_selected,
     phq9_covidcns_clean_selected,
+    psq_covidcns_clean_selected,
     smelltaste_covidcns_clean_selected,
     sub_covidcns_clean_selected,
+    tinnitus_covidcns_clean_selected,
     trauma_covidcns_clean_selected,
     updrs_covidcns_clean_selected,
     vaccine_covidcns_clean_selected,
@@ -1911,6 +2157,8 @@ tibble_list <-
     neuro_add_outp_covidcns_clean_selected,
     nis_inp_covidcns_clean_selected,
     nis_outp_covidcns_clean_selected,
+    #fbc
+    fbc_covidcns_clean_selected,
     # mh_case_report
     psy_neuro_scr_covidcns_clean_selected,
     moca_inp_covidcns_clean_selected,
@@ -1918,7 +2166,6 @@ tibble_list <-
     cognitron_outp_covidcns_clean_selected,
     moca_outp_covidcns_clean_selected,
     # neuro_case_report
-    ncrf2_med_covidcns_clean_selected,
     # ncrf1
     ncrf1_admission_covidcns_clean_selected,
     ncrf1_care_covidcns_clean_selected,
@@ -1952,38 +2199,6 @@ qualtrics_data_joined <-
 ```
 
 
-# Change/remove Incorrect IDs from Qualtrics
-
-Change IDs with newline char
-```{r}
-qualtrics_data_joined$ID[qualtrics_data_joined$ID == "\nCNS02002"] <- "CNS02002"
-qualtrics_data_joined$ID[qualtrics_data_joined$ID == "\nCNS01004"] <- "CNS01004"
-```
-
-
-Joining of qualtrics and cognitron, not including website data
-```{r Joining of qualtrics and cognitron}
-qualtrics_data_joined <- 
-  plyr::join_all(
-    dfs = list(qualtrics_data_joined,
-               cognitron_scores_and_demographics_selected,
-               DfE_composite_scores_selected,
-               DfE_task_scores_selected),
-    by = c("ID"),
-    type = "full"
-    )
-```
-
-Import swapping IDs excel sheet and remove problem IDs
-```{r Remove swapping ids}
-# Read in excel sheet of IDs to change as data frame
-swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/data_raw/ids/incorrect_ids.xlsx"),
-                                 sheet = "Sheet1")
-
-# Remove ids with issues
-qualtrics_data_joined <- qualtrics_data_joined %>%
-  filter(!ID %in% swapped_ids$incorrect_ID)
-```
 
 # Coalesce demographics
 
@@ -2121,6 +2336,44 @@ data_export_matching <- data_joined %>%
 data_export_matching %>%
   slice(1:5)
 ```
+
+
+
+
+
+```{r ncrf Select columns}
+data_export_ncrf <- plyr::join_all(
+    dfs = list(
+      # neuro_case_report
+      # ncrf1
+      ncrf1_admission_covidcns_clean_selected,
+      ncrf1_care_covidcns_clean_selected,
+      ncrf1_cic_covidcns_clean_selected,
+      ncrf1_comorbid_covidcns_clean_selected,
+      ncrf1_dem_covidcns_clean_selected,
+      ncrf1_lab_covidcns_clean_selected,
+      ncrf1_newsymp_covidcns_clean_selected,
+      ncrf1_pre_med_covidcns_clean_selected,
+      ncrf1_vital_covidcns_clean_selected,
+      # ncrf2
+      ncrf2_care_covidcns_clean_selected,
+      ncrf2_lab_covidcns_clean_selected,
+      ncrf2_med_covidcns_clean_selected,
+      ncrf2_newsymp_covidcns_clean_selected,
+      ncrf2_vital_covidcns_clean_selected,
+      # ncrf3    
+      ncrf3_compli_covidcns_clean_selected,
+      ncrf3_diag_covidcns_clean_selected
+      ),
+    by = c("ID"),
+    type = "full"
+    )
+
+
+data_export_ncrf %>%
+  slice(1:5)
+```
+
 
 Select columns for Cord extraction
 ```{r cord Select columns}
@@ -2388,6 +2641,20 @@ saveRDS(
 saveRDS(
   object = data_export_matching, 
   file = paste0(ilovecovidcns, "/data_sharing/matching/covidcns_matching.rds")
+)
+```
+
+
+# Save joined data set
+```{r ncrf Save joint data set}
+saveRDS(
+  object = data_export_ncrf, 
+  file = paste0(ilovecovidcns, "/data_sharing/ncrf/covidcns_ncrf.rds")
+)
+
+write_csv(
+  x = data_export_ncrf, 
+  file = paste0(ilovecovidcns, "/data_sharing/ncrf/covidcns_ncrf.csv")
 )
 ```
 
