@@ -72,6 +72,11 @@ source(knitr::purl("scripts/assessment_status/combined_website_data.Rmd"))
 source(knitr::purl("scripts/baseline/ALS.Rmd"))
 ```
 
+## anxdep
+```{r ALS Cleaning the individual questionnaires}
+source(knitr::purl("scripts/baseline/anxdep.Rmd"))
+```
+
 ## CAGE
 ```{r CAGE Cleaning the individual questionnaires}
 source(knitr::purl("scripts/baseline/CAGE.Rmd"))
@@ -112,6 +117,11 @@ source(knitr::purl("scripts/baseline/fam.Rmd"))
 source(knitr::purl("scripts/baseline/GAD7.Rmd"))
 ```
 
+## harm
+```{r harm Cleaning the individual questionnaires}
+source(knitr::purl("scripts/baseline/harm.Rmd"))
+```
+
 ## impact
 ```{r impact Cleaning the individual questionnaires}
 source(knitr::purl("scripts/baseline/impact.Rmd"))
@@ -122,9 +132,19 @@ source(knitr::purl("scripts/baseline/impact.Rmd"))
 source(knitr::purl("scripts/baseline/mhd.Rmd"))
 ```
 
+## migraine
+```{r migraine Cleaning the individual questionnaires}
+source(knitr::purl("scripts/baseline/migraine.Rmd"))
+```
+
 ## nonmotor
 ```{r nonmotor Cleaning the individual questionnaires}
 source(knitr::purl("scripts/baseline/nonmotor.Rmd"))
+```
+
+## OCIR
+```{r OCIR Cleaning the individual questionnaires}
+source(knitr::purl("scripts/baseline/OCIR.Rmd"))
 ```
 
 ## PCL5
@@ -133,13 +153,18 @@ source(knitr::purl("scripts/baseline/PCL5.Rmd"))
 ```
 
 ## PHH.Rmd
-```{r PHH_forgreta.Rmd Cleaning the individual questionnaires}
+```{r PHH Cleaning the individual questionnaires}
 source(knitr::purl("scripts/baseline/PHH.Rmd"))
 ```
 
 ## PHQ9
 ```{r PHQ9 Cleaning the individual questionnaires}
 source(knitr::purl("scripts/baseline/PHQ9.Rmd"))
+```
+
+## PSQ
+```{r PSQ Cleaning the individual questionnaires}
+source(knitr::purl("scripts/baseline/PSQ.Rmd"))
 ```
 
 ## smelltaste
@@ -150,6 +175,11 @@ source(knitr::purl("scripts/baseline/smelltaste.Rmd"))
 ## sub
 ```{r catatonia Cleaning the individual questionnaires}
 source(knitr::purl("scripts/baseline/sub.Rmd"))
+```
+
+## tinnitus
+```{r tinnitus Cleaning the individual questionnaires}
+source(knitr::purl("scripts/baseline/tinnitus.Rmd"))
 ```
 
 ## trauma
@@ -232,6 +262,15 @@ source(knitr::purl("scripts/core_neuro/nis_outp.Rmd"))
 ## nis_inp
 ```{r nis_inp Cleaning the individual questionnaires}
 source(knitr::purl("scripts/core_neuro/nis_inp.Rmd"))
+```
+
+
+
+# fbc
+
+## fbc
+```{r fbc Cleaning the individual questionnaires}
+source(knitr::purl("scripts/fbc/fbc.Rmd"))
 ```
 
 

@@ -63,7 +63,7 @@ package_check(packages)
 Read in file with path to ilovecovidcns channel on Teams
 Ensure that your credentials directory is correctly located
 ```{r Source filepath to ilovecovidcns OneDrive}
-source(file = "../credentials/paths.R")
+source(file = "scripts/credentials/paths.R")
 ```
 
 # Read in the data: <Full Name of Questionnaire/Demographic>
