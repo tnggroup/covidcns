@@ -246,6 +246,36 @@ cfs_covidcns_clean_selected %>%
 
 
 
+### covid19_covidcns_clean
+Read in & variable names
+```{r covid19_covidcns_clean Read in data & variable names}
+covid19_covidcns_clean <-
+  read_rds(
+    file = 
+      paste0(ilovecovidcns, "/data/latest_freeze/baseline/covid19_covidcns_clean.rds")
+  )
+
+covid19_covidcns_clean %>%
+  dim()
+```
+
+Dimensions 
+```{r covid19_covidcns_clean Dimensions}
+covid19_covidcns_clean %>%
+  colnames()
+```
+
+Select columns for joining
+```{r covid19_covidcns_clean Select columns for joining}
+covid19_covidcns_clean_selected <-
+  covid19_covidcns_clean
+
+covid19_covidcns_clean_selected %>%
+  slice(1:5)
+```
+
+
+
 ### dem_covidcns_clean
 Read in & variable names
 ```{r dem_covidcns_clean Read in data & variable names}

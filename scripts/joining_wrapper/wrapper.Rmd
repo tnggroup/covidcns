@@ -87,9 +87,9 @@ source(knitr::purl("scripts/baseline/catatonia.Rmd"))
 source(knitr::purl("scripts/baseline/CFS.Rmd"))
 ```
 
-## Covid19
-```{r Covid19 Cleaning the individual questionnaires, eval=FALSE, include=FALSE}
-source(knitr::purl("scripts/baseline/Covid19.Rmd"))
+## covid19
+```{r covid19 Cleaning the individual questionnaires}
+source(knitr::purl("scripts/baseline/covid19.Rmd"))
 ```
 
 ## dem
