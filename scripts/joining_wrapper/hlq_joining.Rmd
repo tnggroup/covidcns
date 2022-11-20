@@ -49,7 +49,8 @@ packages <- c(
   "summarytools",
   "sjlabelled",
   "gtsummary",
-  "tidyverse"
+  "tidyverse",
+  "Amelia"
   )
 
 package_check(packages)
@@ -233,27 +234,6 @@ hlq_data_joined <-
 
 
 
-# Change/remove Incorrect IDs from Qualtrics
-
-Change IDs with newline char
-```{r}
-hlq_data_joined$ID[hlq_data_joined$ID == "\nCNS02002"] <- "CNS02002"
-hlq_data_joined$ID[hlq_data_joined$ID == "\nCNS01004"] <- "CNS01004"
-```
-
-Import swapping IDs excel sheet and remove problem IDs
-```{r Remove swapping ids}
-# Read in excel sheet of IDs to change as data frame
-swapped_ids <- readxl::read_xlsx(path = paste0(ilovecovidcns, "/data_raw/ids/incorrect_ids.xlsx"),
-                                 sheet = "Sheet1")
-
-# Remove ids with issues
-hlq_data_joined <- hlq_data_joined %>%
-  filter(!ID %in% swapped_ids$incorrect_ID)
-```
-
-
-
 # Select only columns required for HLQ
 
 Import var names for HLQ
@@ -273,6 +253,13 @@ hlq_data_joined <- hlq_data_joined %>%
     all_of(hlq_var_names),
     all_of(colnames(fam_covidcns_clean_selected)[2:length(colnames(fam_covidcns_clean_selected))])
   )
+```
+
+Check missingness by missmap
+```{r Inspect missingness}
+hlq_miss_map <- hlq_data_joined %>% 
+  missmap()
+hlq_miss_map
 ```
 
 Retrieve the recent date

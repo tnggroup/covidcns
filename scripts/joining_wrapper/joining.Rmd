@@ -2184,7 +2184,11 @@ tibble_list <-
     ncrf2_vital_covidcns_clean_selected,
     # ncrf3    
     ncrf3_compli_covidcns_clean_selected,
-    ncrf3_diag_covidcns_clean_selected
+    ncrf3_diag_covidcns_clean_selected,
+    # cognitron
+    cognitron_scores_and_demographics_selected,
+    DfE_composite_scores_selected,
+    DfE_task_scores_selected
     )
 ```
 
