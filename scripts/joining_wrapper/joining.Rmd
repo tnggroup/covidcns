@@ -2617,6 +2617,78 @@ data_export_moca <-
 ```
 
 
+# Find participants with no baseline questionnaire
+```{r No baseline}
+no_baseline <- data_joined %>%
+  filter(is.na(dem.college_or_university_degree)) %>%
+  select(ID)
+
+no_outp_core_neuro <- data_joined %>%
+  filter(is.na(nis_outp.motor.left_lower_limb)) %>%
+  select(ID)
+
+xlsx::write.xlsx(no_baseline, file = paste0(ilovecovidcns, "/data_sharing/naomi/no_baseline.xlsx"))
+xlsx::write.xlsx(no_outp_core_neuro, file = paste0(ilovecovidcns, "/data_sharing/naomi/no_outp_core_neuro.xlsx"))
+```
+
+```{r}
+dem_covidcns_clean %>%
+  filter(ID %in% setdiff(data_joined$ID, data_export_ncrf$ID)) %>%
+  select(ID)
+```
+
+```{r}
+problem_repeats <- setdiff(data_joined$ID, data_export_ncrf$ID)
+
+nfu_withdrawals <- c(
+  "CNS01057",
+  "CNS02073",
+  "CNS01079",
+  "CNS02007",
+  "CNS02098",
+  "CNS03034",
+  "CNS01002",
+  "CNS02040",
+  "CNS02032",
+  "CNS02113",
+  "CNS02104",
+  "CNS02127",
+  "CNS02109"
+  )
+
+setdiff(problem_repeats, nfu_withdrawals)
+```
+```{r}
+missing_baselines <- c(
+  "CNS01001",
+  "CNS01004",
+  "CNS01132",
+  "CNS02002",
+  "CNS02057",
+  "CNS02072",
+  "CNS02084",
+  "CNS02094",
+  "CNS02112",
+  "CNS02135",
+  "CNS02136",
+  "CNS05024",
+  "CNS05043",
+  "CNS06006",
+  "CNS06011",
+  "CNS06048",
+  "CNS07033",
+  "CNS09004",
+  "CNS11007",
+  "CNS16001"
+)
+
+x <- data_joined %>%
+  filter(ID %in% missing_baselines) %>%
+  select(1, 12:ncol(data_joined)) %>%
+  filter(rowSums(is.na(x)) > ncol(x)*0.8)
+```
+
+
 # Save joined data set
 ```{r nanopore Save joint data set}
 write_csv(
