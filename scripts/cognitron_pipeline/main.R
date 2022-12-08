@@ -20,7 +20,7 @@ source("scripts/cognitron_pipeline/utils.R")
 
 # Import data
 covid_matching <- readRDS(paste0(ilovecovidcns, "/data/joined/covidcns_matching.rds"))
-data_cognitron_raw <- read.table(file = paste0(ilovecovidcns, "/data_raw/cognitron/raw_cognitron/Cognitron_data_30.05.2022.tsv"), sep = '\t', header = FALSE)
+data_cognitron_raw <- read.table(file = paste0(ilovecovidcns, "/data_raw/cognitron/raw_cognitron/Cognitron_data_21.11.2022.tsv"), sep = '\t', header = FALSE)
 headers <- read_excel(paste0(ilovecovidcns, "/data_raw/cognitron/headers/Cognitron_headers.xlsx"))
 
 # Remove not useful columns
@@ -182,7 +182,7 @@ scores_df_final <- plyr::join_all(list(scores_df_final, cog_times), by = "user_i
 # Object of problematic IDs
 #scores_df_copy <- scores_df_final
 #View(scores_df_copy[rowSums(is.na(scores_df_copy[,1:6]))>0 & rowSums(is.na(scores_df_copy[,7:20]))<3,])
-# cognitron_problem_ids <- sort(scores_df_copy[rowSums(is.na(scores_df_copy[,1:6]))>0 & rowSums(is.na(scores_df_copy[,7:20]))<3,]$user_id)
+#cognitron_problem_ids <- sort(scores_df_copy[rowSums(is.na(scores_df_copy[,1:6]))>0 & rowSums(is.na(scores_df_copy[,7:20]))<3,]$user_id)
 
 # Remove rows with nan (run the analysis on complete dataset)
 # You should be able to run the analysis with incomplete data (best if max 1 or 2

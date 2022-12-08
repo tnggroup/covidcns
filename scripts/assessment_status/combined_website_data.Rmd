@@ -52,7 +52,7 @@ source(file = "scripts/credentials/paths.R")
 ## COVIDCNS data
 ```{r COVIDCNS load data}
 covidcns_dat <- read_csv(
-  file = paste0(ilovecovidcns, "/data_raw/assessment_status/RV5_covid-cns_comb_17.06.2022.csv"),
+  file = paste0(ilovecovidcns, "/data_raw/assessment_status/RV5_covid-cns_comb_25112022.csv"),
   col_types = list(
     kit_id = col_character(),
     primary_site = col_character(),
