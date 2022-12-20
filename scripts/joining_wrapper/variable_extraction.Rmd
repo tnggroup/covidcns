@@ -1,0 +1,57 @@
+---
+title: "COVIDCNS Variable Extraction Script"
+author: "Zain Ahmad"
+date: "19/12/2022"
+output: html_document
+---
+
+# Standards
+All arguments should be in their own row, including the first argument
+Closing bracket should have its own row
+Functions with a single argument can have this on the same line
+One argument can be hashed out per line for debugging errors
+
+Chunk names should be all lower case except:
+Study name (e.g. GLAD/EDGI/NBR) all caps
+Capitalised first word
+Chunk names MUST be unique
+
+Add only one empty line between chunks
+Add one extra line when starting a new section
+Use hash syntax as appropriate for headings and subheadings, as per markdown syntax
+
+Points requiring user input are enclosed thus <>
+
+Ensure that you have deleted/untracked .DS_Store before your initial commit
+Ensure that your  .gitignore contains "**/.DS_Store" before your initial commit
+
+Configure global options for all chunks
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+Read in file with path to ilovecovidcns channel on Teams
+Ensure that your credentials directory is correctly located
+```{r Read in paths file}
+source(file = "scripts/credentials/paths.R")
+```
+
+Add the variable_extract function - used to produce data extractions
+```{r Read in functions}
+source(file = paste0(ilovecovidcns_local, "/variable_extract.R"))
+```
+
+Run variable extraction for Daniel
+```{r Extraction Daniel}
+variable_extract("Daniel_van_Wamelen_covidcns_fatigue_15122022.txt", "covidcns_data_joined.rds", "daniel")
+```

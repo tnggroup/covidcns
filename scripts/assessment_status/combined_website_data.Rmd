@@ -304,6 +304,13 @@ dat %>%
   )
 ```
 
+Manually change 0733 to 07033
+```{r}
+dat[["ID"]][dat[["ID"]] == "CNS0733"] <- "CNS07033"
+```
+
+
+
 # Save cleaned data
 
 Check colnames before exporting final dataset
@@ -315,6 +322,6 @@ colnames(dat)
 ```{r Write cleaned COVIDCNS variables to a .rds file}
 dat %>%
   saveRDS(
-    file = paste0(ilovecovidcns, "/data/assessment_status/COVID_CNS_combined_website_data_clean.rds")
+    file = paste0(ilovecovidcns, "/data/assessment_status/combined_website_data_clean.rds")
     )
 ```

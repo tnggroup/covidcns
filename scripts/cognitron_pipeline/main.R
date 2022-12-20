@@ -20,7 +20,7 @@ source("scripts/cognitron_pipeline/utils.R")
 
 # Import data
 covid_matching <- readRDS(paste0(ilovecovidcns, "/data/joined/covidcns_matching.rds"))
-data_cognitron_raw <- read.table(file = paste0(ilovecovidcns, "/data_raw/cognitron/raw_cognitron/Cognitron_data_21.11.2022.tsv"), sep = '\t', header = FALSE)
+data_cognitron_raw <- read.table(file = paste0(ilovecovidcns, "/data_raw/cognitron/raw_cognitron/baseline/Cognitron_data_19.12.2022.tsv"), sep = '\t', header = FALSE)
 headers <- read_excel(paste0(ilovecovidcns, "/data_raw/cognitron/headers/Cognitron_headers.xlsx"))
 
 # Remove not useful columns
@@ -178,6 +178,9 @@ cog_times <- cog_times[!duplicated(cog_times[ , c("user_id")]),]
 
 # Add to scores_df_final
 scores_df_final <- plyr::join_all(list(scores_df_final, cog_times), by = "user_id", type = "full")
+
+# Change user_id to ID
+scores_df_final <- scores_df_final %>% dplyr::rename("ID" = "user_id")
 
 # Object of problematic IDs
 #scores_df_copy <- scores_df_final
@@ -454,7 +457,7 @@ X_patients = scores_df_final[, c('age1', 'age2', 'decade', 'sex','language', 'ed
 
 # Extract the task scores of the patients
 patient_data <- select(scores_df_final, -c('age1', 'age2', 'decade', 'sex','language', 'education',
-                                           'DEVICE', 'user_id'))
+                                           'DEVICE', 'ID'))
 
 # Reorder the columns of the patients according to the order of the controls dataframe
 # cols_fanmat = colnames(fanmat)
@@ -592,7 +595,7 @@ print_serial_ttest_results(dev_from_exp_t_test)
 # Add user id
 deviation_from_expected_with_users <- as.tibble(deviation_from_expected)
 deviation_from_expected_with_users <- deviation_from_expected_with_users %>%
-  mutate(user_id = scores_df_final$user_id)
+  mutate(ID = scores_df_final$ID)
 
 # Save DfE composite scores
 write.csv(deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores.csv"))
@@ -643,8 +646,9 @@ print_serial_ttest_results(st_dev_from_exp_t_test)
 
 # Add user id
 st_deviation_from_expected_with_users <- as.tibble(st_deviation_from_expected)
+colnames(st_deviation_from_expected_with_users) <- paste(colnames(st_deviation_from_expected_with_users), "dfe", sep = "_")
 st_deviation_from_expected_with_users <- st_deviation_from_expected_with_users %>%
-  mutate(user_id = scores_df_final$user_id)
+  mutate(ID = scores_df_final$ID)
 
 # Save DfE task scores
 write.csv(st_deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores.csv"))

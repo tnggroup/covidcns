@@ -104,7 +104,8 @@ covidcns_dat_id <- covidcns_dat %>% #new dataset with ID
          ncrf1_admission.name_of_facility.txt,
          ncrf1_admission.country.txt,
          ncrf1_admission.date_of_inpatient_admission.txt,
-         ncrf1_admission.date_of_positive_covid19_test.txt
+         ncrf1_admission.date_of_positive_covid19_test.txt,
+         ncrf1_admission.what_cohort_was_this_participant_recruited_into
          )
 
 # Inspect colnames

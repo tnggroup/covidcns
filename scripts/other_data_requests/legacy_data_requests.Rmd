@@ -1,0 +1,329 @@
+---
+title: "Legacy Data Requests"
+author: "Zain Ahmad"
+date: "20/12/2022"
+output: html_document
+---
+
+
+```{r ncrf Select columns}
+data_export_ncrf <- plyr::join_all(
+    dfs = list(
+      # neuro_case_report
+      # ncrf1
+      ncrf1_admission_covidcns_clean_selected,
+      ncrf1_care_covidcns_clean_selected,
+      ncrf1_cic_covidcns_clean_selected,
+      ncrf1_comorbid_covidcns_clean_selected,
+      ncrf1_dem_covidcns_clean_selected,
+      ncrf1_lab_covidcns_clean_selected,
+      ncrf1_newsymp_covidcns_clean_selected,
+      ncrf1_pre_med_covidcns_clean_selected,
+      ncrf1_vital_covidcns_clean_selected,
+      # ncrf2
+      ncrf2_care_covidcns_clean_selected,
+      ncrf2_lab_covidcns_clean_selected,
+      ncrf2_med_covidcns_clean_selected,
+      ncrf2_newsymp_covidcns_clean_selected,
+      ncrf2_vital_covidcns_clean_selected,
+      # ncrf3    
+      ncrf3_compli_covidcns_clean_selected,
+      ncrf3_diag_covidcns_clean_selected
+      ),
+    by = c("ID"),
+    type = "full"
+    )
+
+
+data_export_ncrf %>%
+  slice(1:5)
+```
+
+
+Select columns for Cord extraction
+```{r cord Select columns}
+data_export_cord <- data_joined %>%
+  select(
+    ID,
+    
+    ncrf1_dem.date_of_birth.txt,
+    ncrf1_dem.sex_at_birth,
+    
+    ncrf1_admission.date_of_positive_covid19_test.txt,
+    
+    ncrf1_vital.glasgow_coma_score.txt,
+    ncrf2_vital.glasgow_coma_score.txt,
+    ncrf2_vital.lowest_gcs_during_admission.txt,
+    
+    ncrf1_vital.admission_hours_severity_covid19,
+    ncrf1_vital.admission_severity_worst_covid19,
+    
+    ncrf1_comorbid.existing_comorbiditiesrisk_factors.atrial_fibrillation,
+    ncrf1_comorbid.existing_comorbiditiesrisk_factors.myasthenia_gravis,
+    ncrf1_comorbid.existing_comorbiditiesrisk_factors.autoimmune_disease,
+    
+    ncrf1_vital.vitals.1,
+    ncrf1_vital.vitals.2,
+    ncrf1_vital.vitals.3,
+    ncrf1_vital.vitals.4,
+    
+    ncrf1_newsymp.new_onsetacute_symptoms.chest_painpalpatations,
+    ncrf1_newsymp.new_onsetacute_symptoms.pulmonary_embolus,
+    ncrf1_newsymp.new_onsetacute_symptoms.dyspnoea,
+    ncrf1_newsymp.new_onsetacute_symptoms.seizures,
+    
+    ncrf1_lab.troponin,
+    ncrf2_lab.troponin,
+    ncrf1_lab.creatine_kinase,
+    ncrf2_lab.creatine_kinase,
+    
+    ncrf2_newsymp.new_onsetacute_symptoms.chest_painpalpatations,
+    ncrf2_newsymp.new_onsetacute_symptoms.pulmonary_embolus,
+    ncrf2_newsymp.new_onsetacute_symptoms.dyspnoea,
+    ncrf2_newsymp.new_onsetacute_symptoms.seizures,
+    ncrf2_newsymp.new_onsetacute_symptoms.diarrhoea,
+    
+    ncrf2_vital.vitals.1,
+    ncrf2_vital.vitals.2,
+    ncrf2_vital.vitals.3,
+    ncrf2_vital.vitals.4
+    )
+
+
+data_export_cord %>%
+  slice(1:5)
+```
+
+
+Select columns for neuro data extraction
+```{r glynn Select columns}
+data_export_glynn_dem <- qualtrics_data_joined %>%
+  select(
+      "ID",
+      "startDate",
+      "endDate",
+      
+      # Age
+      "dem.dob_age",
+      
+      # Sex
+      "dem.sex_at_birth",
+      
+      # Ethnicity
+      "dem.nhs_ethnicity",
+      "dem.simplified_ethnicity",
+      
+      # Language
+      "dem.is_english_your_first_language",
+      
+      # Education
+      "dem.highest_education",
+      
+      # Employment
+      "impact.current_employment_status"
+      )
+
+data_export_neuro_inp <- 
+  plyr::join_all(
+    dfs =  list(
+      clinical_na_inp_covidcns_clean_selected,
+      nis_inp_covidcns_clean_selected,
+      neuro_add_inp_covidcns_clean_selected
+      ),
+    by = c("ID"),
+    type = "full"
+    )
+
+data_export_neuro_outp <- 
+  plyr::join_all(
+    dfs =  list(
+      clinical_na_outp_covidcns_clean_selected,
+      nis_outp_covidcns_clean_selected,
+      neuro_add_outp_covidcns_clean_selected
+      ),
+    by = c("ID"),
+    type = "full"
+    )
+```
+
+
+Join neuro data to demographics
+```{r Join to demographics inpatient}
+data_export_glynn_inp <- 
+  plyr::join_all(
+    dfs =  list(
+      data_export_glynn_dem,
+      data_export_neuro_inp
+      ),
+    by = c("ID"),
+    type = "right"
+    )
+
+data_export_glynn_inp %>%
+  slice(1:5)
+```
+
+Join neuro data to demographics
+```{r Join to demographics outpatient}
+data_export_glynn_outp <- 
+  plyr::join_all(
+    dfs =  list(
+      data_export_glynn_dem,
+      data_export_neuro_outp
+      ),
+    by = c("ID"),
+    type = "right"
+    )
+
+
+data_export_glynn_outp %>%
+  slice(1:5)
+```
+
+Select columns for nanopore data
+```{r Select compli nanopore}
+nanopore_compli <- ncrf3_compli_covidcns_clean_selected %>%
+  select(
+    ID,
+    ncrf3_compli.encephalitis,
+    ncrf3_compli.encephalopathy_or_delirium,
+    ncrf3_compli.acute_necrotizing_encephalopathy,
+    ncrf3_compli.posterior_reversible_encephalopathy_syndrome,
+    ncrf3_compli.meningitis,
+    ncrf3_compli.demyelinating_disease,
+    ncrf3_compli.acute_hemorrhagic_necrotizing_encephalopathy,
+    ncrf3_compli.acute_disseminated_encephalomyelitis,
+    ncrf3_compli.myelitis,
+    ncrf3_compli.guillain_barre_syndrome_miller_fisher_syndrome,
+    ncrf3_compli.myalgia_myositis_myopathy,
+    ncrf3_compli.neuromuscular_junction_disorder,
+    ncrf3_compli.autonomic_dysfucntion,
+    ncrf3_compli.compression_or_critical_illness_neuropathymyopathy,
+    ncrf3_compli.cranial_nerve_palsy
+  )
+```
+
+Join neuro data to demographics
+```{r Join data nanopore}
+data_export_nanopore <- 
+  plyr::join_all(
+    dfs =  list(
+      data_export_glynn_dem,
+      nanopore_compli
+      ),
+    by = c("ID"),
+    type = "right"
+    )
+
+
+data_export_nanopore %>%
+  slice(1:5)
+```
+
+Filter export down to only patient with diagnosis + relevant demographics
+```{r Cut down nanopore export}
+data_export_nanopore <- data_export_nanopore %>%
+  select(
+    -startDate,
+    -endDate,
+    -dem.is_english_your_first_language,
+    -dem.highest_education,
+    -impact.current_employment_status
+  ) %>%
+  mutate(across(6:ncol(.),
+                ~na_if(., "No")
+                )
+         ) %>%
+  mutate(across(6:ncol(.),
+                ~na_if(., "Seen but not answered")
+                )
+         ) %>%
+  filter(!if_all(6:ncol(.), is.na)) %>%
+  filter(!is.na(dem.nhs_ethnicity)) %>%
+  mutate(across(6:ncol(.),
+                ~droplevels(.)
+                )
+         )
+```
+
+Summary table
+```{r Summary table}
+nanopore_sumtable <- data_export_nanopore %>%
+  select(-ID) %>%
+  gtsummary::tbl_summary(
+    missing_text = "Missing"
+  )
+
+# Save table as png image
+gt::gtsave(
+  as_gt(nanopore_sumtable),
+  file = paste0(ilovecovidcns, "/data/nanopore/nanopore_sumtable.png"))
+
+# View table
+nanopore_sumtable
+```
+
+
+# Produce MoCA export
+```{r}
+data_export_moca <-
+  plyr::join_all(
+    dfs =  list(
+      moca_inp_covidcns_clean_selected,
+      moca_outp_covidcns_clean_selected
+      ),
+    by = c("ID"),
+    type = "full"
+    )
+```
+
+
+
+
+
+```{r}
+missing_table <- data_export_ncrf %>%
+  gtsummary::tbl_summary(
+    include = c(
+      "ncrf1_admission.name_of_facility.txt",
+      "ncrf1_admission.what_cohort_was_this_participant_recruited_into",
+      "ncrf1_admission.date_of_inpatient_admission.txt",
+      "ncrf1_vital.admitted_for_a_neurological_complication_",
+      "ncrf1_vital.glasgow_coma_score.txt",
+      "ncrf1_vital.admitted_for_covid_",
+      "ncrf1_vital.admission_hours_severity_covid19",
+      "ncrf1_vital.admission_severity_worst_covid19",
+      "ncrf1_vital.admitted_for_complication_post_vaccination",
+      "ncrf1_vital.avpu",
+      "ncrf1_dem.sex_at_birth",
+      "ncrf1_dem.date_of_birth.txt",
+      "ncrf1_dem.level_of_education",
+      "ncrf1_pre_med.months_presentation.had_covid19_vaccine",
+      "ncrf1_care.icu_or_high_dependency_unit_admission",
+      "ncrf1_care.oxygen_therapy",
+      "ncrf1_vital.date_of_admission_to_this_facility.txt",
+      "ncrf2_care.icu_or_high_dependency_unit_admission",
+      "ncrf3_diag.continuous_number_of_days_in_any_hospital.txt",
+      "ncrf3_diag.numbers_of_days_in_rehabilitation.txt"
+      ),
+    missing = "no"
+    ) %>%
+  remove_row_type(type = "level") %>%
+  add_n(statistic = "{n_miss} ({p_miss}%)") %>%
+  modify_header(n = "**Missing**") %>%
+  modify_column_hide(columns = stat_0)
+  
+gt::gtsave(
+  as_gt(missing_table),
+  file = paste0(ilovecovidcns, "/data_sharing/naomi/ncrf_missing_table.png"))
+
+missing_table
+```
+
+
+
+
+
+
+
+
