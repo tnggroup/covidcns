@@ -217,7 +217,7 @@ source(knitr::purl("scripts/clin_neuro/clinical_na_outp.Rmd"))
 
 ## main
 ```{r main Cleaning the individual questionnaires}
-source(knitr::purl("scripts/cognitron_pipeline/main.R"))
+source(knitr::purl("scripts/cognitron_pipeline/main_baseline.R"))
 ```
 
 
