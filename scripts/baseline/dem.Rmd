@@ -866,6 +866,29 @@ exclude_cols_numeric <- c(
   )
 ```
 
+```{r}
+problem_ids <- c("CNS02084", "CNS01001", "CNS01118", "CNS01132", "CNS06006", "CNS06011", "CNS09004")
+
+covidcns_dat %>%
+  filter(externalDataReference %in% problem_ids) %>%
+  select(
+    externalDataReference,
+    dem.day,
+    dem.month,
+    dem.year,
+    dem.medical_history_birth_relevant,
+    dem.is_english_your_first_language,
+    dem.college_or_university_degree,
+    dem.a_levelsas_levels_or_equivalent,
+    dem.o_levelsgcses_or_equivalent,
+    dem.cses_or_equivalent,
+    dem.nvq_or_hnd_or_hnc_or_equivalent,
+    dem.other_professional_qualifications_,
+    dem.other_professional_qualifications_text.txt,
+    dem.none_of_the_above,
+    dem.prefer_not_to_say)
+```
+
 Add labelled/numeric columns
 Modify the leaders argument if necessary
 ```{r Add columns}

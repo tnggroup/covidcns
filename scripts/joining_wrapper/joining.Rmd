@@ -284,6 +284,39 @@ for (i in 1:length(joined_list)){
 }
 ```
 
+Check participants who are missing demographics for cognitron
+Check which surveys they have and which are absent
+```{r Check missing cognitron}
+missing_cog <- readRDS(paste0(ilovecovidcns, "/data/covidcns_matching_missing.rds")) %>%
+  select(user_id) %>%
+  unlist() %>%
+  unname()
+
+for (i in 1:length(joined_list)){
+  print(names(joined_list)[i])
+  for (j in 1:length(missing_cog)){
+    if (missing_cog[j] %in% joined_list[[i]][["data"]][["ID"]]){
+      print(paste(missing_cog[j], "YES"))
+    }
+    else{print(paste(missing_cog[j], "NO"))}
+  }
+}
+```
+
+```{r}
+problem_ids <- c("CNS02084", "CNS01001", "CNS01118", "CNS01132", "CNS06006", "CNS06011", "CNS09004")
+
+baseline_joined[["data"]] %>%
+  filter(ID %in% problem_ids) %>%
+  select(
+    ID,
+    dem.dob_age,
+    dem.sex_at_birth,
+    dem.is_english_your_first_language,
+    dem.highest_education)
+```
+
+
 
 # Final joining
 

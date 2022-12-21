@@ -51,12 +51,50 @@ dt_list <-  map(json_parsed, as.data.table)
 dt <- rbindlist(dt_list, fill = TRUE, idcol = T)
 
 # Merge split dataframe with info of each task - with the original dataframe
-cognitron_final <- cbind(data_cognitron_raw[-ncol(data_cognitron_raw)],dt[,-1])
+cognitron_interm <- cbind(data_cognitron_raw[-ncol(data_cognitron_raw)],dt[,-1])
+
+# Check how many IDs are dropped due to incorrect format
+# These are not compatible at all with COVIDCNS data
+check_ids <- cognitron_interm %>%
+  group_by(user_id) %>%
+  summarise(n=n()) %>%
+  filter(!grepl("^CCNS_CNS[0-2][0-9]", user_id)) %>%
+  filter(grepl("[Tt]est", user_id))
 
 # Keep only rows with CNS user ids CCNS_CNS
-cognitron_final <- cognitron_final %>%
+cognitron_final <- cognitron_interm %>%
   filter(str_detect(user_id, "CCNS_CNS"))
 
+# Create suffix regex
+check_reg <- "\\_[RrTtFf1-3]*[1-3]*$"
+
+# Check how many ids have r1/t1 etc appended
+check_reps <- cognitron_final %>%
+  group_by(user_id) %>%
+  summarise(n=n()) %>%
+  filter(grepl(check_reg, user_id))
+
+# Find the original records for these
+repeat_ids <- check_reps %>%
+  select(user_id) %>%
+  unlist() %>%
+  unname() %>%
+  str_replace(string = ., pattern = check_reg, replacement = "")
+
+repeats <- cognitron_final %>%
+  group_by(user_id) %>%
+  summarise(n=n()) %>%
+  filter(user_id %in% repeat_ids)
+
+# There are no duplicate records, so remove the appended codes as this is useful data
+if (nrow(repeats) == 0){
+  cognitron_final$user_id <- str_replace(
+    string = cognitron_final$user_id,
+    pattern = check_reg,
+    replacement = "")
+} else {
+  stop("Duplicates in database")
+}
 # Remove the beginning CNS from user_id in order to be able to match with the
 # demographics data later on
 cognitron_final$user_id  <- cognitron_final$user_id %>% str_replace(".*_", "")
