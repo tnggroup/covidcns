@@ -66,7 +66,7 @@ cognitron_final <- cognitron_interm %>%
   filter(str_detect(user_id, "^CCNS_CNS[0-2][0-9]"))
 
 # Create suffix regex
-suffix_regex <- "\\_[RrTt1-3]*[1-3]*$"
+suffix_regex <- "\\_[RrTt0-9]*[0-9]*$"
 
 # Check how many ids have r1/t1 etc appended
 check_reps <- cognitron_final %>%
@@ -74,14 +74,26 @@ check_reps <- cognitron_final %>%
   summarise(n=n()) %>%
   filter(grepl(suffix_regex, user_id))
 
-# Strip the ids of the suffixes to search for them
+# Strip the ids of the suffixes and add to vector to search for dupes
 repeat_ids <- check_reps %>%
   select(user_id) %>%
   unlist() %>%
   unname() %>%
   str_replace(string = ., pattern = suffix_regex, replacement = "")
 
-# Find the original records for these
+# Find any duplicates
+dupe_check <- cognitron_final %>%
+  group_by(user_id) %>%
+  summarise(n=n()) %>%
+  filter(user_id %in% repeat_ids)
+
+# Remove records for duplicated ID
+if (nrow(dupe_check) > 0){
+  cognitron_final <- cognitron_final %>%
+    filter(str_detect(user_id, dupe_check$user_id, negate = TRUE))
+}
+
+# Search again for repeats
 repeats <- cognitron_final %>%
   group_by(user_id) %>%
   summarise(n=n()) %>%
@@ -104,9 +116,8 @@ suffix_check <- cognitron_final %>%
   filter(grepl(suffix_regex, user_id)) %>%
   nrow()
 
-if (suffix_check != 0){
-  stop("Check IDs for suffixes")
-}
+# Error if any ids with suffixes
+stopifnot(suffix_check == 0)
 
 # Check for duplicated tasks
 task_reps <- cognitron_final %>%

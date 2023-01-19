@@ -58,54 +58,130 @@ cognitron_interm <- cbind(data_cognitron_raw[-ncol(data_cognitron_raw)],dt[,-1])
 check_ids <- cognitron_interm %>%
   group_by(user_id) %>%
   summarise(n=n()) %>%
-  filter(!grepl("^CCNS_CNS[0-2][0-9]", user_id)) %>%
-  filter(grepl("[Tt]est", user_id))
+  filter(str_detect(user_id, "^CCNS_CNS[0-2][0-9]", negate = TRUE)) %>%
+  filter(str_detect(user_id, "[Tt][Ee][Ss][Tt]"))
 
-# Keep only rows with CNS user ids CCNS_CNS
+# Remove test IDs
 cognitron_final <- cognitron_interm %>%
-  filter(str_detect(user_id, "CCNS_CNS"))
+  filter(str_detect(user_id, "^CCNS_CNS[0-2][0-9]") | str_detect(user_id, "^CNS[0-2][0-9]")) %>%
+  filter(str_detect(user_id, "[Tt][Ee][Ss][Tt]", negate = TRUE))
 
 # Create suffix regex
-check_reg <- "\\_[RrTtFf1-3]*[1-3]*$"
+suffix_regex <- "\\_[RrTt0-9]*[0-9]*$"
 
 # Check how many ids have r1/t1 etc appended
 check_reps <- cognitron_final %>%
   group_by(user_id) %>%
   summarise(n=n()) %>%
-  filter(grepl(check_reg, user_id))
+  filter(grepl(suffix_regex, user_id))
 
-# Find the original records for these
+# Strip the ids of the prefixes and suffixes and add to vector to search for dupes
 repeat_ids <- check_reps %>%
   select(user_id) %>%
   unlist() %>%
   unname() %>%
-  str_replace(string = ., pattern = check_reg, replacement = "")
+  str_replace(string = ., pattern = suffix_regex, replacement = "") %>%
+  str_replace(string = ., pattern = "^[CNS_]*", replacement = "") %>%
+  str_replace(string = ., pattern = "_F1$", replacement = "")
 
+# Search by only numbers which will show any repeats as 2 values in same field
+rep_search <- sapply(repeat_ids,
+                     function(x){filter(cognitron_final %>%
+                                 group_by(user_id) %>%
+                                 summarise(n=n()), grepl(x, user_id))}
+                     )
+
+# Filter to find repeats
+rep_search <- as.data.frame(t(rep_search)) %>% filter(grepl("c\\(", user_id))
+
+# Manually remove repeats
+cognitron_final <- cognitron_final %>%
+  filter(user_id != "CCNS_CNS02154_F1")
+
+cognitron_final <- cognitron_final %>%
+  filter(user_id != "CCNS_CNS01004_F1")
+
+
+# Manually change problematic IDs
+cognitron_final["user_id"][cognitron_final["user_id"] == "CCNS_CNS01045_t3"] <- "CCNS_CNS01045_F1"
+cognitron_final["user_id"][cognitron_final["user_id"] == "CCNS_CNS01049_F1_t2"] <- "CCNS_CNS01049_F1"
+cognitron_final["user_id"][cognitron_final["user_id"] == "CCNS_CNS01063_F1_t2"] <- "CCNS_CNS01063_F1"
+cognitron_final["user_id"][cognitron_final["user_id"] == "CCNS_CNS01063_F1_t2"] <- "CCNS_CNS01063_F1"
+cognitron_final["user_id"][cognitron_final["user_id"] == "CCNS_CNS01065_t5"] <- "CCNS_CNS01065_F1"
+cognitron_final["user_id"][cognitron_final["user_id"] == "CCNS_CNS02154_F1_t2"] <- "CCNS_CNS02154_F1"
+cognitron_final["user_id"][cognitron_final["user_id"] == "CCNS_CNS03014_F1_t2"] <- "CCNS_CNS03014_F1"
+cognitron_final["user_id"][cognitron_final["user_id"] == "CCNS_CNS06017_F1_t2"] <- "CCNS_CNS06017_F1"
+cognitron_final["user_id"][cognitron_final["user_id"] == "CCNS_CNS12001_F1_t2"] <- "CCNS_CNS12001_F1"
+cognitron_final["user_id"][cognitron_final["user_id"] == "CNS01004_t2"] <- "CCNS_CNS01004_F1"
+cognitron_final["user_id"][cognitron_final["user_id"] == "CNS01007_t2"] <- "CCNS_CNS01007_F1"
+cognitron_final["user_id"][cognitron_final["user_id"] == "CNS01011_t2"] <- "CCNS_CNS01011_F1"
+cognitron_final["user_id"][cognitron_final["user_id"] == "CNS01050_t2"] <- "CCNS_CNS01050_F1"
+
+# Search again for faulty ids
+rep_search_r <- sapply(repeat_ids,
+                     function(x){filter(cognitron_final %>%
+                                          group_by(user_id) %>%
+                                          summarise(n=n()), grepl(x, user_id))}
+)
+
+# Filter to find repeats
+rep_search_r <- as.data.frame(t(rep_search_r)) %>% filter(grepl("c\\(", user_id))
+
+# Search again for repeats
 repeats <- cognitron_final %>%
   group_by(user_id) %>%
   summarise(n=n()) %>%
   filter(user_id %in% repeat_ids)
 
-# There are no duplicate records, so remove the appended codes as this is useful data
-if (nrow(repeats) == 0){
-  cognitron_final$user_id <- str_replace(
-    string = cognitron_final$user_id,
-    pattern = check_reg,
-    replacement = "")
-} else {
-  stop("Duplicates in database")
-}
+# Check again for any ids with suffixes
+suffix_check <- cognitron_final %>%
+  group_by(user_id) %>%
+  summarise(n=n()) %>%
+  filter(grepl(suffix_regex, user_id)) %>%
+  nrow()
+
+# Error if any ids with suffixes
+stopifnot(suffix_check == 0)
+
+# Check for duplicated tasks
+task_reps <- cognitron_final %>%
+  group_by(user_id, survey_id) %>%
+  summarise(n=n()) %>%
+  filter(n>1)
+
+# Remove IDs with repeated tasks
+cognitron_final <- cognitron_final %>%
+  filter(!user_id %in% task_reps$user_id)
+
+# Remove _F1 from IDs for compatibility
+cognitron_final$user_id <- cognitron_final$user_id %>% str_replace("_F1$", "")
+
 # Remove the beginning CNS from user_id in order to be able to match with the
 # demographics data later on
-cognitron_final$user_id  <- cognitron_final$user_id %>% str_replace(".*_", "")
-cognitron_final <- filter(cognitron_final, str_detect(user_id, "CNS"))
+cognitron_final$user_id <- cognitron_final$user_id %>% str_replace("^CCNS_", "")
 
-# Clean demographics data (I need to keep age, education, language, sex, handed )
+# Clean demographics data (Keep age, sex, language, education)
 cols_to_keep = c("ID", "dem.dob_age", "dem.sex_at_birth",
                  "dem.is_english_your_first_language", "dem.highest_education")
 covid_matching <- covid_matching %>% select(all_of(cols_to_keep))
-new_colnames = c('user_id', 'age', 'sex',  'language', 'education')
+new_colnames = c('user_id', 'age', 'sex', 'language', 'education')
 colnames(covid_matching) <- new_colnames
+
+# Extract list of IDs in cognitron_final to filter covid_matching by
+cog_ids <- cognitron_final %>%
+  group_by(user_id) %>%
+  summarise(n=n()) %>%
+  select(user_id) %>%
+  unlist() %>%
+  unname()
+
+# Filter covid_matching by ids in the database
+covid_matching <- covid_matching %>% filter(user_id %in% cog_ids)
+
+# Check for NAs in covid_matching at this point to export for external checking
+covid_matching_missing <- covid_matching[!complete.cases(covid_matching),]
+saveRDS(object = covid_matching_missing, file = paste0(ilovecovidcns, "/data/cognitron_followup1_matching_missing.rds"))
+write_csv(x = covid_matching_missing, file = paste0(ilovecovidcns, "/data_sharing/naomi/cognitron_followup1_matching_missing.csv"))
 
 # Language: Set all values to either English or "Other" in order to match with normative data models
 covid_matching$language <- as.character(covid_matching$language)
@@ -113,6 +189,7 @@ covid_matching$language[covid_matching$language != "Yes"] <- "other"
 covid_matching$language[covid_matching$language == "Yes"] <- "English"
 
 # Education: rename the education values in order to match with normative data models
+# Prefer not to say becomes NA, any participants providing this response will be excluded
 covid_matching$education <- plyr::mapvalues(
   covid_matching$education ,
   from = c("None of the above", "A levels/AS levels or equivalent",
@@ -143,8 +220,8 @@ scores_df_wide <- scores_df %>%
     median_rt = case_when(
       # Special cases in which specific scores are required
       survey_id == "rs_targetDetection" ~ as.numeric(meanRT),
-      survey_id == "rs_prospectiveMemoryWords_1_immediate" ~ as.numeric(target_correct_medianRT),
-      survey_id == "rs_prospectiveMemoryWords_1_delayed"   ~ as.numeric(target_correct_medianRT),
+      survey_id == "rs_prospectiveMemoryWords_2_immediate" ~ as.numeric(target_correct_medianRT),
+      survey_id == "rs_prospectiveMemoryWords_2_delayed"   ~ as.numeric(target_correct_medianRT),
       # Everything else (medianRT)
       is.na(medianRT) ~ as.numeric(medRT),
       is.na(medRT)    ~ as.numeric(medianRT),
@@ -171,18 +248,18 @@ scores_df_wide <- scores_df %>%
 # Define column names
 df_new_names <- c(
   "user_id", "os",
-  "rs_prospectiveMemoryWords_1_immediate",
+  "rs_prospectiveMemoryWords_2_immediate",
   "rs_spatialSpan",
   "rs_manipulations2D",
   "rs_verbalAnalogies",
-  "rs_prospectiveMemoryWords_1_delayed",
+  "rs_prospectiveMemoryWords_2_delayed",
   "rs_TOL",
   "rs_targetDetection",
-  "rs_prospectiveMemoryWords_1_immediate_RT",
+  "rs_prospectiveMemoryWords_2_immediate_RT",
   "rs_spatialSpan_RT",
   "rs_manipulations2D_RT",
   "rs_verbalAnalogies_RT",
-  "rs_prospectiveMemoryWords_1_delayed_RT",
+  "rs_prospectiveMemoryWords_2_delayed_RT",
   "rs_TOL_RT",
   "rs_targetDetection_RT"
 )
@@ -198,7 +275,9 @@ scores_df_final <- as_tibble(inner_join(covid_matching,
 # Add additional age measures for prediction (based on data available in
 # normative data)
 scores_df_final$age2 = scores_df_final$age ^ 2
-scores_df_final$decade = factor(ifelse(scores_df_final$age >= 90, 80, 10 * (scores_df_final$age %/% 10)))
+scores_df_final$decade = factor(ifelse(test = scores_df_final$age >= 90,
+                                       yes = 80,
+                                       no = 10 * (scores_df_final$age %/% 10)))
 scores_df_final <- dplyr::rename(scores_df_final, age1 = age)
 scores_df_final <- dplyr::rename(scores_df_final, DEVICE = os)
 
@@ -220,22 +299,60 @@ scores_df_final <- plyr::join_all(list(scores_df_final, cog_times), by = "user_i
 # Change user_id to ID
 scores_df_final <- scores_df_final %>% dplyr::rename("ID" = "user_id")
 
-# Add f1 to colnames
-colnames(scores_df_final) <- paste(colnames(scores_df_final), "f1", sep = "_")
+# Change colnames to maintain compatibility with normative data
+scores_df_final <- scores_df_final %>% dplyr::rename("rs_prospectiveMemoryWords_1_delayed" = "rs_prospectiveMemoryWords_2_delayed")
+scores_df_final <- scores_df_final %>% dplyr::rename("rs_prospectiveMemoryWords_1_immediate" = "rs_prospectiveMemoryWords_2_immediate")
+scores_df_final <- scores_df_final %>% dplyr::rename("rs_prospectiveMemoryWords_1_delayed_RT" = "rs_prospectiveMemoryWords_2_delayed_RT")
+scores_df_final <- scores_df_final %>% dplyr::rename("rs_prospectiveMemoryWords_1_immediate_RT" = "rs_prospectiveMemoryWords_2_immediate_RT")
 
-# Object of problematic IDs
-#scores_df_copy <- scores_df_final
-#View(scores_df_copy[rowSums(is.na(scores_df_copy[,1:6]))>0 & rowSums(is.na(scores_df_copy[,7:20]))<3,])
-#cognitron_problem_ids <- sort(scores_df_copy[rowSums(is.na(scores_df_copy[,1:6]))>0 & rowSums(is.na(scores_df_copy[,7:20]))<3,]$user_id)
+# Copy scores_df_final to check NAs lost at this step to each issue
+scores_df_copy <- scores_df_final
+
+# Check missing demographics
+missing_dem <- scores_df_copy[rowSums(is.na(scores_df_copy[,1:5]))>0,]
+
+# Check missing tasks
+missing_tasks <- scores_df_copy[rowSums(is.na(scores_df_copy[,7:20]))>0,]
+
+# Check missing both tasks and demographics
+missing_overlap <- scores_df_copy[rowSums(is.na(scores_df_copy[,1:5]))>0 & rowSums(is.na(scores_df_copy[,7:20]))>0,]
 
 # Remove rows with nan (run the analysis on complete dataset)
 # You should be able to run the analysis with incomplete data (best if max 1 or 2
 # missing tasks) as long as you have all the demographics variables
 scores_df_final = na.omit(scores_df_final)
 
-# Save scores_df_final to cognitron
-saveRDS(scores_df_final, paste0(ilovecovidcns, "/data/cognitron/scores/cognitron_scores_and_demographics_f1.rds"))
-write.csv(scores_df_final, paste0(ilovecovidcns, "/data/cognitron/scores/cognitron_scores_and_demographics_f1.csv"))
+# Report missingness
+message(paste(
+  "Overall participants lost:",
+  nrow(scores_df_copy)-nrow(scores_df_final),
+  "\n",
+  "Participants lost due to missing demographics:",
+  nrow(missing_dem),
+  "\n",
+  "\tParticipants who answered PNTA:",
+  nrow(missing_dem) - nrow(covid_matching_missing),
+  "\n",
+  "\tParticipants missing demographic data:",
+  nrow(covid_matching_missing),
+  "\n",
+  "Participants lost due to missing tasks:",
+  nrow(missing_tasks),
+  "\n",
+  "Participants missing both:",
+  nrow(missing_overlap)
+))
+
+# Add f1 to colnames of copy
+colnames(scores_df_copy) <- paste(colnames(scores_df_copy), "f1", sep = "_")
+scores_df_copy <- scores_df_copy %>% dplyr::rename("ID" = "ID_f1")
+
+# Remove NAs
+scores_df_copy <- na.omit(scores_df_copy)
+
+# Save scores_df_copy to cognitron onedrive
+saveRDS(scores_df_copy, paste0(ilovecovidcns, "/data/cognitron/scores/cognitron_scores_and_demographics_f1.rds"))
+write.csv(scores_df_copy, paste0(ilovecovidcns, "/data/cognitron/scores/cognitron_scores_and_demographics_f1.csv"))
 
 # # STEP 2: Data cleaning of normative data  ---------------------------------------
 #
@@ -640,6 +757,8 @@ deviation_from_expected_with_users <- deviation_from_expected_with_users %>%
 
 # Add f1 to colnames
 colnames(deviation_from_expected_with_users) <- paste(colnames(deviation_from_expected_with_users), "f1", sep = "_")
+deviation_from_expected_with_users <- deviation_from_expected_with_users %>% dplyr::rename("ID" = "ID_f1")
+
 
 # Save DfE composite scores
 write.csv(deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores_f1.csv"))
@@ -696,6 +815,7 @@ st_deviation_from_expected_with_users <- st_deviation_from_expected_with_users %
 # Add f1 and dfe to colnames
 colnames(st_deviation_from_expected_with_users) <- paste(colnames(st_deviation_from_expected_with_users), "f1", sep = "_")
 colnames(st_deviation_from_expected_with_users) <- paste(colnames(st_deviation_from_expected_with_users), "dfe", sep = "_")
+st_deviation_from_expected_with_users <- st_deviation_from_expected_with_users %>% dplyr::rename("ID" = "ID_f1_dfe")
 
 # Save DfE task scores
 write.csv(st_deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores_f1.csv"))
