@@ -55,3 +55,8 @@ Run variable extraction for Daniel
 ```{r Extraction Daniel}
 variable_extract("Daniel_van_Wamelen_covidcns_fatigue_15122022.txt", "covidcns_data_joined.rds", "daniel")
 ```
+
+Run variable extraction for Beth
+```{r Extraction Beth}
+variable_extract("Bethany_Facer_covidcns_varlist_02012023.txt", "covidcns_data_joined.rds", "beth")
+```
