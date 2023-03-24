@@ -174,7 +174,8 @@ scores_df_wide <- scores_df %>%
   select(user_id, survey_id, os, SummaryScore, median_rt) %>%
   pivot_wider(names_from = survey_id,
               values_from = c(SummaryScore, median_rt)) %>%
-  select(!contains(c("motor", "prospMeta")))
+  select(!contains(c("median_rt_rs_motorControl","prospMeta",
+                     "target")))
 
 
 # Define column names
@@ -185,15 +186,14 @@ df_new_names <- c(
   "rs_manipulations2D",
   "rs_verbalAnalogies",
   "rs_prospectiveMemoryWords_3_delayed",
+  "rs_motorControl",
   "rs_TOL",
-  "rs_targetDetection",
   "rs_prospectiveMemoryWords_3_immediate_RT",
   "rs_spatialSpan_RT",
   "rs_manipulations2D_RT",
   "rs_verbalAnalogies_RT",
   "rs_prospectiveMemoryWords_3_delayed_RT",
-  "rs_TOL_RT",
-  "rs_targetDetection_RT"
+  "rs_TOL_RT"
 )
 colnames(scores_df_wide) <- df_new_names
 sapply(scores_df_wide, function(x) sum(is.na(x))) # check
@@ -202,6 +202,54 @@ covid_matching <- mutate(covid_matching, user_id = str_trim(user_id))
 scores_df_final <- as_tibble(inner_join(covid_matching,
                                         scores_df_wide,
                                         by = "user_id"))
+
+# Convert everything to numeric
+scores_df_final[,7:13] <- sapply(scores_df_final[,7:13],as.numeric)
+# Check distributions of scores to see whether there are outliers:
+# people that are too quick or too slow (system error)
+
+cols_filter_below_1000 <- c("rs_verbalAnalogies_RT",
+                            "rs_TOL_RT")
+scores_df_final <- filter_below_thresh(scores_df_final, cols_filter_below_1000, 1000)
+
+cols_filter_below_500 <- c("rs_manipulations2D_RT")
+scores_df_final <- filter_below_thresh(scores_df_final, cols_filter_below_500, 500)
+#
+cols_filter_below_300 <- c("rs_prospectiveMemoryWords_1_delayed_RT",
+                           "rs_prospectiveMemoryWords_1_immediate_RT",
+                           "rs_prospectiveMemoryWords_2_immediate_RT",
+                           "rs_prospectiveMemoryWords_2_delayed_RT",
+                           "rs_prospectiveMemoryWords_3_immediate_RT",
+                           "rs_prospectiveMemoryWords_3_delayed_RT"
+)
+
+scores_df_final <- filter_below_thresh(scores_df_final, cols_filter_below_300, 300)
+
+# Filter people with a score of 0 in spatial span
+cols_filter_eq_0 <- c("rs_spatialSpan")
+for (col in cols_filter_eq_0){
+  scores_df_final[[col]] <- ifelse(scores_df_final[[col]] == 0, NA, scores_df_final[[col]])
+}
+#
+#Discard all values above 100K
+cols_to_filter_above_30K <- c("rs_prospectiveMemoryWords_3_immediate_RT",
+                              "rs_spatialSpan_RT", "rs_manipulations2D_RT",
+                              "rs_verbalAnalogies_RT", "rs_prospectiveMemoryWords_3_delayed_RT",
+                              "rs_motorControl")
+
+
+for (col in cols_to_filter_above_30K){
+  scores_df_final[[col]] <- ifelse(scores_df_final[[col]] > 30000, NA, scores_df_final[[col]])
+}
+
+scores_df_final[[cols_to_filter_above_30K[1]]]
+
+cols_to_filter_above_100K <- c("rs_TOL_RT")
+
+
+for (col in cols_to_filter_above_100K){
+  scores_df_final[[col]] <- ifelse(scores_df_final[[col]] >100000, NA, scores_df_final[[col]])
+}
 
 
 # Add additional age measures for prediction (based on data available in
@@ -253,6 +301,8 @@ missing_overlap <- scores_df_copy[rowSums(is.na(scores_df_copy[,1:5]))>0 & rowSu
 # You should be able to run the analysis with incomplete data (best if max 1 or 2
 # missing tasks) as long as you have all the demographics variables
 scores_df_final = na.omit(scores_df_final)
+names(scores_df_final)[names(scores_df_final) == 'rs_motorControl'] <- 'rs_motorControl_RT'
+names(scores_df_copy)[names(scores_df_copy) == 'rs_motorControl'] <- 'rs_motorControl_RT'
 
 # Report missingness
 message(paste(
@@ -546,7 +596,7 @@ X_patients = scores_df_final[, c('age1', 'age2', 'decade', 'sex','language', 'ed
 
 
 # Extract the task scores of the patients
-patient_data <- select(scores_df_final, -c('age1', 'age2', 'decade', 'sex','language', 'education',
+patient_data <- select(scores_df_final, -c('age1', 'age2', 'decade', 'sex', 'language', 'education',
                                            'DEVICE', 'ID'))
 
 # Reorder the columns of the patients according to the order of the controls dataframe
@@ -749,9 +799,15 @@ colnames(st_deviation_from_expected_with_users) <- paste(colnames(st_deviation_f
 colnames(st_deviation_from_expected_with_users) <- paste(colnames(st_deviation_from_expected_with_users), "dfe", sep = "_")
 st_deviation_from_expected_with_users <- st_deviation_from_expected_with_users %>% dplyr::rename("ID" = "ID_f2_dfe")
 
-# Save DfE task scores
-write.csv(st_deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores_f2.csv"))
-saveRDS(st_deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores_f2.rds"))
+# FILTER OUT people that perform poorly in MC
+st_deviation_from_expected_with_users_sub = st_deviation_from_expected_with_users[st_deviation_from_expected_with_users$rs_motorControl_RT_f2_dfe < 3.5,]
+write.csv(st_deviation_from_expected_with_users_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores_f1.csv"))
+saveRDS(st_deviation_from_expected_with_users_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores_f1.rds"))
+
+# FILTER OUT people that perform poorly in MC
+deviation_from_expected_sub = deviation_from_expected_with_users[st_deviation_from_expected_with_users$rs_motorControl_RT_f2_dfe < 3.5,]
+write.csv(deviation_from_expected_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores_f1.csv"))
+saveRDS(deviation_from_expected_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores_f1.rds"))
 
 # # STEP 7: Plots of subjects which deviate from expectation ----------
 
@@ -860,8 +916,8 @@ annot_colors <- list(
   out <- pheatmap::pheatmap(
     (st_diff) * 1,
     main = "Difference between predicted and observed scores for GBIT tasks",
-    cluster_rows = FALSE,
-    cluster_cols = FALSE,
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
     color = st_diff_pal,
     breaks = st_diff_breaks,
     annotation_colors = annot_colors,
@@ -870,8 +926,8 @@ annot_colors <- list(
   dev.off()
 }
 
-#plot(out$tree_col)
-#plot(out$tree_row)
+plot(out$tree_col)
+plot(out$tree_row)
 
 # 7.3 Barplot --------------
 

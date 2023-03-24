@@ -391,6 +391,24 @@ write_csv(
 )
 ```
 
+Save baseline export
+```{r Save baseline export}
+saveRDS(
+  object = joined_list[["baseline_joined"]][["data"]],
+  file = paste0(ilovecovidcns, "/data/joined/covidcns_baseline.rds")
+)
+
+saveRDS(
+  object = joined_list[["baseline_joined"]][["data"]], 
+  file = paste0(ilovecovidcns, "/data_sharing/baseline/covidcns_baseline.rds")
+)
+
+write_csv(
+  x = joined_list[["baseline_joined"]][["data"]], 
+  file = paste0(ilovecovidcns, "/data_sharing/baseline/covidcns_baseline.csv")
+)
+```
+
 Save matching export
 ```{r Save matching export}
 saveRDS(
