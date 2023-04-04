@@ -761,7 +761,10 @@ dev_from_exp_t_test <- apply(deviation_from_expected, 2, t.test)
 print_serial_ttest_results(dev_from_exp_t_test)
 
 # Add user id
-deviation_from_expected_with_users = data.frame(deviation_from_expected, scores_df_final$ID)
+deviation_from_expected <- as.tibble(deviation_from_expected)
+deviation_from_expected_with_users <- deviation_from_expected %>%
+  mutate(ID = scores_df_final$ID)
+
 #write.csv(deviation_from_expected_with_users, "DfE_composite_scores.csv")
 
 # STEP 6: MODELS TASK SCORES  ----------
@@ -808,15 +811,23 @@ st_dev_from_exp_t_test <- apply(st_deviation_from_expected, 2, t.test)
 print_serial_ttest_results(st_dev_from_exp_t_test)
 
 # Add user id
-st_deviation_from_expected_with_users = data.frame(st_deviation_from_expected, scores_df_final$ID)
+st_deviation_from_expected_with_users <- as.tibble(st_deviation_from_expected)
+st_deviation_from_expected_with_users <- st_deviation_from_expected_with_users %>%
+  mutate(ID = scores_df_final$ID)
+
+# Add dfe to colnames
+colnames(st_deviation_from_expected_with_users) <- paste(colnames(st_deviation_from_expected_with_users), "dfe", sep = "_")
+st_deviation_from_expected_with_users <- st_deviation_from_expected_with_users %>% dplyr::rename("ID" = "ID_dfe")
+
 # FILTER OUT people that perform poorly in MC
-st_deviation_from_expected_with_users_sub = st_deviation_from_expected_with_users[st_deviation_from_expected_with_users$rs_motorControl_RT < 3.5,]
+st_deviation_from_expected_with_users_sub = st_deviation_from_expected_with_users[st_deviation_from_expected_with_users$rs_motorControl_RT_dfe < 3.5,]
 write.csv(st_deviation_from_expected_with_users_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores.csv"))
+saveRDS(st_deviation_from_expected_with_users_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores.rds"))
 
 # FILTER OUT people that perform poorly in MC
-deviation_from_expected_sub = deviation_from_expected_with_users[st_deviation_from_expected_with_users$rs_motorControl_RT < 3.5,]
+deviation_from_expected_sub = deviation_from_expected_with_users[st_deviation_from_expected_with_users$rs_motorControl_RT_dfe < 3.5,]
 write.csv(deviation_from_expected_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores.csv"))
-
+saveRDS(deviation_from_expected_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores.rds"))
 
 # # STEP 7: Plots of subjects which deviate from expectation ----------
 

@@ -742,10 +742,6 @@ colnames(deviation_from_expected_with_users) <- paste(colnames(deviation_from_ex
 deviation_from_expected_with_users <- deviation_from_expected_with_users %>% dplyr::rename("ID" = "ID_f2")
 
 
-# Save DfE composite scores
-write.csv(deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores_f2.csv"))
-saveRDS(deviation_from_expected_with_users, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores_f2.rds"))
-
 # STEP 6: MODELS TASK SCORES  ----------
 ### Train-test approach: where we predict task scores based on LMs
 ### fitted to the normative data and then t-test against zero
@@ -801,13 +797,13 @@ st_deviation_from_expected_with_users <- st_deviation_from_expected_with_users %
 
 # FILTER OUT people that perform poorly in MC
 st_deviation_from_expected_with_users_sub = st_deviation_from_expected_with_users[st_deviation_from_expected_with_users$rs_motorControl_RT_f2_dfe < 3.5,]
-write.csv(st_deviation_from_expected_with_users_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores_f1.csv"))
-saveRDS(st_deviation_from_expected_with_users_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores_f1.rds"))
+write.csv(st_deviation_from_expected_with_users_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores_f2.csv"))
+saveRDS(st_deviation_from_expected_with_users_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_task_scores_f2.rds"))
 
 # FILTER OUT people that perform poorly in MC
 deviation_from_expected_sub = deviation_from_expected_with_users[st_deviation_from_expected_with_users$rs_motorControl_RT_f2_dfe < 3.5,]
-write.csv(deviation_from_expected_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores_f1.csv"))
-saveRDS(deviation_from_expected_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores_f1.rds"))
+write.csv(deviation_from_expected_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores_f2.csv"))
+saveRDS(deviation_from_expected_sub, paste0(ilovecovidcns, "/data/cognitron/scores/DfE_composite_scores_f2.rds"))
 
 # # STEP 7: Plots of subjects which deviate from expectation ----------
 
