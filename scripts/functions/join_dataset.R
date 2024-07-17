@@ -68,7 +68,7 @@ join_dataset <- function(input_path){
   dat_sum <- summarytools::dfSummary(dat, varnumbers = FALSE, graph.col = FALSE)
   
   # Check duplicate ID
-  dupe_ids <- dat %>% group_by(ID) %>% filter(n()>1) %>% summarize(n=n())
+  dupe_ids <- dat %>% group_by(ID) %>% filter(n()>1) %>% dplyr::summarise(n=n())
   
   # Check duplicated columns
   dupe_cols <- sapply(names(dat), function(x) str_detect(x, "\\.[a-z]$"))

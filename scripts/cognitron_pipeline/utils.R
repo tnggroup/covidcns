@@ -2,7 +2,9 @@
 
 filter_below_thresh <- function(df, columns, threshold){
   for (col in columns){
-    df[[col]] <- ifelse(df[[col]] < threshold, NA, df[[col]])
+    if (col %in% colnames(df)) {
+      df[[col]] <- ifelse(df[[col]] < threshold, NA, df[[col]])
+    }
   }
   return(df)
 }

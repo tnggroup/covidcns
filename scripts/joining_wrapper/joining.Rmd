@@ -132,14 +132,14 @@ rm(
 Import case definitions data
 ```{r Import case defs}
 case_def_dat <- readxl::read_xlsx(
-  path = paste0(ilovecovidcns, "/data_raw/case_definitions/Final Case Definitions.xlsx"),
-  sheet = "Sheet1")
+  path = paste0(ilovecovidcns, "/data_raw/case_definitions/Feb_Analysis_Case_Status.xlsx"),
+  sheet = "ea")
 
 case_def_dat <- case_def_dat %>%
   select(
     ID,
-    `diagnostic_group` = `Diagnostic Group`,
-    `diagnosis` = `Diagnosis`
+    `diagnostic_group` = `Final Update Group`,
+    `diagnosis` = `Final Update Diagnosis`
   )
 ```
 
@@ -205,117 +205,6 @@ joined_list[["qualtrics_joined"]][["data"]] <- joined_list[["qualtrics_joined"]]
       ncrf1_dem.simplified_ethnicity)
   )
 ```
-
-
-# Check problematic participants
-
-nCRF acts as pseudo-master-list of participants
-Check which participants are missing nCRF but exist in overall qualtrics sample
-Check which surveys they have and which are absent
-```{r Check problem repeats}
-missing_ncrf <- setdiff(
-  joined_list[["qualtrics_joined"]][["data"]]$ID,
-  joined_list[["neuro_case_report_joined"]][["data"]]$ID
-  )
-
-for (i in 1:length(joined_list)){
-  print(names(joined_list)[i])
-  for (j in 1:length(missing_ncrf)){
-    if (missing_ncrf[j] %in% joined_list[[i]][["data"]][["ID"]]){
-      print(paste(missing_ncrf[j], "YES"))
-    }
-    else{print(paste(missing_ncrf[j], "NO"))}
-  }
-}
-```
-
-Check which are missing website data
-```{r Check missing website}
-missing_website <- setdiff(
-  joined_list[["qualtrics_joined"]][["data"]]$ID,
-  joined_list[["assessment_joined"]][["data"]]$ID
-  )
-
-for (i in 1:length(joined_list)){
-  print(names(joined_list)[i])
-  for (j in 1:length(missing_website)){
-    if (missing_website[j] %in% joined_list[[i]][["data"]][["ID"]]){
-      print(paste(missing_website[j], "YES"))
-    }
-    else{print(paste(missing_website[j], "NO"))}
-  }
-}
-```
-
-Check participants who appeared to be missing baseline but exist in overall qualtrics sample
-Check which surveys they have and which are absent
-```{r Check missing baseline}
-missing_baselines <- c(
-  #"CNS01001",
-  #"CNS01004",
-  #"CNS01132",
-  #"CNS02002",
-  #"CNS02057",
-  #"CNS02072",
-  #"CNS02084",
-  #"CNS02094",
-  #"CNS02112",
-  #"CNS02135",
-  #"CNS02136",
-  #"CNS05024",
-  "CNS05043",
-  #"CNS06006",
-  #"CNS06011",
-  #"CNS06048",
-  #"CNS07033",
-  #"CNS09004",
-  #"CNS11007",
-  "CNS16001"
-)
-
-for (i in 1:length(joined_list)){
-  print(names(joined_list)[i])
-  for (j in 1:length(missing_baselines)){
-    if (missing_baselines[j] %in% joined_list[[i]][["data"]][["ID"]]){
-      print(paste(missing_baselines[j], "YES"))
-    }
-    else{print(paste(missing_baselines[j], "NO"))}
-  }
-}
-```
-
-Check participants who are missing demographics for cognitron
-Check which surveys they have and which are absent
-```{r Check missing cognitron}
-missing_cog <- readRDS(paste0(ilovecovidcns, "/data/covidcns_matching_missing.rds")) %>%
-  select(user_id) %>%
-  unlist() %>%
-  unname()
-
-for (i in 1:length(joined_list)){
-  print(names(joined_list)[i])
-  for (j in 1:length(missing_cog)){
-    if (missing_cog[j] %in% joined_list[[i]][["data"]][["ID"]]){
-      print(paste(missing_cog[j], "YES"))
-    }
-    else{print(paste(missing_cog[j], "NO"))}
-  }
-}
-```
-
-```{r}
-problem_ids <- c("CNS02084", "CNS01001", "CNS01118", "CNS01132", "CNS06006", "CNS06011", "CNS09004")
-
-baseline_joined[["data"]] %>%
-  filter(ID %in% problem_ids) %>%
-  select(
-    ID,
-    dem.dob_age,
-    dem.sex_at_birth,
-    dem.is_english_your_first_language,
-    dem.highest_education)
-```
-
 
 
 # Final joining
@@ -388,6 +277,24 @@ saveRDS(
 write_csv(
   x = joined_list[["neuro_case_report_joined"]][["data"]], 
   file = paste0(ilovecovidcns, "/data_sharing/ncrf/covidcns_ncrf.csv")
+)
+```
+
+Save baseline export
+```{r Save baseline export}
+saveRDS(
+  object = joined_list[["baseline_joined"]][["data"]],
+  file = paste0(ilovecovidcns, "/data/joined/covidcns_baseline.rds")
+)
+
+saveRDS(
+  object = joined_list[["baseline_joined"]][["data"]], 
+  file = paste0(ilovecovidcns, "/data_sharing/baseline/covidcns_baseline.rds")
+)
+
+write_csv(
+  x = joined_list[["baseline_joined"]][["data"]], 
+  file = paste0(ilovecovidcns, "/data_sharing/baseline/covidcns_baseline.csv")
 )
 ```
 
