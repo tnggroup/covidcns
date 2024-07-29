@@ -2,7 +2,7 @@
 
 This is a repository for data cleaning scripts for the COVIDCNS study. <br>
 Libraries used: sjlabelled 1.2.0, gtsummary 2.0.0, Amelia 1.8.2, tidyverse 2.0.0 (these are detailed in the scripts at length). <br>
-Requires R 4.1 or newer (R 3.4 or newer if excluding use of gtsummary) <br>
+Requires R 4.1 or newer (R 3.4 or newer if excluding code blocks using gtsummary) <br>
 All user-defined functions required to run the script are included within the repository. <br>
 This is not compiled software so there are no dependencies and it does not need to be installed. <br>
 Typical run-time on a desktop computer for the wrapper script is around 300 seconds. <br>
