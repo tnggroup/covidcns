@@ -41,7 +41,6 @@ The other_data_requests folder contains variable extraction scripts for papers o
 
 ## Usage ##
 
-Using the repository: <br>
 
 Each of the cleaning scripts can be run individually, or they can all be run using the wrapper scripts.
 
