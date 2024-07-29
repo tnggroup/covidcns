@@ -53,8 +53,8 @@ To use the variable extraction, you need a .txt file of the required variables, 
 
 
 ## Contributors ##
-Zain Ahmad
-Christopher Huebel
-Valentina Giunchiglia
-Chelsea Malouf
-Saakshi Kakar
+Zain Ahmad <br>
+Christopher Huebel <br>
+Valentina Giunchiglia <br>
+Chelsea Malouf <br>
+Saakshi Kakar <br>
