@@ -23,7 +23,7 @@ The repository is laid out as follows: <br>
 - standardised
 
 
-The folders baseline, clin_neuro, core_neuro, fbc, mh_case_report, and moca contain cleaning scripts for data from each of the surveys sent out to participants, divided into one script per questionnaire.
+The folders baseline, clin_neuro, core_neuro, fbc, followups, mh_case_report, and moca contain cleaning scripts for data from each of the surveys sent out to participants, divided into one script per questionnaire.
 
 The assessment_status folder contains a cleaning script for the data taken from the REDCAP website database.
 
