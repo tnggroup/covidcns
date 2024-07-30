@@ -1,0 +1,187 @@
+#IDP Dummy Dataframe
+#Authors: Brendan Sargent and Kukatharmini Tharmaratnam
+#Input - IDs for COVID-CNS participants with neuroimaging data at analysis data freeze, provided here
+#Output - Dummy Dataframe: idp_dummy_data
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# dplyr and tibble for dummy dataset creation 
+# this will make a dataframe which can be merged with cognitive dataframe for future analysis
+install.packages(c("dplyr", "tibble"))
+
+# Load necessary libraries
+library(dplyr)
+library(tibble)
+
+num_participants <- 157
+
+# Generate sequential IDs with leading zeros
+ids <- sprintf("CNS%03d", 1:num_participants)
+
+# ensuring that dummy dataframe is similar in makeup to the exported data, to make analysis for interested parties relevant
+# Define the means and standard deviations
+
+# for means of Image Derived Phenotypes
+means <- c(
+  aseglhvolume_cortex = 246715.9,
+  asegrhvolume_hippocampus = 4072.54,
+  aparcdesikanlharea_caudalanteriorcingulate = 616.06,
+  aparcdesikanlharea_entorhinal = 472.17,
+  aparcdesikanlharea_lateralorbitofrontal = 2640.42,
+  aparcdesikanlharea_medialorbitofrontal = 1921.31,
+  aparcdesikanlharea_parahippocampal = 664.87,
+  aparcdesikanlharea_rostralanteriorcingulate = 838.55,
+  aparcdesikanlharea_superiortemporal = 3941.43,
+  aparcdesikanlharea_insula = 2376.83,
+  aparcdesikanlhthickness_caudalanteriorcingulate = 2.55,
+  aparcdesikanlhthickness_entorhinal = 3.12,
+  aparcdesikanlhthickness_lateralorbitofrontal = 2.81,
+  aparcdesikanlhthickness_medialorbitofrontal = 2.67,
+  aparcdesikanlhthickness_parahippocampal = 2.72,
+  aparcdesikanlhthickness_rostralanteriorcingulate = 2.94,
+  aparcdesikanlhthickness_superiortemporal = 2.93,
+  aparcdesikanlhthickness_insula = 3.11,
+  aparcdesikanrharea_caudalanteriorcingulate = 714.29,
+  aparcdesikanrharea_entorhinal = 407.52,
+  aparcdesikanrharea_lateralorbitofrontal = 2660.26,
+  aparcdesikanrharea_medialorbitofrontal = 1968.21,
+  aparcdesikanrharea_parahippocampal = 636.89,
+  aparcdesikanrharea_rostralanteriorcingulate = 613.26,
+  aparcdesikanrharea_insula = 2358.45,
+  aparcdesikanrhthickness_caudalanteriorcingulate = 2.56,
+  aparcdesikanrhthickness_entorhinal = 3.22,
+  aparcdesikanrhthickness_lateralorbitofrontal = 2.78,
+  aparcdesikanrhthickness_medialorbitofrontal = 2.68,
+  aparcdesikanrhthickness_parahippocampal = 2.63,
+  aparcdesikanrhthickness_rostralanteriorcingulate = 3.05,
+  aparcdesikanrhthickness_superiortemporal = 2.98,
+  aparcdesikanrhthickness_insula = 3.13,
+  aparcdesikanlhvolume_caudalanteriorcingulate = 1748.08,
+  aparcdesikanlhvolume_entorhinal = 1871.93,
+  aparcdesikanlhvolume_lateralorbitofrontal = 8079.57,
+  aparcdesikanlhvolume_medialorbitofrontal = 5846.49,
+  aparcdesikanlhvolume_parahippocampal = 2036.94,
+  aparcdesikanlhvolume_rostralanteriorcingulate = 2891.87,
+  aparcdesikanlhvolume_superiortemporal = 13076.55,
+  aparcdesikanlhvolume_insula = 7286.22,
+  aparcdesikanrhvolume_caudalanteriorcingulate = 2156.22,
+  aparcdesikanrhvolume_entorhinal = 1735.15,
+  aparcdesikanrhvolume_lateralorbitofrontal = 7970.78,
+  aparcdesikanrhvolume_medialorbitofrontal = 6081.43,
+  aparcdesikanrhvolume_parahippocampal = 1883.90,
+  aparcdesikanrhvolume_rostralanteriorcingulate = 2244.79,
+  aparcdesikanrhvolume_superiortemporal = 12169.45,
+  aparcdesikanrhvolume_insula = 7417.78
+)
+
+# same for standard deviations of Image Derived Phenotypes
+sds <- c(
+  aseglhvolume_cortex = 24709.9,
+  asegrhvolume_hippocampus = 438.41,
+  aparcdesikanlharea_caudalanteriorcingulate = 129.42,
+  aparcdesikanlharea_entorhinal = 88.35,
+  aparcdesikanlharea_lateralorbitofrontal = 246.30,
+  aparcdesikanlharea_medialorbitofrontal = 216.32,
+  aparcdesikanlharea_parahippocampal = 72.41,
+  aparcdesikanlharea_rostralanteriorcingulate = 164.94,
+  aparcdesikanlharea_superiortemporal = 447.27,
+  aparcdesikanlharea_insula = 278.29,
+  aparcdesikanlhthickness_caudalanteriorcingulate = 0.46,
+  aparcdesikanlhthickness_entorhinal = 0.33,
+  aparcdesikanlhthickness_lateralorbitofrontal = 0.14,
+  aparcdesikanlhthickness_medialorbitofrontal = 0.15,
+  aparcdesikanlhthickness_parahippocampal = 0.29,
+  aparcdesikanlhthickness_rostralanteriorcingulate = 0.22,
+  aparcdesikanlhthickness_superiortemporal = 0.18,
+  aparcdesikanlhthickness_insula = 0.19,
+  aparcdesikanrharea_caudalanteriorcingulate = 139.71,
+  aparcdesikanrharea_entorhinal = 75.16,
+  aparcdesikanrharea_lateralorbitofrontal = 290.34,
+  aparcdesikanrharea_medialorbitofrontal = 202.53,
+  aparcdesikanrharea_parahippocampal = 76.66,
+  aparcdesikanrharea_rostralanteriorcingulate = 126.75,
+  aparcdesikanrharea_insula = 278.44,
+  aparcdesikanrhthickness_caudalanteriorcingulate = 0.36,
+  aparcdesikanrhthickness_entorhinal = 0.34,
+  aparcdesikanrhthickness_lateralorbitofrontal = 0.15,
+  aparcdesikanrhthickness_medialorbitofrontal = 0.16,
+  aparcdesikanrhthickness_parahippocampal = 0.27,
+  aparcdesikanrhthickness_rostralanteriorcingulate = 0.24,
+  aparcdesikanrhthickness_superiortemporal = 0.17,
+  aparcdesikanrhthickness_insula = 0.17,
+  aparcdesikanlhvolume_caudalanteriorcingulate = 532.29,
+  aparcdesikanlhvolume_entorhinal = 361.24,
+  aparcdesikanlhvolume_lateralorbitofrontal = 860.43,
+  aparcdesikanlhvolume_medialorbitofrontal = 691.65,
+  aparcdesikanlhvolume_parahippocampal = 319.63,
+  aparcdesikanlhvolume_rostralanteriorcingulate = 590.68,
+  aparcdesikanlhvolume_superiortemporal = 1729.51,
+  aparcdesikanlhvolume_insula = 838.22,
+  aparcdesikanrhvolume_caudalanteriorcingulate = 508.27,
+  aparcdesikanrhvolume_entorhinal = 352.74,
+  aparcdesikanrhvolume_lateralorbitofrontal = 920.21,
+  aparcdesikanrhvolume_medialorbitofrontal = 688.21,
+  aparcdesikanrhvolume_parahippocampal = 292.96,
+  aparcdesikanrhvolume_rostralanteriorcingulate = 486.89,
+  aparcdesikanrhvolume_superiortemporal = 1405.22,
+  aparcdesikanrhvolume_insula = 837.80
+)
+
+# Generate dummy data
+set.seed(123)  # For reproducibility, using tibble
+idp_dummy_data <- tibble(
+  ID = ids,
+  aseglhvolume_cortex = rnorm(num_participants, means["aseglhvolume_cortex"], sds["aseglhvolume_cortex"]),
+  asegrhvolume_hippocampus = rnorm(num_participants, means["asegrhvolume_hippocampus"], sds["asegrhvolume_hippocampus"]),
+  aparcdesikanlharea_caudalanteriorcingulate = rnorm(num_participants, means["aparcdesikanlharea_caudalanteriorcingulate"], sds["aparcdesikanlharea_caudalanteriorcingulate"]),
+  aparcdesikanlharea_entorhinal = rnorm(num_participants, means["aparcdesikanlharea_entorhinal"], sds["aparcdesikanlharea_entorhinal"]),
+  aparcdesikanlharea_lateralorbitofrontal = rnorm(num_participants, means["aparcdesikanlharea_lateralorbitofrontal"], sds["aparcdesikanlharea_lateralorbitofrontal"]),
+  aparcdesikanlharea_medialorbitofrontal = rnorm(num_participants, means["aparcdesikanlharea_medialorbitofrontal"], sds["aparcdesikanlharea_medialorbitofrontal"]),
+  aparcdesikanlharea_parahippocampal = rnorm(num_participants, means["aparcdesikanlharea_parahippocampal"], sds["aparcdesikanlharea_parahippocampal"]),
+  aparcdesikanlharea_rostralanteriorcingulate = rnorm(num_participants, means["aparcdesikanlharea_rostralanteriorcingulate"], sds["aparcdesikanlharea_rostralanteriorcingulate"]),
+  aparcdesikanlharea_superiortemporal = rnorm(num_participants, means["aparcdesikanlharea_superiortemporal"], sds["aparcdesikanlharea_superiortemporal"]),
+  aparcdesikanlharea_insula = rnorm(num_participants, means["aparcdesikanlharea_insula"], sds["aparcdesikanlharea_insula"]),
+  aparcdesikanlhthickness_caudalanteriorcingulate = rnorm(num_participants, means["aparcdesikanlhthickness_caudalanteriorcingulate"], sds["aparcdesikanlhthickness_caudalanteriorcingulate"]),
+  aparcdesikanlhthickness_entorhinal = rnorm(num_participants, means["aparcdesikanlhthickness_entorhinal"], sds["aparcdesikanlhthickness_entorhinal"]),
+  aparcdesikanlhthickness_lateralorbitofrontal = rnorm(num_participants, means["aparcdesikanlhthickness_lateralorbitofrontal"], sds["aparcdesikanlhthickness_lateralorbitofrontal"]),
+  aparcdesikanlhthickness_medialorbitofrontal = rnorm(num_participants, means["aparcdesikanlhthickness_medialorbitofrontal"], sds["aparcdesikanlhthickness_medialorbitofrontal"]),
+  aparcdesikanlhthickness_parahippocampal = rnorm(num_participants, means["aparcdesikanlhthickness_parahippocampal"], sds["aparcdesikanlhthickness_parahippocampal"]),
+  aparcdesikanlhthickness_rostralanteriorcingulate = rnorm(num_participants, means["aparcdesikanlhthickness_rostralanteriorcingulate"], sds["aparcdesikanlhthickness_rostralanteriorcingulate"]),
+  aparcdesikanlhthickness_superiortemporal = rnorm(num_participants, means["aparcdesikanlhthickness_superiortemporal"], sds["aparcdesikanlhthickness_superiortemporal"]),
+  aparcdesikanlhthickness_insula = rnorm(num_participants, means["aparcdesikanlhthickness_insula"], sds["aparcdesikanlhthickness_insula"]),
+  aparcdesikanrharea_caudalanteriorcingulate = rnorm(num_participants, means["aparcdesikanrharea_caudalanteriorcingulate"], sds["aparcdesikanrharea_caudalanteriorcingulate"]),
+  aparcdesikanrharea_entorhinal = rnorm(num_participants, means["aparcdesikanrharea_entorhinal"], sds["aparcdesikanrharea_entorhinal"]),
+  aparcdesikanrharea_lateralorbitofrontal = rnorm(num_participants, means["aparcdesikanrharea_lateralorbitofrontal"], sds["aparcdesikanrharea_lateralorbitofrontal"]),
+  aparcdesikanrharea_medialorbitofrontal = rnorm(num_participants, means["aparcdesikanrharea_medialorbitofrontal"], sds["aparcdesikanrharea_medialorbitofrontal"]),
+  aparcdesikanrharea_parahippocampal = rnorm(num_participants, means["aparcdesikanrharea_parahippocampal"], sds["aparcdesikanrharea_parahippocampal"]),
+  aparcdesikanrharea_rostralanteriorcingulate = rnorm(num_participants, means["aparcdesikanrharea_rostralanteriorcingulate"], sds["aparcdesikanrharea_rostralanteriorcingulate"]),
+  aparcdesikanrharea_insula = rnorm(num_participants, means["aparcdesikanrharea_insula"], sds["aparcdesikanrharea_insula"]),
+  aparcdesikanrhthickness_caudalanteriorcingulate = rnorm(num_participants, means["aparcdesikanrhthickness_caudalanteriorcingulate"], sds["aparcdesikanrhthickness_caudalanteriorcingulate"]),
+  aparcdesikanrhthickness_entorhinal = rnorm(num_participants, means["aparcdesikanrhthickness_entorhinal"], sds["aparcdesikanrhthickness_entorhinal"]),
+  aparcdesikanrhthickness_lateralorbitofrontal = rnorm(num_participants, means["aparcdesikanrhthickness_lateralorbitofrontal"], sds["aparcdesikanrhthickness_lateralorbitofrontal"]),
+  aparcdesikanrhthickness_medialorbitofrontal = rnorm(num_participants, means["aparcdesikanrhthickness_medialorbitofrontal"], sds["aparcdesikanrhthickness_medialorbitofrontal"]),
+  aparcdesikanrhthickness_parahippocampal = rnorm(num_participants, means["aparcdesikanrhthickness_parahippocampal"], sds["aparcdesikanrhthickness_parahippocampal"]),
+  aparcdesikanrhthickness_rostralanteriorcingulate = rnorm(num_participants, means["aparcdesikanrhthickness_rostralanteriorcingulate"], sds["aparcdesikanrhthickness_rostralanteriorcingulate"]),
+  aparcdesikanrhthickness_superiortemporal = rnorm(num_participants, means["aparcdesikanrhthickness_superiortemporal"], sds["aparcdesikanrhthickness_superiortemporal"]),
+  aparcdesikanrhthickness_insula = rnorm(num_participants, means["aparcdesikanrhthickness_insula"], sds["aparcdesikanrhthickness_insula"]),
+  aparcdesikanlhvolume_caudalanteriorcingulate = rnorm(num_participants, means["aparcdesikanlhvolume_caudalanteriorcingulate"], sds["aparcdesikanlhvolume_caudalanteriorcingulate"]),
+  aparcdesikanlhvolume_entorhinal = rnorm(num_participants, means["aparcdesikanlhvolume_entorhinal"], sds["aparcdesikanlhvolume_entorhinal"]),
+  aparcdesikanlhvolume_lateralorbitofrontal = rnorm(num_participants, means["aparcdesikanlhvolume_lateralorbitofrontal"], sds["aparcdesikanlhvolume_lateralorbitofrontal"]),
+  aparcdesikanlhvolume_medialorbitofrontal = rnorm(num_participants, means["aparcdesikanlhvolume_medialorbitofrontal"], sds["aparcdesikanlhvolume_medialorbitofrontal"]),
+  aparcdesikanlhvolume_parahippocampal = rnorm(num_participants, means["aparcdesikanlhvolume_parahippocampal"], sds["aparcdesikanlhvolume_parahippocampal"]),
+  aparcdesikanlhvolume_rostralanteriorcingulate = rnorm(num_participants, means["aparcdesikanlhvolume_rostralanteriorcingulate"], sds["aparcdesikanlhvolume_rostralanteriorcingulate"]),
+  aparcdesikanlhvolume_superiortemporal = rnorm(num_participants, means["aparcdesikanlhvolume_superiortemporal"], sds["aparcdesikanlhvolume_superiortemporal"]),
+  aparcdesikanlhvolume_insula = rnorm(num_participants, means["aparcdesikanlhvolume_insula"], sds["aparcdesikanlhvolume_insula"]),
+  aparcdesikanrhvolume_caudalanteriorcingulate = rnorm(num_participants, means["aparcdesikanrhvolume_caudalanteriorcingulate"], sds["aparcdesikanrhvolume_caudalanteriorcingulate"]),
+  aparcdesikanrhvolume_entorhinal = rnorm(num_participants, means["aparcdesikanrhvolume_entorhinal"], sds["aparcdesikanrhvolume_entorhinal"]),
+  aparcdesikanrhvolume_lateralorbitofrontal = rnorm(num_participants, means["aparcdesikanrhvolume_lateralorbitofrontal"], sds["aparcdesikanrhvolume_lateralorbitofrontal"]),
+  aparcdesikanrhvolume_medialorbitofrontal = rnorm(num_participants, means["aparcdesikanrhvolume_medialorbitofrontal"], sds["aparcdesikanrhvolume_medialorbitofrontal"]),
+  aparcdesikanrhvolume_parahippocampal = rnorm(num_participants, means["aparcdesikanrhvolume_parahippocampal"], sds["aparcdesikanrhvolume_parahippocampal"]),
+  aparcdesikanrhvolume_rostralanteriorcingulate = rnorm(num_participants, means["aparcdesikanrhvolume_rostralanteriorcingulate"], sds["aparcdesikanrhvolume_rostralanteriorcingulate"]),
+  aparcdesikanrhvolume_superiortemporal = rnorm(num_participants, means["aparcdesikanrhvolume_superiortemporal"], sds["aparcdesikanrhvolume_superiortemporal"]),
+  aparcdesikanrhvolume_insula = rnorm(num_participants, means["aparcdesikanrhvolume_insula"], sds["aparcdesikanrhvolume_insula"])
+)
+
+# Save to CSV - can then be called either in same instance as idp_dummy_data, or as csv
+write.csv(idp_dummy_data, "dummy_data.csv", row.names = FALSE)
+
