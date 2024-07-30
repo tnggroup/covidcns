@@ -1,0 +1,103 @@
+#Normality testing and Univariates
+#Authors: Brendan Sargent and Kukatharmini Tharmaratnam
+#Input - 'total_merged_data' from IDP setting and z-score calculation
+#Output - Extended Data Table 3: normality testing (Shapiro-wilk) and univariate comparisons of IDP composites between NeuroCOVID and COVID groups
+
+# normality and univariates
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Load the required libraries, installed in previous steps
+library(ggplot2)
+library(dplyr)
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# composites from IDP setting and composites script
+composite_vars <- c(
+  "fsidps_all_vars",
+  "fsidps_volume_total_composite_Zscore",
+  "fsidps_thickness_total_composite_Zscore",
+  "fsidps_volume_anteriorcingulatecortex_composite_Zscore",
+  "fsidps_volume_entorhinalcortex_composite_Zscore",
+  "fsidps_volume_orbitfrontalcortex_composite_Zscore",
+  "fsidps_volume_parahippocampalgyrus_composite_Zscore",
+  "fsidps_volume_superiortemporalgyrus_composite_Zscore",
+  "fsidps_volume_insula_composite_Zscore",
+  "fsidps_thickness_anteriorcingulatecortex_composite_Zscore",
+  "fsidps_thickness_entorhinalcortex_composite_Zscore",
+  "fsidps_thickness_orbitofrontalcortex_composite_Zscore",
+  "fsidps_thickness_parahippocampalgyrus_composite_Zscore",
+  "fsidps_thickness_superiortemporalgyrus_composite_Zscore",
+  "fsidps_thickness_insula_composite_Zscore"
+)
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Loop through each composite variable for normality testing and then univariate
+for (var in composite_vars) {
+  # Perform Shapiro-Wilk test for normality - Case group
+  shapiro_test_case <- shapiro.test(total_merged_data[[var]][total_merged_data$case_control_vaccine == "Case: COVID-19 positive (i.e. neurological or psychiatric complication)"])
+  cat("\nShapiro-Wilk test for normality - Case group for", var, ":\n")
+  cat("P-value:", shapiro_test_case$p.value, "\n")
+
+  # Perform Shapiro-Wilk test for normality - Control group
+  shapiro_test_control <- shapiro.test(total_merged_data[[var]][total_merged_data$case_control_vaccine == "Control: COVID-19 positive (i.e. NO neurological or psychiatric complication)"])
+  cat("\nShapiro-Wilk test for normality - Control group for", var, ":\n")
+  cat("P-value:", shapiro_test_control$p.value, "\n")
+  
+  # Mann-Whitney U or t-test dependant on normality
+  if (shapiro_test_case$p.value < 0.05 || shapiro_test_control$p.value < 0.05) {
+    # Data is not normally distributed, perform Mann-Whitney U test
+    cat("The data is not normally distributed. Performing Mann-Whitney U test...\n")
+    mann_whitney_test <- wilcox.test(as.formula(paste(var, "~ case_control_vaccine")), data = total_merged_data, exact = FALSE)
+    cat("Mann-Whitney U test results for", var, ":\n")
+    cat("W-statistic:", mann_whitney_test$statistic, "\n")
+    cat("p-value:", mann_whitney_test$p.value, "\n")
+  } else {
+    # Data is normally distributed, perform t-test
+    cat("The data is normally distributed. Performing t-test...\n")
+    t_test_result <- t.test(as.formula(paste(var, "~ case_control_vaccine")), data = total_merged_data)
+    cat("t-test results for", var, ":\n")
+    cat("t-statistic:", t_test_result$statistic, "\n")
+    cat("p-value:", t_test_result$p.value, "\n")
+  }
+}
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Loop through each composite variable
+for (var in composite_vars) {
+  # Step 1: Create a list to store the data frames for each diagnostic group
+  group_data_list <- list()
+  diagnostic_groups <- unique(total_merged_data$diagnostic_group)
+  
+  for (group in diagnostic_groups) {
+    group_data <- total_merged_data[total_merged_data$diagnostic_group == group, ]
+    group_data_list[[group]] <- data.frame(
+      Group = factor(rep(group, nrow(group_data))),
+      Zscore = group_data[[var]]
+    )
+  }
+  
+  # Combine all the data frames into one for plotting
+  violin_data <- do.call(rbind, group_data_list)
+  
+  # Step 2: Create the violin plot using ggplot2 for each composite
+  p <- ggplot(violin_data, aes(x = Group, y = Zscore, fill = Group)) +
+    geom_violin(trim = FALSE) +
+    labs(title = paste("Distribution of", var, "by Diagnostic Group"),
+         x = "Diagnostic Group",
+         y = "Z-score") +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+  
+  # Print the plot
+  print(p)
+  
+  # Step 3: Perform ANOVA to test differences in the composite across diagnostic groups
+  anova_result <- aov(as.formula(paste(var, "~ diagnostic_group")), data = total_merged_data)
+  cat("\nANOVA results for", var, ":\n")
+  print(summary(anova_result))
+}
+
