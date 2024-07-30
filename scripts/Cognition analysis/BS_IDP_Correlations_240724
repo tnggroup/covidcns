@@ -1,0 +1,111 @@
+#Correlations
+#Authors: Brendan Sargent and Kukatharmini Tharmaratnam
+#Input - 'total_merged_data' from IDP setting and z-score calculation
+#Output - Figure 3c - correlations
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Load the required libraries, installed in previous steps
+library(ggplot2)
+library(dplyr)
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Subset the data for the case and control groups
+case_label <- "Case: COVID-19 positive (i.e. neurological or psychiatric complication)"
+control_label <- "Control: COVID-19 positive (i.e. NO neurological or psychiatric complication)"
+
+case_data <- subset(total_merged_data, case_control_vaccine == case_label)
+control_data <- subset(total_merged_data, case_control_vaccine == control_label)
+
+# List of composite variables, as per previous steps - composites grouped in IDP setting script
+composite_vars <- c(
+  "fsidps_all_composite_Zscore",	
+  "fsidps_volume_total_composite_Zscore",
+  "fsidps_thickness_total_composite_Zscore",
+  "fsidps_volume_anteriorcingulatecortex_composite_Zscore",
+  "fsidps_volume_entorhinalcortex_composite_Zscore",
+  "fsidps_volume_orbitfrontalcortex_composite_Zscore",
+  "fsidps_volume_parahippocampalgyrus_composite_Zscore",
+  "fsidps_volume_superiortemporalgyrus_composite_Zscore",
+  "fsidps_volume_insula_composite_Zscore",
+  "fsidps_thickness_anteriorcingulatecortex_composite_Zscore",
+  "fsidps_thickness_entorhinalcortex_composite_Zscore",
+  "fsidps_thickness_orbitofrontalcortex_composite_Zscore",
+  "fsidps_thickness_parahippocampalgyrus_composite_Zscore",
+  "fsidps_thickness_superiortemporalgyrus_composite_Zscore",
+  "fsidps_thickness_insula_composite_Zscore"
+)
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Loop over each composite variable to create scatterplots (can adjust colour and headings as needed) 
+for (var in composite_vars) {
+  # Scatterplot for case group
+  plot_case <- ggplot(case_data, aes(x = Composite_global, y = .data[[var]])) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE, color = "red") +
+    labs(title = paste("IDP Composite and Global Cognition - NeuroCOVID Group for", var),
+         x = "Deviation from Expected",
+         y = "IDP Composite")
+  
+  # Scatterplot for control group
+  plot_control <- ggplot(control_data, aes(x = Composite_global, y = .data[[var]])) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE, color = "blue") +
+    labs(title = paste("IDP Composite and Global Cognition - COVID Group for", var),
+         x = "Deviation from Expected",
+         y = "IDP Composite")
+  
+  # Scatterplot for overall cohort
+  plot_overall <- ggplot(total_merged_data, aes(x = Composite_global, y = .data[[var]])) +
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE, color = "green") +
+    labs(title = paste("IDP Composite and Global Cognition - Overall Cohort for", var),
+         x = "Deviation from Expected",
+         y = "IDP Composite")
+  
+  # Display the plots - export as required
+  print(plot_case)
+  print(plot_control)
+  print(plot_overall)
+  
+  # --------------------------------------------------------------------------------------------------------------------------------------------------
+  
+  # Loop through for Pearson's r (discussed at neuroimaging group - interval scale, limited outliers, expected linear relationship)
+calculate_pearsons_r <- function(data, composite_vars, main_var = "Composite_global") {
+  results <- data.frame(Variable = character(),
+                        Pearson_Correlation = numeric(),
+                        P_Value = numeric(),
+                        stringsAsFactors = FALSE)
+  
+  for (var in composite_vars) {
+    if (var %in% names(data) && main_var %in% names(data)) {
+      # Calculate Pearson's correlation
+      cor_test <- cor.test(data[[var]], data[[main_var]], method = "pearson", use = "complete.obs")
+      # Append results
+      results <- rbind(results, data.frame(Variable = var,
+                                           Pearson_Correlation = cor_test$estimate,
+                                           P_Value = cor_test$p.value))
+    } else {
+      cat("\nSkipping", var, "as it or", main_var, "is not present in the dataset.\n")
+    }
+  }
+  return(results)
+}
+
+# Calculate and print Pearson's correlation for each group, output together in R
+case_results <- calculate_pearsons_r(case_data, composite_vars)
+cat("\nPearson's correlation results for the case group:\n")
+print(case_results)
+
+control_results <- calculate_pearsons_r(control_data, composite_vars)
+cat("\nPearson's correlation results for the control group:\n")
+print(control_results)
+
+overall_results <- calculate_pearsons_r(total_merged_data, composite_vars)
+cat("\nPearson's correlation results for the overall cohort:\n")
+print(overall_results)
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+  
