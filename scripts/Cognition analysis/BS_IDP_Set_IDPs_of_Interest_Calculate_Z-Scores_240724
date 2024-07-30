@@ -1,0 +1,356 @@
+#IDP Setting and Z-Score Calculation 
+#Authors: Brendan Sargent and Kukatharmini Tharmaratnam
+#Input - (Merged Dataset from Script 1) Dummy Data - Cogbiomerg_norms3_190723 and idp_dummy_data
+#Output - Set variables of interest, and calculate IDP z-scores for neuroimaging analysis
+#Violin plots for composite z-scores
+#As pertaining to Supplementary Table 3 and Extended Data Table 3
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+### as using dummy data for interested parties
+# load and merge for analysis
+# Load dataset 1 (RDS file if suitable, but works better if load in the rds and just call the file)
+# dataset1 <- Cogbiomerg_norms3_190723
+# Load dataset 2 (CSV file)
+# dataset2 <- read.csv("UKBB_IDPs.csv")
+# Load dataset 3 (CSV file)
+# dataset3 <- read.csv("FS_IDPs.csv")
+
+# Merge dataset 1 and dataset 2
+# merged_data <- merge(d, by = "ID", all = FALSE)
+# Merge the merged_data with dataset 3
+# total_merged_data <- merge(merged_data, dataset3, by = "ID", all = FALSE)
+
+### dummy data for interested parties
+# load and merge for analysis using dummy dataset
+dataset1 <- Dummycogbiomerg_norms3_190723
+dataset2 <- idp_dummy_data
+
+# Merge using dummy dataset
+total_merged_data <- merge(dataset1, dataset2, by = "ID", all = FALSE)
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# variables of interest - select 79 Image Derived Phenotypes based on discussion with COVID-CNS neuroimaging group and available data
+# Composite_global is the global DfE
+
+# List of 79 IDP variable names
+idp_variables <- c(
+  "idpt1sienax_brainnormalisedvolume",
+  "idpt1sienax_greynormalisedvolume",
+  "idpt1sienax_peripheralgreynormalisedvolume",
+  "idpt1sienax_whitenormalisedvolume",
+  "idpt1first_lefthippocampusvolume",
+  "idpt1first_righthippocampusvolume",
+  "idpt1fastrois_lcerebellumcrusii",
+  "idpt1fastrois_lcinggyrusant",
+  "idpt1fastrois_lfrontorbcortex",
+  "idpt1fastrois_lhippocampus",
+  "idpt1fastrois_linsularcortex",
+  "idpt1fastrois_lparahippgyrusant",
+  "idpt1fastrois_lparahippgyruspost",
+  "idpt1fastrois_lsuptempgyrusant",
+  "idpt1fastrois_lsuptempgyruspost",
+  "idpt1fastrois_rcerebellumcrusii",
+  "idpt1fastrois_rcinggyrusant",
+  "idpt1fastrois_rfrontorbcortex",
+  "idpt1fastrois_rhippocampus",
+  "idpt1fastrois_rinsularcortex",
+  "idpt1fastrois_rparahippgyrusant",
+  "idpt1fastrois_rparahippgyruspost",
+  "idpt1fastrois_rsuptempgyrusant",
+  "idpt1fastrois_rsuptempgyruspost",
+  "idpt1fastrois_vcerebellumcrusii",
+  "aseglhvolume_cortex",
+  "asegrhvolume_hippocampus",
+  "aseglhvolume_hippocampus",
+  "asegrhvolume_hippocampus",
+  "aparcdesikanlharea_caudalanteriorcingulate",
+  "aparcdesikanlharea_entorhinal",
+  "aparcdesikanlharea_lateralorbitofrontal",
+  "aparcdesikanlharea_medialorbitofrontal",
+  "aparcdesikanlharea_parahippocampal",
+  "aparcdesikanlharea_rostralanteriorcingulate",
+  "aparcdesikanlharea_superiortemporal",
+  "aparcdesikanlharea_insula",
+  "aparcdesikanlhthickness_GlobalMeanThickness",
+  "aparcdesikanlhthickness_caudalanteriorcingulate",
+  "aparcdesikanlhthickness_entorhinal",
+  "aparcdesikanlhthickness_lateralorbitofrontal",
+  "aparcdesikanlhthickness_medialorbitofrontal",
+  "aparcdesikanlhthickness_parahippocampal",
+  "aparcdesikanlhthickness_rostralanteriorcingulate",
+  "aparcdesikanlhthickness_superiortemporal",
+  "aparcdesikanlhthickness_insula",
+  "aparcdesikanlhvolume_caudalanteriorcingulate",
+  "aparcdesikanlhvolume_entorhinal",
+  "aparcdesikanlhvolume_lateralorbitofrontal",
+  "aparcdesikanlhvolume_medialorbitofrontal",
+  "aparcdesikanlhvolume_parahippocampal",
+  "aparcdesikanlhvolume_rostralanteriorcingulate",
+  "aparcdesikanlhvolume_superiortemporal",
+  "aparcdesikanlhvolume_insula",
+  "aparcdesikanrharea_caudalanteriorcingulate",
+  "aparcdesikanrharea_entorhinal",
+  "aparcdesikanrharea_lateralorbitofrontal",
+  "aparcdesikanrharea_medialorbitofrontal",
+  "aparcdesikanrharea_parahippocampal",
+  "aparcdesikanrharea_rostralanteriorcingulate",
+  "aparcdesikanrharea_insula",
+  "aparcdesikanrhthickness_GlobalMeanThickness",
+  "aparcdesikanrhthickness_caudalanteriorcingulate",
+  "aparcdesikanrhthickness_entorhinal",
+  "aparcdesikanrhthickness_lateralorbitofrontal",
+  "aparcdesikanrhthickness_medialorbitofrontal",
+  "aparcdesikanrhthickness_parahippocampal",
+  "aparcdesikanrhthickness_rostralanteriorcingulate",
+  "aparcdesikanrhthickness_superiortemporal",
+  "aparcdesikanrhthickness_insula",
+  "aparcdesikanrhvolume_caudalanteriorcingulate",
+  "aparcdesikanrhvolume_entorhinal",
+  "aparcdesikanrhvolume_lateralorbitofrontal",
+  "aparcdesikanrhvolume_medialorbitofrontal",
+  "aparcdesikanrhvolume_parahippocampal",
+  "aparcdesikanrhvolume_rostralanteriorcingulate",
+  "aparcdesikanrhvolume_superiortemporal",
+  "aparcdesikanrhvolume_insula"
+)
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# creation of Z-scores for Image Derived Phenotypes, as their raw values differ
+# Calculate Z-scores for each individual IDP variable
+for (idp_var in idp_variables) {
+  # Check if the IDP variable contains non-numeric values
+  if (is.numeric(total_merged_data[[idp_var]])) {
+    # Calculate the Z-score only for numeric columns
+    total_merged_data[[paste0(idp_var, "_Zscore")]] <- (total_merged_data[[idp_var]] - mean(total_merged_data[[idp_var]], na.rm = TRUE)) / sd(total_merged_data[[idp_var]], na.rm = TRUE)
+  } else {
+    # If the IDP variable contains non-numeric values, assign NA to its Z-score
+    total_merged_data[[paste0(idp_var, "_Zscore")]] <- NA
+  }
+}
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# check to see if step succesful - are IDP z-scores now in dataframe?
+# Check if "aparcdesikanlhthickness_entorhinal_Zscore" is in the dataframe
+if ("aparcdesikanlhthickness_entorhinal_Zscore" %in% colnames(total_merged_data)) {
+  print("aparcdesikanlhthickness_entorhinal_Zscore is in the dataframe.")
+} else {
+  print("aparcdesikanlhthickness_entorhinal_Zscore is NOT in the dataframe.")
+}
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Groupings for analysis - grouping IDPs as available into volume, thickness
+# groupings - 15 in total: total IDPs, global volume and thickness, then volume and thickness for 6 pre-specified regions
+
+# composite z-scores creation alongside grouping
+
+# ---
+# for volume - this will also ignore NAs 
+# this function then applies to all following groupings for composite z-score creation
+calculate_composite_zscore <- function(data, vars) {
+  zscore <- apply(data[vars], 1, function(row) {
+    mean(row, na.rm = TRUE) / sd(row, na.rm = TRUE)
+  })
+  return(zscore)
+}
+# make grouping
+fsidps_volume_total_vars <- c(
+  "aparcdesikanlhvolume_caudalanteriorcingulate_Zscore", "aparcdesikanlhvolume_entorhinal_Zscore",
+  "aparcdesikanlhvolume_lateralorbitofrontal_Zscore", "aparcdesikanlhvolume_medialorbitofrontal_Zscore",
+  "aparcdesikanlhvolume_parahippocampal_Zscore", "aparcdesikanlhvolume_rostralanteriorcingulate_Zscore",
+  "aparcdesikanlhvolume_superiortemporal_Zscore", "aparcdesikanlhvolume_insula_Zscore",
+  "aparcdesikanrhvolume_caudalanteriorcingulate_Zscore", "aparcdesikanrhvolume_entorhinal_Zscore",
+  "aparcdesikanrhvolume_lateralorbitofrontal_Zscore", "aparcdesikanrhvolume_medialorbitofrontal_Zscore",
+  "aparcdesikanrhvolume_parahippocampal_Zscore", "aparcdesikanrhvolume_rostralanteriorcingulate_Zscore",
+  "aparcdesikanrhvolume_superiortemporal_Zscore", "aparcdesikanrhvolume_insula_Zscore"
+)
+# Calculate the composite Z-score for the specified grouping of IDP variables
+total_merged_data$fsidps_volume_total_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_volume_total_vars)
+
+# ---
+# for thickness
+# make grouping
+# note I have removed global mean thickness as it was consistently interrupting code - empty in export at point of datafreeze
+fsidps_thickness_total_vars <- c(
+  "aparcdesikanlhthickness_caudalanteriorcingulate_Zscore",
+  "aparcdesikanlhthickness_entorhinal_Zscore", "aparcdesikanlhthickness_lateralorbitofrontal_Zscore",
+  "aparcdesikanlhthickness_medialorbitofrontal_Zscore", "aparcdesikanlhthickness_parahippocampal_Zscore",
+  "aparcdesikanlhthickness_rostralanteriorcingulate_Zscore", "aparcdesikanlhthickness_superiortemporal_Zscore",
+  "aparcdesikanlhthickness_insula_Zscore",
+  "aparcdesikanrhthickness_caudalanteriorcingulate_Zscore", "aparcdesikanrhthickness_entorhinal_Zscore",
+  "aparcdesikanrhthickness_lateralorbitofrontal_Zscore", "aparcdesikanrhthickness_medialorbitofrontal_Zscore",
+  "aparcdesikanrhthickness_parahippocampal_Zscore", "aparcdesikanrhthickness_rostralanteriorcingulate_Zscore",
+  "aparcdesikanrhthickness_superiortemporal_Zscore", "aparcdesikanrhthickness_insula_Zscore"
+)
+# Calculate the composite Z-score for fsidps_thickness_total grouping of IDP variables
+total_merged_data$fsidps_thickness_total_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_thickness_total_vars)
+
+# ---
+# for ACC volume
+fsidps_volume_anteriorcingulatecortex_vars = c("aparcdesikanlhvolume_caudalanteriorcingulate_Zscore", "aparcdesikanlhvolume_rostralanteriorcingulate_Zscore", "aparcdesikanrhvolume_caudalanteriorcingulate_Zscore", "aparcdesikanrhvolume_rostralanteriorcingulate_Zscore")
+# Calculate the composite Z-score for fsidps_volume_anteriorcingulatecortex grouping of IDP variables
+total_merged_data$fsidps_volume_anteriorcingulatecortex_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_volume_anteriorcingulatecortex_vars)
+
+# ---
+# for entorhinal volume
+fsidps_volume_entorhinalcortex_vars = c("aparcdesikanlhvolume_entorhinal_Zscore", "aparcdesikanrhvolume_entorhinal_Zscore")
+# Calculate the composite Z-score for fsidps_volume_entorhinalcortex grouping of IDP variables
+total_merged_data$fsidps_volume_entorhinalcortex_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_volume_entorhinalcortex_vars)
+
+# ---
+# for OFC volume
+fsidps_volume_orbitofrontalcortex_vars = c("aparcdesikanlhvolume_lateralorbitofrontal_Zscore", "aparcdesikanlhvolume_medialorbitofrontal_Zscore")
+# Calculate the composite Z-score for fsidps_volume_orbitofrontalcortex grouping of IDP variables
+total_merged_data$fsidps_volume_orbitfrontalcortex_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_volume_orbitofrontalcortex_vars)
+
+# ---
+# for PHG volume
+fsidps_volume_parahippocampalgyrus_vars = c("aparcdesikanlhvolume_parahippocampal_Zscore", "aparcdesikanrhvolume_parahippocampal_Zscore")
+# Calculate the composite Z-score for fsidps_volume_parahippocampalgyrus grouping of IDP variables
+total_merged_data$fsidps_volume_parahippocampalgyrus_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_volume_parahippocampalgyrus_vars)
+
+# ---
+# for STG volume
+fsidps_volume_superiortemporalgyrus_vars = c("aparcdesikanlhvolume_superiortemporal_Zscore", "aparcdesikanrhvolume_superiortemporal_Zscore")
+# Calculate the composite Z-score for fsidps_volume_superiortemporalgyrus grouping of IDP variables
+total_merged_data$fsidps_volume_superiortemporalgyrus_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_volume_superiortemporalgyrus_vars)
+
+# ---
+# for Insula volume
+fsidps_volume_insula_vars = c("aparcdesikanlhvolume_insula_Zscore", "aparcdesikanrhvolume_insula_Zscore")
+# Calculate the composite Z-score for fsidps_volume_insula grouping of IDP variables
+total_merged_data$fsidps_volume_insula_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_volume_insula_vars)
+
+# ---
+# for ACC thickness
+fsidps_thickness_anteriorcingulatecortex_vars = c("aparcdesikanlhthickness_caudalanteriorcingulate_Zscore", "aparcdesikanlhthickness_rostralanteriorcingulate_Zscore", "aparcdesikanrhthickness_caudalanteriorcingulate_Zscore", "aparcdesikanrhthickness_rostralanteriorcingulate_Zscore")
+# Calculate the composite Z-score for fsidps_thickness_anteriorcingulatecortex grouping of IDP variables
+total_merged_data$fsidps_thickness_anteriorcingulatecortex_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_thickness_anteriorcingulatecortex_vars)
+
+# ---
+# for entorhinal thickness
+fsidps_thickness_entorhinalcortex_vars = c("aparcdesikanlhthickness_entorhinal_Zscore", "aparcdesikanrhthickness_entorhinal_Zscore")
+# Calculate the composite Z-score for fsidps_thickness_entorhinalcortex grouping of IDP variables
+total_merged_data$fsidps_thickness_entorhinalcortex_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_thickness_entorhinalcortex_vars)
+
+# ---
+# for OFC thickness
+fsidps_thickness_orbitofrontalcortex_vars = c("aparcdesikanlhthickness_lateralorbitofrontal_Zscore", "aparcdesikanlhthickness_medialorbitofrontal_Zscore", "aparcdesikanrhthickness_lateralorbitofrontal_Zscore", "aparcdesikanrhthickness_medialorbitofrontal_Zscore")
+# Calculate the composite Z-score for fsidps_thickness_orbitofrontalcortex grouping of IDP variables
+total_merged_data$fsidps_thickness_orbitofrontalcortex_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_thickness_orbitofrontalcortex_vars)
+
+# ---
+# for PHG thickness
+fsidps_thickness_parahippocampalgyrus_vars = c("aparcdesikanlhthickness_parahippocampal_Zscore", "aparcdesikanrhthickness_parahippocampal_Zscore")
+# Calculate the composite Z-score for fsidps_thickness_parahippocampalgyrus grouping of IDP variables
+total_merged_data$fsidps_thickness_parahippocampalgyrus_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_thickness_parahippocampalgyrus_vars)
+
+# ---
+# for STG thickness
+fsidps_thickness_superiortemporalgyrus_vars = c("aparcdesikanlhthickness_superiortemporal_Zscore", "aparcdesikanrhthickness_superiortemporal_Zscore")
+# Calculate the composite Z-score for fsidps_thickness_superiortemporalgyrus grouping of IDP variables
+total_merged_data$fsidps_thickness_superiortemporalgyrus_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_thickness_superiortemporalgyrus_vars)
+
+# ---
+# for Insula thickness
+fsidps_thickness_insula_vars = c("aparcdesikanlhthickness_insula_Zscore", "aparcdesikanrhthickness_insula_Zscore")
+# Calculate the composite Z-score for fsidps_thickness_insula grouping of IDP variables
+total_merged_data$fsidps_thickness_insula_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_thickness_insula_vars)
+
+# ---
+# For total variables
+# note I have removed global mean thickness and asegrhvolume_cortex_Zscore as it was consistently interrupting code - empty in export at point of datafreeze
+fsidps_all_vars <- c(
+  "aseglhvolume_cortex_Zscore", "aseglhvolume_hippocampus_Zscore", "asegrhvolume_hippocampus_Zscore", "aparcdesikanlharea_caudalanteriorcingulate_Zscore", "aparcdesikanlharea_entorhinal_Zscore", "aparcdesikanlharea_lateralorbitofrontal_Zscore", "aparcdesikanlharea_medialorbitofrontal_Zscore", "aparcdesikanlharea_parahippocampal_Zscore", "aparcdesikanlharea_rostralanteriorcingulate_Zscore", "aparcdesikanlharea_superiortemporal_Zscore", "aparcdesikanlharea_insula_Zscore", "aparcdesikanlhthickness_caudalanteriorcingulate_Zscore", "aparcdesikanlhthickness_entorhinal_Zscore", "aparcdesikanlhthickness_lateralorbitofrontal_Zscore", "aparcdesikanlhthickness_medialorbitofrontal_Zscore", "aparcdesikanlhthickness_parahippocampal_Zscore", "aparcdesikanlhthickness_rostralanteriorcingulate_Zscore", "aparcdesikanlhthickness_superiortemporal_Zscore", "aparcdesikanlhthickness_insula_Zscore", "aparcdesikanlhvolume_caudalanteriorcingulate_Zscore", "aparcdesikanlhvolume_entorhinal_Zscore", "aparcdesikanlhvolume_lateralorbitofrontal_Zscore", "aparcdesikanlhvolume_medialorbitofrontal_Zscore", "aparcdesikanlhvolume_parahippocampal_Zscore", "aparcdesikanlhvolume_rostralanteriorcingulate_Zscore", "aparcdesikanlhvolume_superiortemporal_Zscore", "aparcdesikanlhvolume_insula_Zscore", "aparcdesikanrharea_caudalanteriorcingulate_Zscore", "aparcdesikanrharea_entorhinal_Zscore", "aparcdesikanrharea_lateralorbitofrontal_Zscore", "aparcdesikanrharea_medialorbitofrontal_Zscore", "aparcdesikanrharea_parahippocampal_Zscore", "aparcdesikanrharea_rostralanteriorcingulate_Zscore", "aparcdesikanrharea_insula_Zscore", "aparcdesikanrhthickness_caudalanteriorcingulate_Zscore", "aparcdesikanrhthickness_entorhinal_Zscore", "aparcdesikanrhthickness_lateralorbitofrontal_Zscore", "aparcdesikanrhthickness_medialorbitofrontal_Zscore", "aparcdesikanrhthickness_parahippocampal_Zscore", "aparcdesikanrhthickness_rostralanteriorcingulate_Zscore", "aparcdesikanrhthickness_superiortemporal_Zscore", "aparcdesikanrhthickness_insula_Zscore", "aparcdesikanrhvolume_caudalanteriorcingulate_Zscore", "aparcdesikanrhvolume_entorhinal_Zscore", "aparcdesikanrhvolume_lateralorbitofrontal_Zscore", "aparcdesikanrhvolume_medialorbitofrontal_Zscore", "aparcdesikanrhvolume_parahippocampal_Zscore", "aparcdesikanrhvolume_rostralanteriorcingulate_Zscore", "aparcdesikanrhvolume_superiortemporal_Zscore", "aparcdesikanrhvolume_insula_Zscore"
+)
+
+# Calculate the composite Z-score for fsidps_all grouping of IDP variables
+total_merged_data$fsidps_all_composite_Zscore <- calculate_composite_zscore(total_merged_data, fsidps_all_vars)
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# specify composite z-scores and IDs so they can easily exported in RDS for further analysis utilising other scripts
+composite_data <- total_merged_data[, c("ID", 
+                                        "fsidps_volume_total_composite_Zscore", 
+                                        "fsidps_thickness_total_composite_Zscore",
+                                        "fsidps_volume_anteriorcingulatecortex_composite_Zscore",
+                                        "fsidps_volume_entorhinalcortex_composite_Zscore",
+                                        "fsidps_volume_orbitfrontalcortex_composite_Zscore",
+                                        "fsidps_volume_parahippocampalgyrus_composite_Zscore",
+                                        "fsidps_volume_superiortemporalgyrus_composite_Zscore",
+                                        "fsidps_volume_insula_composite_Zscore",
+                                        "fsidps_thickness_anteriorcingulatecortex_composite_Zscore",
+                                        "fsidps_thickness_entorhinalcortex_composite_Zscore",
+                                        "fsidps_thickness_orbitofrontalcortex_composite_Zscore",
+                                        "fsidps_thickness_parahippocampalgyrus_composite_Zscore",
+                                        "fsidps_thickness_superiortemporalgyrus_composite_Zscore",
+                                        "fsidps_thickness_insula_composite_Zscore",
+                                        "fsidps_all_composite_Zscore")]
+
+# RDS with composites for further analysis, such as Greta's scrips
+saveRDS(composite_data, file = "dummyneuroimcomps.rds")
+
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
+
+# violin plots for composite z-scores
+
+# Install and load ggplot if not already done so
+# install.packages("ggplot2")
+library(ggplot2)
+
+# List of composite IDP variables
+composite_vars <- c(
+  "fsidps_all_vars",	
+  "fsidps_volume_total_composite_Zscore",
+  "fsidps_thickness_total_composite_Zscore",
+  "fsidps_volume_anteriorcingulatecortex_composite_Zscore",
+  "fsidps_volume_entorhinalcortex_composite_Zscore",
+  "fsidps_volume_orbitfrontalcortex_composite_Zscore",
+  "fsidps_volume_parahippocampalgyrus_composite_Zscore",
+  "fsidps_volume_superiortemporalgyrus_composite_Zscore",
+  "fsidps_volume_insula_composite_Zscore",
+  "fsidps_thickness_anteriorcingulatecortex_composite_Zscore",
+  "fsidps_thickness_entorhinalcortex_composite_Zscore",
+  "fsidps_thickness_orbitofrontalcortex_composite_Zscore",
+  "fsidps_thickness_parahippocampalgyrus_composite_Zscore",
+  "fsidps_thickness_superiortemporalgyrus_composite_Zscore",
+  "fsidps_thickness_insula_composite_Zscore"
+)
+
+# Subset the data for the case and control groups
+case_data <- total_merged_data[total_merged_data$case_control_vaccine == "Case: COVID-19 positive (i.e. neurological or psychiatric complication)", ]
+control_data <- total_merged_data[total_merged_data$case_control_vaccine == "Control: COVID-19 positive (i.e. NO neurological or psychiatric complication)", ]
+
+# Loop over each composite variable to create violin plots
+for (var in composite_vars) {
+  # Create a dataframe with the Z-scores and group 
+  violin_data <- data.frame(
+    Group = factor(c(rep("NeuroCOVID", nrow(case_data)), rep("COVID", nrow(control_data))),
+                   levels = c("NeuroCOVID", "COVID")),
+    Zscore = c(
+      case_data[[var]],
+      control_data[[var]]
+    )
+  )
+  
+  # Create the violin plot
+  p <- ggplot(violin_data, aes(x = Group, y = Zscore, fill = Group)) +
+    geom_violin(trim = FALSE) +
+    labs(title = paste("Composite Z-score for", var),
+         x = "Group",
+         y = "Z-score") +
+    theme_minimal() +
+    theme(legend.position = "none")  # Hide legend as it's redundant with axis labels
+  
+  # Print violin plot into R
+  print(p)
+  
+}
+
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------
