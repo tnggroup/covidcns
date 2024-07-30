@@ -190,7 +190,8 @@ Heatmap(cor1, col=col_fun, rect_gp = gpar(col = "white", lwd = 2),
             }
           });
 ## make column names bigger
-Heatmap(cor1, col=col_fun, rect_gp = gpar(col = "white", lwd = 2), 
+png(file="dummyFigure4.png", width=10, heigh=10, units="in",res=100)
+dummyFigure4<-Heatmap(cor1, col=col_fun, rect_gp = gpar(col = "white", lwd = 2), 
         column_title = "Task scores, clinical data, biomarkers and neuroimaging", column_title_side = "bottom",
         column_names_gp = grid::gpar(fontsize = 10),
         row_names_gp = grid::gpar(fontsize = 10),
@@ -206,9 +207,8 @@ Heatmap(cor1, col=col_fun, rect_gp = gpar(col = "white", lwd = 2),
             grid.text("*", x, y)
           }
         });
-
-#save it
-png(file="/Users/GretaKWood/Dropbox/My Mac (MacBook Air (2))/Documents/0- Covid-CNS/Neurocog/Data analysis/Final code and figures/dummycolours.png", )
+draw(dummyFigure4)
+dev.off()
 
 ## end #########
 
