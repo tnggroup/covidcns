@@ -1,7 +1,7 @@
 # COVIDCNS README #
 
 This is a repository for data cleaning scripts for the COVIDCNS study. <br>
-Libraries used: sjlabelled 1.2.0, gtsummary 2.0.0, Amelia 1.8.2, tidyverse 2.0.0 (these are detailed in the scripts at length). <br>
+Libraries used: sjlabelled 1.2.0, gtsummary 2.0.0, Amelia 1.8.2, tidyverse 2.0.0, rstatix 0.7.2, ggpubr 0.6.0, reshape2 1.4.4, ggrepel 0.9.5, RColorBrewer 1.1-3, wesanderson 0.3.7, gridExtra 2.3, ggpattern 1.1.1, rcompanion 2.4.36, ComplexHeatmap 1.10.2, circlize 0.4.16, caret 6.0-94, heatmaply 1.5.0, MASS 7.3-61, misty 0.6.5, metan 1.18.0 (these are detailed in the scripts at length). <br>
 Requires R 4.1 or newer (R 3.4 or newer if excluding code blocks using gtsummary) <br>
 All user-defined functions required to run the script are included within the repository. <br>
 This is not compiled software so there are no dependencies and it does not need to be installed. <br>
@@ -11,6 +11,7 @@ Typical run-time on a desktop computer for the wrapper script is around 300 seco
 
 The repository is laid out as follows: <br>
 
+- Cognition analysis
 - assessment_status
 - baseline
 - clin_neuro
@@ -31,13 +32,15 @@ The folders baseline, clin_neuro, core_neuro, fbc, followups, mh_case_report, an
 
 The assessment_status folder contains a cleaning script for the data taken from the REDCAP website database.
 
-The cognition_pipeline folder contains scripts to clean each of the cognition datasets. For a detailed explanation of the cleaning steps, please refer to the scripts themselves, as they are commented to explain the process throughout.
+The cognitron_pipeline folder contains scripts to clean each of the cognitron datasets. For a detailed explanation of the cleaning steps, please refer to the scripts themselves, as they are commented to explain the process throughout.
 
 The standardised folder contains a template script used to create cleaning scripts for each of the surveys. The functions folder contains the functions that these scripts are dependent on, and the ref_ranges folder contains data on references ranges used in the cleaning process. For a detailed explanation of each of these, please refer to the template script or any of the individual cleaning scripts, they are in Rmd format and commented extensively to explain the entire process. In addition, each of the functions contains Roxygen2 format documentation.
 
 The joining_wrapper folder contains scripts to automatically join cleaned data from multiple surveys into a single survey, to check this data for joining errors and to save it to an external location. It also contains scripts for variable extraction from joined, cleaned datasets. Again, all of these scripts are commented extensively. The wrapper script runs all of the individual cleaning scripts with a single execution.
 
 The other_data_requests folder contains variable extraction scripts for papers other than the main paper, using the variable extraction script.
+
+The Cognition analysis folder contains all analysis scripts used for the final analysis in the main paper: these scripts are commented in detail and at length. They can be run on a dummy dataset provided on request.
 
 ## Usage ##
 
