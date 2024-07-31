@@ -1,1 +1,7 @@
-Scripts specific to Cognition analysis. Manuscript currently available: https://doi.org/10.21203/rs.3.rs-3818580/v1
+# Scripts specific to Cognition analysis. Manuscript currently available: https://doi.org/10.21203/rs.3.rs-3818580/v1
+# The scripts in this folder relate specifically to the above manuscript.
+# Scripts starting GH generate manuscript Tables and Figures 2A,B,C, 3A and 4. 
+# Dummy data is provided, the inputs “Dummycogbiomerg_norms_190723.rds” and “dummyneuoimcomps.rds” are the only inputs required to run scripts beginning GH. 
+# Scripts starting BS are specific to the neuroimaging aspects of the study. Dummy data for these scripts can be generated using the BS_IDP_Dummy_Dataset_Creation_240724 script. 
+# The GH_Dummy_Merge-datasets_090724.R script is for reference for those that analyse the real observed data rather than dummy data, to allow reproduction of exact study findings. 
+# The inputs and outputs for individual scripts are commented at the beginning of each script. 
